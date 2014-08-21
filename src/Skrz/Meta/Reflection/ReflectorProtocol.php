@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\Reflection;
 
-class ReflectorProtocol 
+class ReflectorProtocol
 {
 
 	const REFLECT_CLASS_REQUEST = "REFLECT_CLASS_REQUEST";
@@ -16,12 +16,19 @@ class ReflectorProtocol
 
 	const REFLECT_FILE_NOT_FOUND_RESPONSE = "REFLECT_FILE_NOT_FOUND_RESPONSE";
 
+	const BLOCK_SIZE = 4096;
+
 	public static function writeMessage($stream, $message)
 	{
 		$serialized = serialize($message);
 		$data = pack("N", strlen($serialized)) . $serialized;
-		if (@fwrite($stream, $data) != strlen($data)) { // intentionally @, and !=
-			throw new \RuntimeException("Data could not be written to stream.");
+
+		for ($written = 0; $written < strlen($data); $written += $newlyWritten) {
+			$newlyWritten = @fwrite($stream, substr($data, $written)); // intentionally @
+
+			if ($newlyWritten === false) {
+				throw new \RuntimeException("Date could not be written to stream.");
+			}
 		}
 	}
 
@@ -39,7 +46,9 @@ class ReflectorProtocol
 
 		list(,$length) = unpack("N", $length);
 
-		$serialized = fread($stream, $length);
+		for ($serialized = "", $read = 0; strlen($serialized) < $length; $read += strlen($newlyRead)) {
+			$serialized .= $newlyRead = fread($stream, min(self::BLOCK_SIZE, $length - strlen($serialized)));
+		}
 
 		if (strlen($serialized) !== $length) {
 			throw new \RuntimeException("Data could not be read from stream.");

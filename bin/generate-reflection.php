@@ -176,6 +176,7 @@ foreach ($classes as $className => $discoveryClassName) {
 		if (
 			$method->getName() !== "getTraitAliases" &&
 			$method->getName() !== "getStaticProperties" &&
+			$method->getName() !== "isCloneable" &&
 //			$method->getName() !== "getDefaultProperties" &&
 			(strncmp($method->getName(), "get", 3) === 0 || ($is = (strncmp($method->getName(), "is", 2) === 0))) &&
 			($method->getNumberOfParameters() === 0 || $method->getName() === "getProperties" || $method->getName() === "getMethods")

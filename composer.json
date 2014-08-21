@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "doctrine/annotations": "1.2.*",
+        "doctrine/annotations": "~1.2",
         "nette/php-generator": "dev-master",
         "symfony/finder": "~2.5"
     },

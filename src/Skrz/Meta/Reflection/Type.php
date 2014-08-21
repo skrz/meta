@@ -30,11 +30,6 @@ class Type extends MixedType
 	private $instantiable;
 
 	/**
-	 * @var boolean
-	 */
-	private $cloneable;
-
-	/**
 	 * @var string
 	 */
 	private $fileName;
@@ -202,7 +197,6 @@ class Type extends MixedType
 		$instance->internal = $reflection->isInternal();
 		$instance->userDefined = $reflection->isUserDefined();
 		$instance->instantiable = $reflection->isInstantiable();
-		$instance->cloneable = $reflection->isCloneable();
 		$instance->fileName = $reflection->getFileName();
 		$instance->startLine = $reflection->getStartLine();
 		$instance->endLine = $reflection->getEndLine();
@@ -323,26 +317,6 @@ class Type extends MixedType
 	public function setInstantiable($instantiable)
 	{
 		$this->instantiable = $instantiable;
-		return $this;
-	}
-
-
-	/**
-	 * @return boolean
-	 */
-	public function isCloneable()
-	{
-		return $this->cloneable;
-	}
-
-
-	/**
-	 * @param boolean $cloneable
-	 * @return $this
-	 */
-	public function setCloneable($cloneable)
-	{
-		$this->cloneable = $cloneable;
 		return $this;
 	}
 

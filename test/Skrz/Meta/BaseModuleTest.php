@@ -2,7 +2,6 @@
 namespace Skrz\Meta;
 
 use Skrz\Meta\Fixtures\Base\BaseMetaSpec;
-use Skrz\Meta\Fixtures\Base\ClassWithDefaultProperties;
 use Skrz\Meta\Fixtures\Base\ClassWithNothing;
 use Skrz\Meta\Fixtures\Base\ClassWithOneArgConstructor;
 use Skrz\Meta\Fixtures\Base\ClassWithTwoArgConstructor;
@@ -22,7 +21,13 @@ class BaseModuleTest extends \PHPUnit_Framework_TestCase
 	{
 		$files = array_map(function (SplFileInfo $file) {
 			return $file->getPathname();
-		}, iterator_to_array((new Finder())->in(__DIR__ . "/Fixtures/Base")->name("ClassWith*.php")->notName("*Meta*")->files()));
+		}, iterator_to_array(
+			(new Finder())
+				->in(__DIR__ . "/Fixtures/Base")
+				->name("ClassWith*.php")
+				->notName("*Meta*")
+				->files()
+		));
 
 		$spec = new BaseMetaSpec();
 		$spec->processFiles($files);
