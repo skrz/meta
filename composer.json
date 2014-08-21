@@ -1,0 +1,27 @@
+{
+    "name": "skrz/meta",
+    "description": "Different wire formats, different data sources, single object model",
+    "minimum-stability": "stable",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jakub Kulhan",
+            "email": "jakub.kulhan@gmail.com"
+        }
+    ],
+    "require": {
+        "doctrine/annotations": "1.2.*",
+        "nette/php-generator": "dev-master",
+        "symfony/finder": "~2.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.32"
+    },
+    "autoload": {
+        "psr-4": {
+            "Skrz\\Meta\\": [ "src/Skrz/Meta/", "test/Skrz/Meta/" ]
+        },
+        "classmap": [ "src/Skrz/Meta", "test/Skrz/Meta" ],
+        "files": [ "src/annotations.php" ]
+    }
+}
