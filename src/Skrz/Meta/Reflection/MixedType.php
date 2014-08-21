@@ -46,6 +46,9 @@ class MixedType
 		} elseif ($lowercaseString === "scalar") {
 			return ScalarType::getInstance();
 
+		} elseif ($lowercaseString === "object") {
+			return ObjectType::getInstance();
+
 		} elseif ($lowercaseString === "void" || $lowercaseString === "null") {
 			return VoidType::getInstance();
 

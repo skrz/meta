@@ -6,7 +6,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\PhpParser;
 use ReflectionClass;
 
-class Type extends MixedType
+class Type extends ObjectType
 {
 
 	/**

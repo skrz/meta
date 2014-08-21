@@ -87,6 +87,7 @@ use Doctrine\Common\Annotations\PhpParser;
 use Nette\PhpGenerator\PhpFile;
 use Skrz\Meta\Reflection\Method;
 use Skrz\Meta\Reflection\MixedType;
+use Skrz\Meta\Reflection\ObjectType;
 use Skrz\Meta\Reflection\Parameter;
 use Skrz\Meta\Reflection\Property;
 use Skrz\Meta\Reflection\VoidType;
@@ -128,8 +129,8 @@ foreach ($classes as $className => $discoveryClassName) {
 	$ns = $class->getNamespace();
 
 	if ($className === "ReflectionClass") {
-		$ns->addUse(MixedType::class, null, $mixedTypeAlias);
-		$class->addExtend(MixedType::class);
+		$ns->addUse(ObjectType::class, null, $mixedTypeAlias);
+		$class->addExtend(ObjectType::class);
 	}
 
 	$rc = new \ReflectionClass($className);

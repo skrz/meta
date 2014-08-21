@@ -13,6 +13,16 @@ class MixedTypeTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame(MixedType::getInstance(), MixedType::fromString("mixed"));
 	}
 
+	public function testFromStringWithScalar()
+	{
+		$this->assertSame(ScalarType::getInstance(), MixedType::fromString("scalar"));
+	}
+
+	public function testFromStringWithObject()
+	{
+		$this->assertSame(ObjectType::getInstance(), MixedType::fromString("object"));
+	}
+
 	public function testFromStringWithString()
 	{
 		$this->assertSame(StringType::getInstance(), MixedType::fromString("string"));
