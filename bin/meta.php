@@ -11,6 +11,6 @@ foreach (array(getcwd() . "/vendor/autoload.php", __DIR__ . "/../vendor/autoload
 
 use Symfony\Component\Console\Application;
 
-$app = new Application("autowiring");
+$app = new Application("meta");
 $app->add(new MetaCommand());
 $app->run();

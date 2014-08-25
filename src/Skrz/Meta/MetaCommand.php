@@ -26,7 +26,7 @@ class MetaCommand extends Command
 				"File to be processed."
 			)
 			->addOption(
-				"directoy", "d",
+				"directory", "d",
 				InputOption::VALUE_REQUIRED,
 				"Directory to be processed."
 			);
