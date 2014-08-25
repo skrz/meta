@@ -9,30 +9,40 @@ class MetaSpecMatcher
 	/** @var AbstractMetaSpec */
 	private $spec;
 
-	/** @var string */
-	private $pattern;
+	private $includePatternRegexps = array();
 
-	/** @var string */
-	private $patternRegex;
+	private $excludePatternRegexps = array();
 
 	/** @var AbstractModule[] */
 	private $modules;
 
 	/**
 	 * @param AbstractMetaSpec $spec
-	 * @param string $pattern
 	 */
-	public function __construct(AbstractMetaSpec $spec, $pattern)
+	public function __construct(AbstractMetaSpec $spec)
 	{
 		$this->spec = $spec;
-		$this->pattern = $pattern;
-		$this->patternRegex = "/^" . str_replace(
-			array("\\", "**", "*"),
-			array(preg_quote("\\"), ".+", "[^\\\\]+"),
-			$this->pattern
-		) . "$/";
-
 		$this->modules = array(new BaseModule());
+	}
+
+	/**
+	 * @param string $pattern
+	 * @return $this
+	 */
+	public function match($pattern)
+	{
+		$this->includePatternRegexps[] = $this->compilePattern($pattern);
+		return $this;
+	}
+
+	/**
+	 * @param string $pattern
+	 * @return $this
+	 */
+	public function notMatch($pattern)
+	{
+		$this->excludePatternRegexps[] = $this->compilePattern($pattern);
+		return $this;
 	}
 
 	/**
@@ -41,7 +51,21 @@ class MetaSpecMatcher
 	 */
 	public function matches(Type $type)
 	{
-		return !!preg_match($this->patternRegex, $type->getName());
+		$typeName = $type->getName();
+
+		foreach ($this->includePatternRegexps as $includePatternRegexp) {
+			if (!preg_match($includePatternRegexp, $typeName)) {
+				return false;
+			}
+		}
+
+		foreach ($this->excludePatternRegexps as $excludePatternRegexp) {
+			if (preg_match($excludePatternRegexp, $typeName)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -61,6 +85,19 @@ class MetaSpecMatcher
 		$this->modules[] = $module;
 		$module->onAdd($this->spec, $this);
 		return $this;
+	}
+
+	/**
+	 * @param string $pattern
+	 * @return string
+	 */
+	private function compilePattern($pattern)
+	{
+		return "/^" . str_replace(
+			array("\\", "**", "*"),
+			array(preg_quote("\\"), ".+", "[^\\\\]+"),
+			$pattern
+		) . "$/";
 	}
 
 }

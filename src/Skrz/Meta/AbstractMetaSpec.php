@@ -53,7 +53,8 @@ abstract class AbstractMetaSpec
 	 */
 	protected function match($pattern)
 	{
-		return $this->matchers[] = new MetaSpecMatcher($this, $pattern);
+		$this->matchers[] = $matcher = new MetaSpecMatcher($this);
+		return $matcher->match($pattern);
 	}
 
 	/**

@@ -6,6 +6,7 @@ use Skrz\Meta\Fixtures\Base\ClassWithNothing;
 use Skrz\Meta\Fixtures\Base\ClassWithOneArgConstructor;
 use Skrz\Meta\Fixtures\Base\ClassWithTwoArgConstructor;
 use Skrz\Meta\Fixtures\Base\ClassWithZeroArgConstructor;
+use Skrz\Meta\Fixtures\Base\Meta\ClassThatShouldBeIgnoredMeta;
 use Skrz\Meta\Fixtures\Base\Meta\ClassWithDefaultPropertiesMeta;
 use Skrz\Meta\Fixtures\Base\Meta\ClassWithNothingMeta;
 use Skrz\Meta\Fixtures\Base\Meta\ClassWithOneArgConstructorMeta;
@@ -24,13 +25,19 @@ class BaseModuleTest extends \PHPUnit_Framework_TestCase
 		}, iterator_to_array(
 			(new Finder())
 				->in(__DIR__ . "/Fixtures/Base")
-				->name("ClassWith*.php")
+				->name("Class*.php")
 				->notName("*Meta*")
 				->files()
 		));
 
 		$spec = new BaseMetaSpec();
 		$spec->processFiles($files);
+	}
+
+	public function testClassThatShouldBeIgnored()
+	{
+		// intentionally triggers autoload
+		$this->assertFalse(class_exists(ClassThatShouldBeIgnoredMeta::class));
 	}
 
 	public function testClassWithNothing()

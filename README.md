@@ -257,6 +257,8 @@ is platform dependent and always signed, therefore there can be at most 31/63 gr
 
 ## TODO
 
+- serialization of datetimes
+- custom serialization for scalar types
 - handling recursive structures
 - JSON
     - @JsonDiscriminatorProperty, @JsonDiscriminatorValue
@@ -265,8 +267,6 @@ is platform dependent and always signed, therefore there can be at most 31/63 gr
     - SimpleXMLElement
     - XMLReader
     - XMLWriter
-- serialization of datetimes
-- custom serialization for scalar types
 - include/exclude for groups
 
 ## License

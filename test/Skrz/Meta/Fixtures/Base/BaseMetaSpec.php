@@ -8,7 +8,9 @@ class BaseMetaSpec extends AbstractMetaSpec
 
 	protected function configure()
 	{
-		$this->match("Skrz\\Meta\\Fixtures\\Base\\ClassWith*");
+		$this
+			->match("Skrz\\Meta\\Fixtures\\Base\\Class*")
+			->notMatch("**Ignored");
 	}
 
 }
