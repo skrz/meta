@@ -2,6 +2,7 @@
 namespace Skrz\Meta\PHP;
 
 use Nette\PhpGenerator\ClassType;
+use Nette\Utils\Strings;
 use Skrz\Meta\AbstractMetaSpec;
 use Skrz\Meta\AbstractModule;
 use Skrz\Meta\MetaException;
@@ -15,13 +16,26 @@ use Skrz\Meta\Transient;
 class PhpModule extends AbstractModule
 {
 
+	/** @var string[] */
 	private $defaultGroups = array(null);
+
+	/** @var PropertySerializerInterface[] */
+	private $propertySerializers = array();
 
 	public function addDefaultGroup($group)
 	{
 		if (!in_array($group, $this->defaultGroups, true)) {
 			$this->defaultGroups[] = $group;
 		}
+
+		return $this;
+	}
+
+	public function addPropertySerializer(PropertySerializerInterface $propertySerializer)
+	{
+		$this->propertySerializers[] = $propertySerializer;
+
+		return $this;
 	}
 
 	public function onAdd(AbstractMetaSpec $spec, MetaSpecMatcher $matcher)
@@ -112,7 +126,7 @@ class PhpModule extends AbstractModule
 			$from->addParameter("object")->setOptional(true);
 
 			$from
-				->addDocument("Creates \\{$type->getName()} object from array")
+				->addDocument("Creates \\{$type->getName()} object from " . strtolower($what))
 				->addDocument("")
 				->addDocument("@param " . strtolower($what) . " \$input")
 				->addDocument("@param string \$group")
@@ -174,7 +188,22 @@ class PhpModule extends AbstractModule
 						$from->addBody(rtrim($before));
 					}
 
-					if ($baseType instanceof ScalarType) {
+					$matchingPropertySerializer = null;
+					foreach ($this->propertySerializers as $propertySerializer) {
+						if ($propertySerializer->matchesDeserialize($property, $arrayOffset->group)) {
+							$matchingPropertySerializer = $propertySerializer;
+							break;
+						}
+					}
+
+					if ($matchingPropertySerializer !== null) {
+						$sevo = $matchingPropertySerializer->deserialize($property, $arrayOffset->group, $arrayPath);
+						if ($sevo->getStatement()) {
+							$from->addBody(Strings::indent($sevo->getStatement(), 1, $indent));
+						}
+						$from->addBody("{$indent}{$objectPath} = {$sevo->getExpression()};");
+
+					} elseif ($baseType instanceof ScalarType) {
 						$from->addBody("{$indent}{$objectPath} = {$arrayPath};");
 
 					} elseif ($baseType instanceof Type) {
@@ -203,7 +232,7 @@ class PhpModule extends AbstractModule
 				$from->addBody("");
 			}
 
-			$from->addBody("return " . ($what === "Object" ? "(object)" : "") . "\$object;");
+			$from->addBody("return \$object;");
 
 			// to*() method
 			$to = $class->addMethod("to{$what}");
@@ -212,7 +241,7 @@ class PhpModule extends AbstractModule
 			$to->addParameter("group")->setOptional(true);
 
 			$to
-				->addDocument("Serializes \\{$type->getName()} to array")
+				->addDocument("Serializes \\{$type->getName()} to " . strtolower($what))
 				->addDocument("")
 				->addDocument("@param {$typeAlias} \$object")
 				->addDocument("@param string \$group")
@@ -270,7 +299,22 @@ class PhpModule extends AbstractModule
 						$to->addBody(rtrim($before));
 					}
 
-					if ($baseType instanceof ScalarType) {
+					$matchingPropertySerializer = null;
+					foreach ($this->propertySerializers as $propertySerializer) {
+						if ($propertySerializer->matchesSerialize($property, $arrayOffset->group)) {
+							$matchingPropertySerializer = $propertySerializer;
+							break;
+						}
+					}
+
+					if ($matchingPropertySerializer !== null) {
+						$sevo = $matchingPropertySerializer->serialize($property, $arrayOffset->group, $objectPath);
+						if ($sevo->getStatement()) {
+							$to->addBody(Strings::indent($sevo->getStatement(), 1, $indent));
+						}
+						$to->addBody("{$indent}{$arrayPath} = {$sevo->getExpression()};");
+
+					} elseif ($baseType instanceof ScalarType) {
 						$to->addBody("{$indent}{$arrayPath} = {$objectPath};");
 
 					} elseif ($baseType instanceof Type) {

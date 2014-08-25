@@ -56,6 +56,7 @@ class BaseModule extends AbstractModule
 		// getInstance() method
 		$instance = $class->addProperty("instance");
 		$instance->setStatic(true);
+		$instance->setVisibility("private");
 		$instance->addDocument("@var {$class->getName()}");
 
 		$getInstance = $class->addMethod("getInstance");

@@ -3,6 +3,7 @@ namespace Skrz\Meta;
 
 use Skrz\Meta\Fixtures\PHP\ClassWithArrayProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithCustomOffsetProperty;
+use Skrz\Meta\Fixtures\PHP\ClassWithDatetimeProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithManyArrayOffsetsPerProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithNoProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithPrivateProperty;
@@ -11,6 +12,7 @@ use Skrz\Meta\Fixtures\PHP\ClassWithProtectedProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithPublicProperty;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithArrayPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithCustomOffsetPropertyMeta;
+use Skrz\Meta\Fixtures\PHP\Meta\ClassWithDatetimePropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithManyArrayOffsetsPerPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithNoPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithPrivatePropertyMeta;
@@ -251,6 +253,29 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 		$this->assertArrayHasKey("foo", $array["array"]);
 		$this->assertArrayHasKey("bar", $array["array"]["foo"]);
 		$this->assertEquals("baz", $array["array"]["foo"]["bar"]);
+	}
+
+	public function testClassWithDatetimePropertyFromArray()
+	{
+		$this->assertInstanceOf(ClassWithDatetimePropertyMeta::class, ClassWithDatetimePropertyMeta::getInstance());
+
+		$d = new \DateTime();
+		$instance = ClassWithDatetimePropertyMeta::fromArray(array("datetime" => $d->format("Y-m-d H:i:s")));
+
+		$this->assertNotNull($instance->datetime);
+		$this->assertEquals($d->format(\DateTime::ATOM), $instance->datetime->format(\DateTime::ATOM));
+	}
+
+	public function testClassWithDatetimePropertyToArray()
+	{
+		$d = new \DateTime();
+		$instance = new ClassWithDatetimeProperty();
+		$instance->datetime = $d;
+
+		$array = ClassWithDatetimePropertyMeta::toArray($instance);
+
+		$this->assertArrayHasKey("datetime", $array);
+		$this->assertEquals($d->format("Y-m-d H:i:s"), $array["datetime"]);
 	}
 
 }
