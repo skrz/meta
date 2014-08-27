@@ -216,7 +216,7 @@ class Method
 		$instance->deprecated = $reflection->isDeprecated();
 		$instance->internal = $reflection->isInternal();
 		$instance->userDefined = $reflection->isUserDefined();
-		$instance->generator = $reflection->isGenerator();
+		$instance->generator = PHP_VERSION_ID >= 50500 ? $reflection->isGenerator() : null;
 		$instance->docComment = $reflection->getDocComment();
 		$instance->endLine = $reflection->getEndLine();
 		$instance->extensionName = $reflection->getExtensionName();

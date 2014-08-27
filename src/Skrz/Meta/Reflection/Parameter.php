@@ -120,7 +120,7 @@ class Parameter
 		$instance->optional = $reflection->isOptional();
 		$instance->defaultValueAvailable = $reflection->isDefaultValueAvailable();
 		$instance->defaultValue = $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null;
-		$instance->defaultValueConstant = $reflection->isDefaultValueAvailable() ? $reflection->isDefaultValueConstant() : null;
+		$instance->defaultValueConstant = PHP_VERSION_ID >= 50500 && $reflection->isDefaultValueAvailable() ? $reflection->isDefaultValueConstant() : null;
 		$instance->declaringFunction = Method::fromReflection($reflection->getDeclaringFunction() ? $reflection->getDeclaringFunction() : null, $stack, $reader, $phpParser);
 		$instance->declaringClass = Type::fromReflection($reflection->getDeclaringClass() ? $reflection->getDeclaringClass() : null, $stack, $reader, $phpParser);
 		$instance->class = Type::fromReflection($reflection->getClass() ? $reflection->getClass() : null, $stack, $reader, $phpParser);
@@ -130,6 +130,10 @@ class Parameter
 		}
 		if (isset($typeString)) {
 			$instance->type = MixedType::fromString($typeString, $stack, $reader, $phpParser, $instance->declaringClass);
+		} elseif ($reflection->getClass()) {
+			$instance->type = Type::fromReflection($reflection->getClass(), $stack, $reader, $phpParser, $instance->declaringClass);
+		} elseif ($reflection->isArray()) {
+			$instance->type = MixedType::fromString('array', $stack, $reader, $phpParser, $instance->declaringClass);
 		} else {
 			$instance->type = MixedType::getInstance();
 		}

@@ -90,6 +90,7 @@ use Skrz\Meta\Reflection\MixedType;
 use Skrz\Meta\Reflection\ObjectType;
 use Skrz\Meta\Reflection\Parameter;
 use Skrz\Meta\Reflection\Property;
+use Skrz\Meta\Reflection\Type;
 use Skrz\Meta\Reflection\VoidType;
 
 $classes = array(
@@ -270,8 +271,14 @@ foreach ($classes as $className => $discoveryClassName) {
 					$endOfFromReflection->addBody("\$instance->{$propertyName} = {$returnType}::fromReflection(\$reflection->{$method->getName()}() ? \$reflection->{$method->getName()}() : null, \$stack, \$reader, \$phpParser);");
 				}
 
-			} elseif ($className === "ReflectionParameter" && in_array($propertyName, array("defaultValue", "defaultValueConstant", "defaultValueConstantName"))) {
+			} elseif ($className === "ReflectionParameter" && in_array($propertyName, array("defaultValue"))) {
 				$fromReflection->addBody("\$instance->{$propertyName} = \$reflection->isDefaultValueAvailable() ? \$reflection->{$method->getName()}() : null;");
+
+			} elseif ($className === "ReflectionParameter" && in_array($propertyName, array("defaultValueConstant", "defaultValueConstantName"))) {
+				$fromReflection->addBody("\$instance->{$propertyName} = PHP_VERSION_ID >= 50500 && \$reflection->isDefaultValueAvailable() ? \$reflection->{$method->getName()}() : null;");
+
+			} elseif ($className === "ReflectionMethod" && in_array($propertyName, array("generator"))) {
+				$fromReflection->addBody("\$instance->{$propertyName} = PHP_VERSION_ID >= 50500 ? \$reflection->{$method->getName()}() : null;");
 
 			} else {
 				$fromReflection->addBody("\$instance->{$propertyName} = \$reflection->{$method->getName()}();");
@@ -491,7 +498,19 @@ foreach ($classes as $className => $discoveryClassName) {
 
 		$fromReflection
 			->addBody("if (isset(\$typeString)) {")
-			->addBody("\t\$instance->type = {$mixedTypeAlias}::fromString(\$typeString, \$stack, \$reader, \$phpParser, \$instance->declaringClass);")
+			->addBody("\t\$instance->type = {$mixedTypeAlias}::fromString(\$typeString, \$stack, \$reader, \$phpParser, \$instance->declaringClass);");
+
+		if ($className === "ReflectionParameter") {
+			$ns->addUse(Type::class, null, $typeAlias);
+
+			$fromReflection
+				->addBody("} elseif (\$reflection->getClass()) {")
+				->addBody("\t\$instance->type = {$typeAlias}::fromReflection(\$reflection->getClass(), \$stack, \$reader, \$phpParser, \$instance->declaringClass);")
+				->addBody("} elseif (\$reflection->isArray()) {")
+				->addBody("\t\$instance->type = {$mixedTypeAlias}::fromString('array', \$stack, \$reader, \$phpParser, \$instance->declaringClass);");
+		}
+
+		$fromReflection
 			->addBody("} else {")
 			->addBody("\t\$instance->type = " . ($className === "ReflectionMethod" ? $voidTypeAlias : $mixedTypeAlias) . "::getInstance();")
 			->addBody("}");
