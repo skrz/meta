@@ -251,6 +251,11 @@ class PhpModule extends AbstractModule
 				->addDocument("@return array");
 
 			$to
+				->addBody("if (\$object === null) {")
+				->addBody("\treturn array();")
+				->addBody("}");
+
+			$to
 				->addBody("if (!(\$object instanceof {$typeAlias})) {")
 				->addBody("\tthrow new \\InvalidArgumentException('You have to pass object of class {$type->getName()}.');")
 				->addBody("}")
