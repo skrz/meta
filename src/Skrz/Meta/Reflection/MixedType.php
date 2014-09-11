@@ -36,7 +36,7 @@ class MixedType
 	 */
 	public static function fromString($string)
 	{
-		$lowercaseString = strtolower($string);
+		$lowercaseString = trim(strtolower($string), "\\");
 
 		// TODO: variant types
 

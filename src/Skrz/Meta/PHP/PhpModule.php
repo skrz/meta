@@ -252,7 +252,7 @@ class PhpModule extends AbstractModule
 
 			$to
 				->addBody("if (\$object === null) {")
-				->addBody("\treturn array();")
+				->addBody("\treturn null;")
 				->addBody("}");
 
 			$to
