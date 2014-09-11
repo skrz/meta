@@ -1,7 +1,6 @@
 <?php
 namespace Skrz\Meta\Reflection;
 
-use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\PhpParser;
 use ReflectionProperty;
@@ -60,7 +59,7 @@ class Property
 	private $docComment;
 
 	/**
-	 * @var Annotation[]
+	 * @var object[]
 	 */
 	private $annotations = array();
 
@@ -323,7 +322,7 @@ class Property
 
 	/**
 	 * @param string $annotationClassName if supplied, returns only annotations of given class name
-	 * @return Annotation[]
+	 * @return object[]
 	 */
 	public function getAnnotations($annotationClassName = NULL)
 	{
@@ -345,7 +344,7 @@ class Property
 	/**
 	 * @param string $annotationClassName
 	 * @throws \InvalidArgumentException
-	 * @return Annotation
+	 * @return object
 	 */
 	public function getAnnotation($annotationClassName)
 	{
@@ -371,7 +370,7 @@ class Property
 
 
 	/**
-	 * @var $annotations Annotation[]
+	 * @var $annotations object[]
 	 * @return $this
 	 */
 	public function setAnnotations($annotations)

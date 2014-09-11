@@ -8,10 +8,8 @@ use Skrz\Meta\AbstractModule;
 use Skrz\Meta\MetaException;
 use Skrz\Meta\MetaSpecMatcher;
 use Skrz\Meta\Reflection\ArrayType;
-use Skrz\Meta\Reflection\MixedType;
 use Skrz\Meta\Reflection\ScalarType;
 use Skrz\Meta\Reflection\Type;
-use Skrz\Meta\Transient;
 
 class PhpModule extends AbstractModule
 {
@@ -66,7 +64,19 @@ class PhpModule extends AbstractModule
 				);
 			}
 
-			if (!$property->hasAnnotation("Skrz\\Meta\\PHP\\PhpArrayOffset")) {
+			$hasDefaultGroup = false;
+			foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $annotation) {
+				/** @var PhpArrayOffset $annotation */
+				if ($annotation->group === PhpArrayOffset::DEFAULT_GROUP) {
+					$hasDefaultGroup = true;
+				}
+
+				if ($annotation->offset === null) {
+					$annotation->offset = $property->getName();
+				}
+			}
+
+			if (!$hasDefaultGroup) {
 				$annotations = $property->getAnnotations();
 
 				$annotations[] = $arrayOffset = new PhpArrayOffset();
@@ -110,12 +120,60 @@ class PhpModule extends AbstractModule
 			}
 		}
 
+		// get discriminator
+		$discriminatorOffsetMap = array();
+		$discriminatorClassMap = array();
+		$discriminatorMetaMap = array();
+
+		foreach ($type->getAnnotations("Skrz\\Meta\\PHP\\PhpDiscriminatorOffset") as $discriminatorOffset) {
+			/** @var PhpDiscriminatorOffset $discriminatorOffset */
+
+			if (!isset($groups[$discriminatorOffset->group])) {
+				$groups[$discriminatorOffset->group] = 1 << $i++;
+			}
+
+			$discriminatorOffsetMap[$groups[$discriminatorOffset->group]] = $discriminatorOffset->offset;
+		}
+
+		foreach ($type->getAnnotations("Skrz\\Meta\\PHP\\PhpDiscriminatorMap") as $discriminatorMap) {
+			/** @var PhpDiscriminatorMap $discriminatorMap */
+
+			if (!isset($groups[$discriminatorMap->group])) {
+				$groups[$discriminatorMap->group] = 1 << $i++;
+			}
+
+			if (isset($discriminatorMetaMap[$groups[$discriminatorMap->group]])) {
+				throw new MetaException(
+					"More @PhpDiscriminatorMap annotations with same group '{$discriminatorMap->group}'."
+				);
+			}
+
+			$discriminatorClassMap[$groups[$discriminatorMap->group]] = array();
+			$discriminatorMetaMap[$groups[$discriminatorMap->group]] = array();
+			$currentClassMap =& $discriminatorClassMap[$groups[$discriminatorMap->group]];
+			$currentMetaMap =& $discriminatorMetaMap[$groups[$discriminatorMap->group]];
+
+			foreach ($discriminatorMap->map as $value => $className) {
+				$currentClassMap[$value] = $className;
+				$currentMetaMap[$value] = $spec->createMetaClassName(Type::fromString($className));
+			}
+		}
+
+		// add groups property
 		$groupsProperty = $class->addProperty("groups");
 		$groupsProperty->setStatic(true)->setValue($groups)->setVisibility("private");
 		$groupsProperty
 			->addDocument("Mapping from group name to group ID for fromArray() and toArray()")
 			->addDocument("")
 			->addDocument("@var string[]");
+
+		// add discriminator property
+		$discriminatorMapProperty = $class->addProperty("discriminatorMap");
+		$discriminatorMapProperty->setStatic(true)->setValue($discriminatorMetaMap)->setVisibility("private");
+		$discriminatorMapProperty
+			->addDocument("Mapping from group ID and discriminator value to meta class name")
+			->addDocument("")
+			->addDocument("@var string[][]");
 
 		foreach (array("Array", "Object") as $what) {
 			// from*() method
@@ -140,20 +198,53 @@ class PhpModule extends AbstractModule
 				$from->addBody("\$input = (array)\$input;\n");
 			}
 
-			$from
-				->addBody("if (\$object === null) {")
-				->addBody("\t\$object = new {$typeAlias}();")
-				->addBody("} elseif (!(\$object instanceof {$typeAlias})) {")
-				->addBody("\tthrow new \\InvalidArgumentException('You have to pass object of class {$type->getName()}.');")
-				->addBody("}")
-				->addBody("");
-
 			// TODO: more groups - include/exclude
 			$from
 				->addBody("if (!isset(self::\$groups[\$group])) {")
 				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
 				->addBody("} else {")
 				->addBody("\t\$id = self::\$groups[\$group];")
+				->addBody("}")
+				->addBody("");
+
+			if (!empty($discriminatorMetaMap)) {
+				foreach ($discriminatorMetaMap as $groupId => $groupDiscriminatorMetaMap) {
+					if (isset($discriminatorOffsetMap[$groupId])) {
+						$groupDiscriminatorOffset = $discriminatorOffsetMap[$groupId];
+
+						foreach ($groupDiscriminatorMetaMap as $value => $metaClass) {
+							$ns->addUse($metaClass, null, $alias);
+							$from
+								->addBody(
+									"if ((\$id & {$groupId}) > 0 && " .
+									"isset(\$input[" . var_export($groupDiscriminatorOffset, true) . "]) && " .
+									"\$input[" . var_export($groupDiscriminatorOffset, true) . "] === " . var_export($value, true) . ") {"
+								)
+								->addBody("\treturn {$alias}::from{$what}(\$input, \$group, \$object);")
+								->addBody("}")
+								->addBody("");
+						}
+					} else {
+						foreach ($groupDiscriminatorMetaMap as $value => $metaClass) {
+							$ns->addUse($metaClass, null, $alias);
+							$from
+								->addBody(
+									"if ((\$id & {$groupId}) > 0 && " .
+									"isset(\$input[" . var_export($value, true) . "])) {"
+								)
+								->addBody("\treturn {$alias}::from{$what}(\$input[" . var_export($value, true) . "], \$group, \$object);")
+								->addBody("}")
+								->addBody("");
+						}
+					}
+				}
+			}
+
+			$from
+				->addBody("if (\$object === null) {")
+				->addBody("\t\$object = new {$typeAlias}();")
+				->addBody("} elseif (!(\$object instanceof {$typeAlias})) {")
+				->addBody("\tthrow new \\InvalidArgumentException('You have to pass object of class {$type->getName()}.');")
 				->addBody("}")
 				->addBody("");
 
@@ -255,12 +346,6 @@ class PhpModule extends AbstractModule
 				->addBody("\treturn null;")
 				->addBody("}");
 
-			$to
-				->addBody("if (!(\$object instanceof {$typeAlias})) {")
-				->addBody("\tthrow new \\InvalidArgumentException('You have to pass object of class {$type->getName()}.');")
-				->addBody("}")
-				->addBody("");
-
 			// TODO: more groups - include/exclude
 			$to
 				->addBody("if (!isset(self::\$groups[\$group])) {")
@@ -270,8 +355,44 @@ class PhpModule extends AbstractModule
 				->addBody("}")
 				->addBody("");
 
+			if (!empty($discriminatorClassMap)) {
+				foreach ($discriminatorClassMap as $groupId => $groupDiscriminatorClassMap) {
+					$groupDiscriminatorOffset = null;
+					if (isset($discriminatorOffsetMap[$groupId])) {
+						$groupDiscriminatorOffset = $discriminatorOffsetMap[$groupId];
+					}
+
+					foreach ($groupDiscriminatorClassMap as $value => $className) {
+						$metaClassName = $discriminatorMetaMap[$groupId][$value];
+						$ns->addUse($className, null, $alias);
+						$ns->addUse($metaClassName, null, $metaAlias);
+
+						$to
+							->addBody("if ((\$id & {$groupId}) > 0 && \$object instanceof {$alias}) {")
+							->addBody("\t\$output = {$metaAlias}::to{$what}(\$object, \$group);");
+
+						if ($groupDiscriminatorOffset === null) {
+							$to->addBody("\t\$output = array(" . var_export($value, true) . " => " . ($what === "Object" ? "(object)" : "") . "\$output);");
+						} else {
+							$to->addBody("\t\$output[" . var_export($groupDiscriminatorOffset, true) . "] = " . var_export($value, true) . ";");
+						}
+
+						$to
+							->addBody("\treturn " . ($what === "Object" ? "(object)" : "") . "\$output;")
+							->addBody("}")
+							->addBody("");
+					}
+				}
+			}
+
 			$to
-				->addBody("\$input = array();")
+				->addBody("if (!(\$object instanceof {$typeAlias})) {")
+				->addBody("\tthrow new \\InvalidArgumentException('You have to pass object of class {$type->getName()}.');")
+				->addBody("}")
+				->addBody("");
+
+			$to
+				->addBody("\$output = array();")
 				->addBody("");
 
 			foreach ($type->getProperties() as $property) {
@@ -281,7 +402,7 @@ class PhpModule extends AbstractModule
 					$to->addBody("if ((\$id & {$groupId}) > 0) {"); // FIXME: group group IDs by offset
 
 					$objectPath = "\$object->{$property->getName()}";
-					$arrayPath = "\$input[" . var_export($arrayOffset->offset, true) . "]";
+					$arrayPath = "\$output[" . var_export($arrayOffset->offset, true) . "]";
 					$baseType = $property->getType();
 					$indent = "\t";
 					$before = "";
@@ -346,7 +467,7 @@ class PhpModule extends AbstractModule
 				$to->addBody("");
 			}
 
-			$to->addBody("return " . ($what === "Object" ? "(object)" : "") . "\$input;");
+			$to->addBody("return " . ($what === "Object" ? "(object)" : "") . "\$output;");
 		}
 	}
 

@@ -1,7 +1,6 @@
 <?php
 namespace Skrz\Meta\Reflection;
 
-use Doctrine\Common\Annotations\Annotation;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\PhpParser;
 use ReflectionMethod;
@@ -155,7 +154,7 @@ class Method
 	private $staticVariables;
 
 	/**
-	 * @var Annotation[]
+	 * @var object[]
 	 */
 	private $annotations = array();
 
@@ -819,7 +818,7 @@ class Method
 
 	/**
 	 * @param string $annotationClassName if supplied, returns only annotations of given class name
-	 * @return Annotation[]
+	 * @return object[]
 	 */
 	public function getAnnotations($annotationClassName = NULL)
 	{
@@ -841,7 +840,7 @@ class Method
 	/**
 	 * @param string $annotationClassName
 	 * @throws \InvalidArgumentException
-	 * @return Annotation
+	 * @return object
 	 */
 	public function getAnnotation($annotationClassName)
 	{
@@ -867,7 +866,7 @@ class Method
 
 
 	/**
-	 * @var $annotations Annotation[]
+	 * @var $annotations object[]
 	 * @return $this
 	 */
 	public function setAnnotations($annotations)

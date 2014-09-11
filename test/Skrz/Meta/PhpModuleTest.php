@@ -4,6 +4,8 @@ namespace Skrz\Meta;
 use Skrz\Meta\Fixtures\PHP\ClassWithArrayProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithCustomOffsetProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithDatetimeProperty;
+use Skrz\Meta\Fixtures\PHP\ClassWithDiscriminatorValueA;
+use Skrz\Meta\Fixtures\PHP\ClassWithDiscriminatorValueB;
 use Skrz\Meta\Fixtures\PHP\ClassWithManyArrayOffsetsPerProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithNoProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithPrivateProperty;
@@ -13,6 +15,7 @@ use Skrz\Meta\Fixtures\PHP\ClassWithPublicProperty;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithArrayPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithCustomOffsetPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithDatetimePropertyMeta;
+use Skrz\Meta\Fixtures\PHP\Meta\ClassWithDiscriminatorMapMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithManyArrayOffsetsPerPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithNoPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithPrivatePropertyMeta;
@@ -276,6 +279,57 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertArrayHasKey("datetime", $array);
 		$this->assertEquals($d->format("Y-m-d H:i:s"), $array["datetime"]);
+	}
+
+	public function testClassWithDiscriminatorMapFromArray()
+	{
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithDiscriminatorMapMeta", ClassWithDiscriminatorMapMeta::getInstance());
+
+		/** @var ClassWithDiscriminatorValueA $aInstance */
+		$aInstance = ClassWithDiscriminatorMapMeta::fromArray(array("value" => "a", "a" => 21, "b" => 42));
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithDiscriminatorValueA", $aInstance);
+		$this->assertEquals("a", $aInstance->value);
+		$this->assertEquals(21, $aInstance->a);
+
+		/** @var ClassWithDiscriminatorValueB $bInstance */
+		$bInstance = ClassWithDiscriminatorMapMeta::fromArray(array("value" => "b", "a" => 21, "b" => 42));
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithDiscriminatorValueB", $bInstance);
+		$this->assertEquals("b", $bInstance->value);
+		$this->assertEquals(42, $bInstance->b);
+
+		/** @var ClassWithDiscriminatorValueA $aTopInstance */
+		$aTopInstance = ClassWithDiscriminatorMapMeta::fromArray(array("a" => array("a" => 63)), "top");
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithDiscriminatorValueA", $aTopInstance);
+		$this->assertNull($aTopInstance->value);
+		$this->assertEquals(63, $aTopInstance->a);
+
+		/** @var ClassWithDiscriminatorValueB $bTopInstance */
+		$bTopInstance = ClassWithDiscriminatorMapMeta::fromArray(array("b" => array("b" => 84)), "top");
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithDiscriminatorValueB", $bTopInstance);
+		$this->assertNull($bTopInstance->value);
+		$this->assertEquals(84, $bTopInstance->b);
+	}
+
+	public function testClassWithDiscriminatorMapToArray()
+	{
+		$aInstance = new ClassWithDiscriminatorValueA();
+		$aInstance->a = 21;
+		$aArray = ClassWithDiscriminatorMapMeta::toArray($aInstance);
+
+		$this->assertArrayHasKey("value", $aArray);
+		$this->assertEquals("a", $aArray["value"]);
+		$this->assertArrayHasKey("a", $aArray);
+		$this->assertEquals(21, $aArray["a"]);
+		$this->assertArrayNotHasKey("b", $aArray);
+
+		$bInstance = new ClassWithDiscriminatorValueB();
+		$bInstance->b = 42;
+		$bArray = ClassWithDiscriminatorMapMeta::toArray($bInstance);
+		$this->assertArrayHasKey("value", $bArray);
+		$this->assertEquals("b", $bArray["value"]);
+		$this->assertArrayHasKey("b", $bArray);
+		$this->assertEquals(42, $bArray["b"]);
+		$this->assertArrayNotHasKey("a", $bArray);
 	}
 
 }
