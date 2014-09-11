@@ -370,7 +370,7 @@ class PhpModule extends AbstractModule
 							->addBody("\t\$output = {$metaAlias}::to{$what}(\$object, \$group);");
 
 						if ($groupDiscriminatorOffset === null) {
-							$to->addBody("\t\$output = (object)array(" . var_export($value, true) . " => " . ($what === "Object" ? "(object)" : "") . "\$output);");
+							$to->addBody("\t\$output = " . ($what === "Object" ? "(object)" : "") . "array(" . var_export($value, true) . " => " . ($what === "Object" ? "(object)" : "") . "\$output);");
 						} else {
 							if ($what === "Object") {
 								$to->addBody("\t\$output->{$groupDiscriminatorOffset} = " . var_export($value, true) . ";"); // FIXME: might compile to incorrect PHP code
@@ -398,7 +398,15 @@ class PhpModule extends AbstractModule
 				->addBody("");
 
 			foreach ($type->getProperties() as $property) {
+				$propertyGroups = [];
+
 				foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
+					if (isset($propertyGroups[$arrayOffset->group])) {
+						continue;
+					}
+
+					$propertyGroups[$arrayOffset->group] = true;
+
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
 					$to->addBody("if ((\$id & {$groupId}) > 0) {"); // FIXME: group group IDs by offset
