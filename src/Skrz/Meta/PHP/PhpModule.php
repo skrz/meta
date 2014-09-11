@@ -106,15 +106,8 @@ class PhpModule extends AbstractModule
 
 		// get groups
 		foreach ($type->getProperties() as $property) {
-			$propertyGroups = array();
 			foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
 				/** @var PhpArrayOffset $arrayOffset */
-
-				if (isset($propertyGroups[$arrayOffset->group])) {
-					throw new MetaException("Property {$type->getName()}::\${$property->getName()} has more @PhpArrayOffset annotations referencing one group.");
-				}
-
-				$propertyGroups[$arrayOffset->group] = true;
 
 				if (!isset($groups[$arrayOffset->group])) {
 					$groups[$arrayOffset->group] = 1 << $i++;
