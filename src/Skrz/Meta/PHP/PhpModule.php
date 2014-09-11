@@ -90,6 +90,8 @@ class PhpModule extends AbstractModule
 	public function onGenerate(AbstractMetaSpec $spec, MetaSpecMatcher $matcher, Type $type, ClassType $class)
 	{
 		$groups = array();
+		$inputOutputClasses = array($type->getName() => true);
+
 		$i = 0;
 
 		foreach ($this->defaultGroups as $defaultGroup) {
@@ -155,6 +157,7 @@ class PhpModule extends AbstractModule
 
 			foreach ($discriminatorMap->map as $value => $className) {
 				$currentClassMap[$value] = $className;
+				$inputOutputClasses[$className] = true;
 				$currentMetaMap[$value] = $spec->createMetaClassName(Type::fromString($className));
 			}
 		}
@@ -166,6 +169,16 @@ class PhpModule extends AbstractModule
 			->addDocument("Mapping from group name to group ID for fromArray() and toArray()")
 			->addDocument("")
 			->addDocument("@var string[]");
+
+		// create input/output type hint
+		$inputOutputTypeHint = array();
+		$inputOutputClasses = array_keys($inputOutputClasses);
+		sort($inputOutputClasses);
+		foreach ($inputOutputClasses as $inputOutputClass) {
+			$ns->addUse($inputOutputClass, null, $alias);
+			$inputOutputTypeHint[] = $alias;
+		}
+		$inputOutputTypeHint = implode("|", $inputOutputTypeHint);
 
 		foreach (array("Array", "Object") as $what) {
 			// from*() method
@@ -180,11 +193,11 @@ class PhpModule extends AbstractModule
 				->addDocument("")
 				->addDocument("@param " . strtolower($what) . " \$input")
 				->addDocument("@param string \$group")
-				->addDocument("@param {$typeAlias} \$object")
+				->addDocument("@param {$inputOutputTypeHint} \$object")
 				->addDocument("")
 				->addDocument("@throws \\InvalidArgumentException")
 				->addDocument("")
-				->addDocument("@return {$typeAlias}");
+				->addDocument("@return {$inputOutputTypeHint}");
 
 			if ($what === "Object") {
 				$from->addBody("\$input = (array)\$input;\n");
@@ -326,12 +339,12 @@ class PhpModule extends AbstractModule
 			$to
 				->addDocument("Serializes \\{$type->getName()} to " . strtolower($what))
 				->addDocument("")
-				->addDocument("@param {$typeAlias} \$object")
+				->addDocument("@param {$inputOutputTypeHint} \$object")
 				->addDocument("@param string \$group")
 				->addDocument("")
 				->addDocument("@throws \\InvalidArgumentException")
 				->addDocument("")
-				->addDocument("@return array");
+				->addDocument("@return " . strtolower($what));
 
 			$to
 				->addBody("if (\$object === null) {")
@@ -364,13 +377,17 @@ class PhpModule extends AbstractModule
 							->addBody("\t\$output = {$metaAlias}::to{$what}(\$object, \$group);");
 
 						if ($groupDiscriminatorOffset === null) {
-							$to->addBody("\t\$output = array(" . var_export($value, true) . " => " . ($what === "Object" ? "(object)" : "") . "\$output);");
+							$to->addBody("\t\$output = (object)array(" . var_export($value, true) . " => " . ($what === "Object" ? "(object)" : "") . "\$output);");
 						} else {
-							$to->addBody("\t\$output[" . var_export($groupDiscriminatorOffset, true) . "] = " . var_export($value, true) . ";");
+							if ($what === "Object") {
+								$to->addBody("\t\$output->{$groupDiscriminatorOffset} = " . var_export($value, true) . ";"); // FIXME: might compile to incorrect PHP code
+							} else {
+								$to->addBody("\t\$output[" . var_export($groupDiscriminatorOffset, true) . "] = " . var_export($value, true) . ";");
+							}
 						}
 
 						$to
-							->addBody("\treturn " . ($what === "Object" ? "(object)" : "") . "\$output;")
+							->addBody("\treturn \$output;")
 							->addBody("}")
 							->addBody("");
 					}

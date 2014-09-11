@@ -99,6 +99,22 @@ class JsonModule extends AbstractModule
 	{
 		$ns = $class->getNamespace();
 
+		$inputOutputClasses = array($type->getName() => true);
+		foreach ($type->getAnnotations("Skrz\\Meta\\JSON\\JsonDiscriminatorMap") as $discriminatorMap) {
+			/** @var JsonDiscriminatorMap $discriminatorMap */
+			foreach ($discriminatorMap->map as $value => $className) {
+				$inputOutputClasses[$className] = true;
+			}
+		}
+		$inputOutputClasses = array_keys($inputOutputClasses);
+		sort($inputOutputClasses);
+		$inputOutputTypeHint = array();
+		foreach ($inputOutputClasses as $className) {
+			$ns->addUse($className, null, $alias);
+			$inputOutputTypeHint[] = $alias;
+		}
+		$inputOutputTypeHint = implode("|", $inputOutputTypeHint);
+
 		$ns->addUse("Skrz\\Meta\\JSON\\JsonMetaInterface");
 		$ns->addUse($type->getName(), null, $typeAlias);
 		$class->addImplement("Skrz\\Meta\\JSON\\JsonMetaInterface");
@@ -114,11 +130,11 @@ class JsonModule extends AbstractModule
 			->addDocument("")
 			->addDocument("@param array|string \$json")
 			->addDocument("@param string \$group")
-			->addDocument("@param {$typeAlias} \$object")
+			->addDocument("@param {$inputOutputTypeHint} \$object")
 			->addDocument("")
 			->addDocument("@throws \\InvalidArgumentException")
 			->addDocument("")
-			->addDocument("@return {$typeAlias}");
+			->addDocument("@return {$inputOutputTypeHint}");
 
 		$fromJson
 			->addBody("if (is_array(\$json)) {")
@@ -145,7 +161,7 @@ class JsonModule extends AbstractModule
 		$toJson
 			->addDocument("Serializes \\{$type->getName()} to JSON array")
 			->addDocument("")
-			->addDocument("@param {$typeAlias} \$object")
+			->addDocument("@param {$inputOutputTypeHint} \$object")
 			->addDocument("@param string \$group")
 			->addDocument("")
 			->addDocument("@throws \\InvalidArgumentException")
@@ -163,7 +179,7 @@ class JsonModule extends AbstractModule
 		$toJsonString
 			->addDocument("Serializes \\{$type->getName()} to JSON string")
 			->addDocument("")
-			->addDocument("@param {$typeAlias} \$object")
+			->addDocument("@param {$inputOutputTypeHint} \$object")
 			->addDocument("@param string \$group")
 			->addDocument("")
 			->addDocument("@throws \\InvalidArgumentException")
@@ -180,7 +196,7 @@ class JsonModule extends AbstractModule
 		$toJsonStringPretty
 			->addDocument("Serializes \\{$type->getName()} to JSON pretty string")
 			->addDocument("")
-			->addDocument("@param {$typeAlias} \$object")
+			->addDocument("@param {$inputOutputTypeHint} \$object")
 			->addDocument("@param string \$group")
 			->addDocument("")
 			->addDocument("@throws \\InvalidArgumentException")

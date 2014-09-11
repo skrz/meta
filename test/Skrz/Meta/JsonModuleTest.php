@@ -203,4 +203,18 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(2, $bInstance->b);
 	}
 
+	public function testClassWithDiscriminatorMapToJsonString()
+	{
+		$aInstance = new ClassWithDiscriminatorValueA();
+		$aInstance->a = 42;
+
+		$bInstance = new ClassWithDiscriminatorValueB();
+		$bInstance->b = 21;
+
+		$this->assertEquals('{"a":42,"value":"a"}', ClassWithDiscriminatorMapMeta::toJsonString($aInstance));
+		$this->assertEquals('{"a":{"a":42,"value":null}}', ClassWithDiscriminatorMapMeta::toJsonString($aInstance, "top"));
+		$this->assertEquals('{"b":21,"value":"b"}', ClassWithDiscriminatorMapMeta::toJsonString($bInstance));
+		$this->assertEquals('{"b":{"b":21,"value":null}}', ClassWithDiscriminatorMapMeta::toJsonString($bInstance, "top"));
+	}
+
 }
