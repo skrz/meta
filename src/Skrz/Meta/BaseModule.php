@@ -50,8 +50,8 @@ class BaseModule extends AbstractModule
 		}
 
 		// implement base interface
-		$namespace->addUse(MetaInterface::class, null, $metaInterfaceAlias);
-		$class->addImplement(MetaInterface::class);
+		$namespace->addUse("Skrz\\Meta\\MetaInterface", null, $metaInterfaceAlias);
+		$class->addImplement("Skrz\\Meta\\MetaInterface");
 
 		// getInstance() method
 		$instance = $class->addProperty("instance");
@@ -125,7 +125,7 @@ class BaseModule extends AbstractModule
 			->addBody("}");
 
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation(Transient::class)) {
+			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
 				continue;
 			}
 

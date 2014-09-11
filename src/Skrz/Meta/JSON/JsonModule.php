@@ -36,14 +36,14 @@ class JsonModule extends AbstractModule
 	public function onBeforeGenerate(AbstractMetaSpec $spec, MetaSpecMatcher $matcher, Type $type)
 	{
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation(Transient::class)) {
+			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
 				continue;
 			}
 
 			$annotations = $property->getAnnotations();
 
-			if (!$property->hasAnnotation(JsonProperty::class)) {
-				if (!$property->hasAnnotation(PhpArrayOffset::class)) {
+			if (!$property->hasAnnotation("Skrz\\Meta\\JSON\\JsonProperty")) {
+				if (!$property->hasAnnotation("Skrz\\Meta\\PHP\\PhpArrayOffset")) {
 					$annotations[] = $arrayOffset = new PhpArrayOffset();
 					$arrayOffset->offset = $property->getName();
 				}
@@ -56,7 +56,7 @@ class JsonModule extends AbstractModule
 				$arrayOffset->group = "json:" . JsonProperty::DEFAULT_GROUP;
 
 			} else {
-				foreach ($property->getAnnotations(JsonProperty::class) as $jsonProperty) {
+				foreach ($property->getAnnotations("Skrz\\Meta\\JSON\\JsonProperty") as $jsonProperty) {
 					/** @var JsonProperty $jsonProperty */
 					$annotations[] = $arrayOffset = new PhpArrayOffset();
 					$arrayOffset->offset = $jsonProperty->name;
@@ -72,9 +72,9 @@ class JsonModule extends AbstractModule
 	{
 		$ns = $class->getNamespace();
 
-		$ns->addUse(JsonMetaInterface::class);
+		$ns->addUse("Skrz\\Meta\\JSON\\JsonMetaInterface");
 		$ns->addUse($type->getName(), null, $typeAlias);
-		$class->addImplement(JsonMetaInterface::class);
+		$class->addImplement("Skrz\\Meta\\JSON\\JsonMetaInterface");
 
 		// fromJson()
 		$fromJson = $class->addMethod("fromJson");

@@ -46,7 +46,7 @@ class PhpModule extends AbstractModule
 	public function onBeforeGenerate(AbstractMetaSpec $spec, MetaSpecMatcher $matcher, Type $type)
 	{
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation(Transient::class)) {
+			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
 				continue;
 			}
 
@@ -58,7 +58,7 @@ class PhpModule extends AbstractModule
 				);
 			}
 
-			if (get_class($property->getType()) === MixedType::class) {
+			if (get_class($property->getType()) === "Skrz\\Meta\\Reflection\\MixedType") {
 				throw new MetaException(
 					"Property {$type->getName()}::\${$property->getName()} of type mixed. " .
 					"Either add @var annotation with non-mixed type, " .
@@ -66,7 +66,7 @@ class PhpModule extends AbstractModule
 				);
 			}
 
-			if (!$property->hasAnnotation(PhpArrayOffset::class)) {
+			if (!$property->hasAnnotation("Skrz\\Meta\\PHP\\PhpArrayOffset")) {
 				$annotations = $property->getAnnotations();
 
 				$annotations[] = $arrayOffset = new PhpArrayOffset();
@@ -88,14 +88,14 @@ class PhpModule extends AbstractModule
 
 		$ns = $class->getNamespace();
 
-		$ns->addUse(PhpMetaInterface::class);
+		$ns->addUse("Skrz\\Meta\\PHP\\PhpMetaInterface");
 		$ns->addUse($type->getName(), null, $typeAlias);
-		$class->addImplement(PhpMetaInterface::class);
+		$class->addImplement("Skrz\\Meta\\PHP\\PhpMetaInterface");
 
 		// get groups
 		foreach ($type->getProperties() as $property) {
 			$propertyGroups = array();
-			foreach ($property->getAnnotations(PhpArrayOffset::class) as $arrayOffset) {
+			foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
 				/** @var PhpArrayOffset $arrayOffset */
 
 				if (isset($propertyGroups[$arrayOffset->group])) {
@@ -158,7 +158,7 @@ class PhpModule extends AbstractModule
 				->addBody("");
 
 			foreach ($type->getProperties() as $property) {
-				foreach ($property->getAnnotations(PhpArrayOffset::class) as $arrayOffset) {
+				foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
 					$arrayPath = "\$input[" . var_export($arrayOffset->offset, true) . "]";
@@ -275,7 +275,7 @@ class PhpModule extends AbstractModule
 				->addBody("");
 
 			foreach ($type->getProperties() as $property) {
-				foreach ($property->getAnnotations(PhpArrayOffset::class) as $arrayOffset) {
+				foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
 					$to->addBody("if ((\$id & {$groupId}) > 0) {"); // FIXME: group group IDs by offset

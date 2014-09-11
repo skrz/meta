@@ -101,9 +101,9 @@ $classes = array(
 );
 
 $someInstance = array(
-	"ReflectionClass" => new \ReflectionClass(AClass::class),
-	"ReflectionMethod" => $rm = new \ReflectionMethod(AClass::class, "aMethod"),
-	"ReflectionProperty" => new \ReflectionProperty(AClass::class, "aProperty"),
+	"ReflectionClass" => new \ReflectionClass("Skrz\\Meta\\AClass"),
+	"ReflectionMethod" => $rm = new \ReflectionMethod("Skrz\\Meta\\AClass", "aMethod"),
+	"ReflectionProperty" => new \ReflectionProperty("Skrz\\Meta\\AClass", "aProperty"),
 	"ReflectionParameter" => $rm->getParameters()[1]
 );
 
@@ -130,8 +130,8 @@ foreach ($classes as $className => $discoveryClassName) {
 	$ns = $class->getNamespace();
 
 	if ($className === "ReflectionClass") {
-		$ns->addUse(ObjectType::class, null, $mixedTypeAlias);
-		$class->addExtend(ObjectType::class);
+		$ns->addUse("Skrz\\Meta\\Reflection\\ObjectType", null, $mixedTypeAlias);
+		$class->addExtend("Skrz\\Meta\\Reflection\\ObjectType");
 	}
 
 	$rc = new \ReflectionClass($className);
@@ -164,10 +164,10 @@ foreach ($classes as $className => $discoveryClassName) {
 		->addBody("if (isset(\$stack[\$stackExpression])) {\n\treturn \$stack[\$stackExpression];\n}\n")
 		->addBody("\$stack[\$stackExpression] = \$instance = new {$class->getName()}();\n");
 
-	$ns->addUse(AnnotationReader::class, null, $annotationReaderAlias);
+	$ns->addUse("Doctrine\\Common\\Annotations\\AnnotationReader", null, $annotationReaderAlias);
 	$fromReflection->addBody("if (func_num_args() > 2) {\n\t\$reader = func_get_arg(2);\n} else {\n\t\$reader = new {$annotationReaderAlias}();\n}\n");
 
-	$ns->addUse(PhpParser::class, null, $phpParserAlias);
+	$ns->addUse("Doctrine\\Common\\Annotations\\PhpParser", null, $phpParserAlias);
 	$fromReflection->addBody("if (func_num_args() > 3) {\n\t\$phpParser = func_get_arg(3);\n} else {\n\t\$phpParser = new {$phpParserAlias}();\n}\n");
 
 	$endOfFromReflection = new \Nette\PhpGenerator\Method();
@@ -287,10 +287,9 @@ foreach ($classes as $className => $discoveryClassName) {
 	}
 
 	if ($currentAnnotationReaderMethod) {
-		$ns->addUse(Annotation::class, null, $alias);
 		$class->addProperty("annotations")
 			->setVisibility("private")
-			->addDocument("@var {$alias}[]")
+			->addDocument("@var object[]")
 			->setValue(array());
 
 		$fromReflection->addBody("\$instance->annotations = \$reader->{$currentAnnotationReaderMethod}(\$reflection);");
@@ -302,7 +301,7 @@ foreach ($classes as $className => $discoveryClassName) {
 			->setOptional(true);
 		$getter
 			->addDocument("@param string \$annotationClassName if supplied, returns only annotations of given class name")
-			->addDocument("@return {$alias}[]");
+			->addDocument("@return object[]");
 		$getter
 			->addBody("if (\$annotationClassName === null) {")
 			->addBody("\treturn \$this->annotations;")
@@ -322,7 +321,7 @@ foreach ($classes as $className => $discoveryClassName) {
 		$oneAnnotationGetter
 			->addDocument("@param string \$annotationClassName")
 			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("@return {$alias}");
+			->addDocument("@return object");
 
 		$oneAnnotationGetter
 			->addBody("\$annotations = \$this->getAnnotations(\$annotationClassName);")
@@ -345,7 +344,7 @@ foreach ($classes as $className => $discoveryClassName) {
 
 		$setter = $class->addMethod("setAnnotations");
 		$setter
-			->addDocument("@var \$annotations {$alias}[]")
+			->addDocument("@var \$annotations object[]")
 			->addDocument("@return \$this");
 		$setter
 			->addParameter("annotations");
@@ -379,7 +378,7 @@ foreach ($classes as $className => $discoveryClassName) {
 			->addBody("return \$this;");
 
 		$getPropertyMethod = $class->addMethod("getProperty");
-		$ns->addUse(Property::class, null, $propertyAlias);
+		$ns->addUse("Skrz\\Meta\\Reflection\\Property", null, $propertyAlias);
 		$getPropertyMethod
 			->addDocument("@param string \$propertyName")
 			->addDocument("@return {$propertyAlias}");
@@ -394,7 +393,7 @@ foreach ($classes as $className => $discoveryClassName) {
 			->addBody("return null;");
 
 		$getMethodMethod = $class->addMethod("getMethod");
-		$ns->addUse(Method::class, null, $methodAlias);
+		$ns->addUse("Skrz\\Meta\\Reflection\\Method", null, $methodAlias);
 		$getMethodMethod
 			->addDocument("@param string \$methodName")
 			->addDocument("@return {$methodAlias}");
@@ -412,7 +411,7 @@ foreach ($classes as $className => $discoveryClassName) {
 	$fromReflection->addBody($endOfFromReflection->getBody());
 
 	if ($className === "ReflectionMethod") {
-		$ns->addUse(Parameter::class, null, $parameterAlias);
+		$ns->addUse("Skrz\\Meta\\Reflection\\Parameter", null, $parameterAlias);
 		$getParameterMethod = $class->addMethod("getParameter");
 		$getParameterMethod
 			->addDocument("@param string|int \$parameterName")
@@ -458,7 +457,7 @@ foreach ($classes as $className => $discoveryClassName) {
 	}
 
 	if (in_array($className, array("ReflectionProperty", "ReflectionMethod", "ReflectionParameter"))) {
-		$ns->addUse(MixedType::class, null, $mixedTypeAlias);
+		$ns->addUse("Skrz\\Meta\\Reflection\\MixedType", null, $mixedTypeAlias);
 
 		$class
 			->addProperty("type")
@@ -494,14 +493,14 @@ foreach ($classes as $className => $discoveryClassName) {
 				->addBody("if (preg_match(" . var_export($returnRegex, true) . " . preg_quote(\$instance->name) . '/', \$instance->declaringFunction->getDocComment(), \$m)) {\n\t\$typeString = \$m[1];\n}");
 		}
 
-		$ns->addUse(VoidType::class, null, $voidTypeAlias);
+		$ns->addUse("Skrz\\Meta\\Reflection\\VoidType", null, $voidTypeAlias);
 
 		$fromReflection
 			->addBody("if (isset(\$typeString)) {")
 			->addBody("\t\$instance->type = {$mixedTypeAlias}::fromString(\$typeString, \$stack, \$reader, \$phpParser, \$instance->declaringClass);");
 
 		if ($className === "ReflectionParameter") {
-			$ns->addUse(Type::class, null, $typeAlias);
+			$ns->addUse("Skrz\\Meta\\Reflection\\Type", null, $typeAlias);
 
 			$fromReflection
 				->addBody("} elseif (\$reflection->getClass()) {")

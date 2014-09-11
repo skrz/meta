@@ -54,10 +54,10 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithNoPropertyFromArray()
 	{
-		$this->assertInstanceOf(ClassWithNoPropertyMeta::class, ClassWithNoPropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithNoPropertyMeta", ClassWithNoPropertyMeta::getInstance());
 
 		$instance = ClassWithNoPropertyMeta::fromArray(array());
-		$this->assertInstanceOf(ClassWithNoProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithNoProperty", $instance);
 
 		$this->assertSame($instance, ClassWithNoPropertyMeta::fromArray(array(), null, $instance));
 	}
@@ -71,10 +71,10 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithPublicPropertyFromArray()
 	{
-		$this->assertInstanceOf(ClassWithPublicPropertyMeta::class, ClassWithPublicPropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithPublicPropertyMeta", ClassWithPublicPropertyMeta::getInstance());
 
 		$instance = ClassWithPublicPropertyMeta::fromArray(array("property" => "value"));
-		$this->assertInstanceOf(ClassWithPublicProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithPublicProperty", $instance);
 		$this->assertEquals("value", $instance->property);
 
 		$this->assertSame($instance, ClassWithPublicPropertyMeta::fromArray(array(), null, $instance));
@@ -92,10 +92,10 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithProtectedPropertyFromArray()
 	{
-		$this->assertInstanceOf(ClassWithProtectedPropertyMeta::class, ClassWithProtectedPropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithProtectedPropertyMeta", ClassWithProtectedPropertyMeta::getInstance());
 
 		$instance = ClassWithProtectedPropertyMeta::fromArray(array("property" => "value"));
-		$this->assertInstanceOf(ClassWithProtectedProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithProtectedProperty", $instance);
 		$this->assertEquals("value", $instance->getProperty());
 
 		$this->assertSame($instance, ClassWithProtectedPropertyMeta::fromArray(array(), null, $instance));
@@ -113,10 +113,10 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithPrivatePropertyFromArray()
 	{
-		$this->assertInstanceOf(ClassWithPrivatePropertyMeta::class, ClassWithPrivatePropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithPrivatePropertyMeta", ClassWithPrivatePropertyMeta::getInstance());
 
 		$instance = ClassWithPrivatePropertyMeta::fromArray(array("property" => "value"));
-		$this->assertInstanceOf(ClassWithPrivateProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithPrivateProperty", $instance);
 		$this->assertNull($instance->getProperty());
 
 		$this->assertSame($instance, ClassWithPrivatePropertyMeta::fromArray(array(), null, $instance));
@@ -133,10 +133,10 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithCustomOffsetPropertyFromArray()
 	{
-		$this->assertInstanceOf(ClassWithCustomOffsetPropertyMeta::class, ClassWithCustomOffsetPropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithCustomOffsetPropertyMeta", ClassWithCustomOffsetPropertyMeta::getInstance());
 
 		$instance = ClassWithCustomOffsetPropertyMeta::fromArray(array("some-offset" => "value"));
-		$this->assertInstanceOf(ClassWithCustomOffsetProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithCustomOffsetProperty", $instance);
 		$this->assertEquals("value", $instance->property);
 
 		$this->assertSame($instance, ClassWithCustomOffsetPropertyMeta::fromArray(array(), null, $instance));
@@ -154,20 +154,20 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithManyOffsetsPerPropertyFromArray()
 	{
-		$this->assertInstanceOf(ClassWithManyArrayOffsetsPerPropertyMeta::class, ClassWithManyArrayOffsetsPerPropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithManyArrayOffsetsPerPropertyMeta", ClassWithManyArrayOffsetsPerPropertyMeta::getInstance());
 
 		$instance = ClassWithManyArrayOffsetsPerPropertyMeta::fromArray(array("property" => "value"));
-		$this->assertInstanceOf(ClassWithManyArrayOffsetsPerProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithManyArrayOffsetsPerProperty", $instance);
 		$this->assertEquals("value", $instance->property);
 		$this->assertSame($instance, ClassWithManyArrayOffsetsPerPropertyMeta::fromArray(array(), null, $instance));
 
 		$instance = ClassWithManyArrayOffsetsPerPropertyMeta::fromArray(array("foo" => "value"), "foo");
-		$this->assertInstanceOf(ClassWithManyArrayOffsetsPerProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithManyArrayOffsetsPerProperty", $instance);
 		$this->assertEquals("value", $instance->property);
 		$this->assertSame($instance, ClassWithManyArrayOffsetsPerPropertyMeta::fromArray(array(), "foo", $instance));
 
 		$instance = ClassWithManyArrayOffsetsPerPropertyMeta::fromArray(array("bar" => "value"), "bar");
-		$this->assertInstanceOf(ClassWithManyArrayOffsetsPerProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithManyArrayOffsetsPerProperty", $instance);
 		$this->assertEquals("value", $instance->property);
 		$this->assertSame($instance, ClassWithManyArrayOffsetsPerPropertyMeta::fromArray(array(), "bar", $instance));
 	}
@@ -195,15 +195,15 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithPropertyReferencingClassFromArray()
 	{
-		$this->assertInstanceOf(ClassWithPropertyReferencingClassMeta::class, ClassWithPropertyReferencingClassMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithPropertyReferencingClassMeta", ClassWithPropertyReferencingClassMeta::getInstance());
 
 		$instance = ClassWithPropertyReferencingClassMeta::fromArray(array(
 			"classWithPublicProperty" => array(
 				"property" => "value"
 			)
 		));
-		$this->assertInstanceOf(ClassWithPropertyReferencingClass::class, $instance);
-		$this->assertInstanceOf(ClassWithPublicProperty::class, $instance->classWithPublicProperty);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithPropertyReferencingClass", $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithPublicProperty", $instance->classWithPublicProperty);
 		$this->assertEquals("value", $instance->classWithPublicProperty->property);
 
 		$instanceAgain = ClassWithPropertyReferencingClassMeta::fromArray(array(
@@ -231,10 +231,10 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithArrayPropertyFromArray()
 	{
-		$this->assertInstanceOf(ClassWithArrayPropertyMeta::class, ClassWithArrayPropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithArrayPropertyMeta", ClassWithArrayPropertyMeta::getInstance());
 
 		$instance = ClassWithArrayPropertyMeta::fromArray(array("array" => array("foo" => array("bar" => "baz"))));
-		$this->assertInstanceOf(ClassWithArrayProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithArrayProperty", $instance);
 		$this->assertNotEmpty($instance->array);
 		$this->assertArrayHasKey("foo", $instance->array);
 		$this->assertArrayHasKey("bar", $instance->array["foo"]);
@@ -257,7 +257,7 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithDatetimePropertyFromArray()
 	{
-		$this->assertInstanceOf(ClassWithDatetimePropertyMeta::class, ClassWithDatetimePropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithDatetimePropertyMeta", ClassWithDatetimePropertyMeta::getInstance());
 
 		$d = new \DateTime();
 		$instance = ClassWithDatetimePropertyMeta::fromArray(array("datetime" => $d->format("Y-m-d H:i:s")));

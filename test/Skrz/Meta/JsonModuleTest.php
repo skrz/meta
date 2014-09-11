@@ -30,13 +30,13 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithNoPropertyFromJson()
 	{
-		$this->assertInstanceOf(ClassWithNoPropertyMeta::class, ClassWithNoPropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\Meta\\ClassWithNoPropertyMeta", ClassWithNoPropertyMeta::getInstance());
 
 		$instance = ClassWithNoPropertyMeta::fromJson(array());
-		$this->assertInstanceOf(ClassWithNoProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithNoProperty", $instance);
 
 		$instance = ClassWithNoPropertyMeta::fromJson("{}");
-		$this->assertInstanceOf(ClassWithNoProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithNoProperty", $instance);
 	}
 
 	public function testClassWithNoPropertyToJson()
@@ -55,22 +55,22 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithPublicPropertyFromJson()
 	{
-		$this->assertInstanceOf(ClassWithPublicPropertyMeta::class, ClassWithPublicPropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\Meta\\ClassWithPublicPropertyMeta", ClassWithPublicPropertyMeta::getInstance());
 
 		$instance = ClassWithPublicPropertyMeta::fromJson(array());
-		$this->assertInstanceOf(ClassWithPublicProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithPublicProperty", $instance);
 		$this->assertEquals(null, $instance->property);
 
 		$instance = ClassWithPublicPropertyMeta::fromJson(array("property" => "value"));
-		$this->assertInstanceOf(ClassWithPublicProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithPublicProperty", $instance);
 		$this->assertEquals("value", $instance->property);
 
 		$instance = ClassWithPublicPropertyMeta::fromJson("{}");
-		$this->assertInstanceOf(ClassWithPublicProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithPublicProperty", $instance);
 		$this->assertEquals(null, $instance->property);
 
 		$instance = ClassWithPublicPropertyMeta::fromJson('{"property":"value"}');
-		$this->assertInstanceOf(ClassWithPublicProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithPublicProperty", $instance);
 		$this->assertEquals("value", $instance->property);
 	}
 
@@ -102,22 +102,22 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithCustomNamePropertyFromJson()
 	{
-		$this->assertInstanceOf(ClassWithCustomNamePropertyMeta::class, ClassWithCustomNamePropertyMeta::getInstance());
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\Meta\\ClassWithCustomNamePropertyMeta", ClassWithCustomNamePropertyMeta::getInstance());
 
 		$instance = ClassWithCustomNamePropertyMeta::fromJson(array());
-		$this->assertInstanceOf(ClassWithCustomNameProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithCustomNameProperty", $instance);
 		$this->assertEquals(null, $instance->getSomeProperty());
 
 		$instance = ClassWithCustomNamePropertyMeta::fromJson(array("some_property" => "some value"));
-		$this->assertInstanceOf(ClassWithCustomNameProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithCustomNameProperty", $instance);
 		$this->assertEquals("some value", $instance->getSomeProperty());
 
 		$instance = ClassWithCustomNamePropertyMeta::fromJson('{}');
-		$this->assertInstanceOf(ClassWithCustomNameProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithCustomNameProperty", $instance);
 		$this->assertEquals(null, $instance->getSomeProperty());
 
 		$instance = ClassWithCustomNamePropertyMeta::fromJson('{"some_property":"some value"}');
-		$this->assertInstanceOf(ClassWithCustomNameProperty::class, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithCustomNameProperty", $instance);
 		$this->assertEquals("some value", $instance->getSomeProperty());
 	}
 
