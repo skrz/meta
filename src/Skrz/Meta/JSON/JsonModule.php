@@ -7,6 +7,8 @@ use Skrz\Meta\AbstractModule;
 use Skrz\Meta\MetaException;
 use Skrz\Meta\MetaSpecMatcher;
 use Skrz\Meta\PHP\PhpArrayOffset;
+use Skrz\Meta\PHP\PhpDiscriminatorMap;
+use Skrz\Meta\PHP\PhpDiscriminatorOffset;
 use Skrz\Meta\PHP\PhpModule;
 use Skrz\Meta\Reflection\Type;
 use Skrz\Meta\Transient;
@@ -35,33 +37,58 @@ class JsonModule extends AbstractModule
 
 	public function onBeforeGenerate(AbstractMetaSpec $spec, MetaSpecMatcher $matcher, Type $type)
 	{
+		$annotations = $type->getAnnotations();
+
+		foreach ($type->getAnnotations("Skrz\\Meta\\JSON\\JsonDiscriminatorMap") as $jsonDiscriminatorMap) {
+			/** @var JsonDiscriminatorMap $jsonDiscriminatorMap */
+
+			$annotations[] = $phpDiscriminatorMap = new PhpDiscriminatorMap();
+			$phpDiscriminatorMap->map = $jsonDiscriminatorMap->map;
+			$phpDiscriminatorMap->group = "json:" . $jsonDiscriminatorMap->group;
+		}
+
+		foreach ($type->getAnnotations("Skrz\\Meta\\JSON\\JsonDiscriminatorProperty") as $jsonDiscriminatorProperty) {
+			/** @var JsonDiscriminatorProperty $jsonDiscriminatorProperty */
+
+			$annotations[] = $phpDiscriminatorOffset = new PhpDiscriminatorOffset();
+			$phpDiscriminatorOffset->offset = $jsonDiscriminatorProperty->name;
+			$phpDiscriminatorOffset->group = "json:" . $jsonDiscriminatorProperty->group;
+		}
+
+		$type->setAnnotations($annotations);
+
 		foreach ($type->getProperties() as $property) {
 			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
 				continue;
 			}
 
+			$hasDefaultGroup = false;
+			foreach ($property->getAnnotations("Skrz\\Meta\\JSON\\JsonProperty") as $annotation) {
+				/** @var JsonProperty $annotation */
+
+				if ($annotation->group === JsonProperty::DEFAULT_GROUP) {
+					$hasDefaultGroup = true;
+				}
+
+				if ($annotation->name === null) {
+					$annotation->name = $property->getName();
+				}
+			}
+
 			$annotations = $property->getAnnotations();
 
-			if (!$property->hasAnnotation("Skrz\\Meta\\JSON\\JsonProperty")) {
-				if (!$property->hasAnnotation("Skrz\\Meta\\PHP\\PhpArrayOffset")) {
-					$annotations[] = $arrayOffset = new PhpArrayOffset();
-					$arrayOffset->offset = $property->getName();
-				}
-
+			if (!$hasDefaultGroup) {
 				$annotations[] = $jsonProperty = new JsonProperty();
 				$jsonProperty->name = $property->getName();
+			}
 
+			$property->setAnnotations($annotations);
+
+			foreach ($property->getAnnotations("Skrz\\Meta\\JSON\\JsonProperty") as $jsonProperty) {
+				/** @var JsonProperty $jsonProperty */
 				$annotations[] = $arrayOffset = new PhpArrayOffset();
-				$arrayOffset->offset = $property->getName();
-				$arrayOffset->group = "json:" . JsonProperty::DEFAULT_GROUP;
-
-			} else {
-				foreach ($property->getAnnotations("Skrz\\Meta\\JSON\\JsonProperty") as $jsonProperty) {
-					/** @var JsonProperty $jsonProperty */
-					$annotations[] = $arrayOffset = new PhpArrayOffset();
-					$arrayOffset->offset = $jsonProperty->name;
-					$arrayOffset->group = "json:" . $jsonProperty->group;
-				}
+				$arrayOffset->offset = $jsonProperty->name;
+				$arrayOffset->group = "json:" . $jsonProperty->group;
 			}
 
 			$property->setAnnotations($annotations);
@@ -92,14 +119,6 @@ class JsonModule extends AbstractModule
 			->addDocument("@throws \\InvalidArgumentException")
 			->addDocument("")
 			->addDocument("@return {$typeAlias}");
-
-		$fromJson
-			->addBody("if (\$object === null) {")
-			->addBody("\t\$object = new {$typeAlias}();")
-			->addBody("} elseif (!(\$object instanceof {$typeAlias})) {")
-			->addBody("\tthrow new \\InvalidArgumentException('You have to pass object of class {$type->getName()}.');")
-			->addBody("}")
-			->addBody("");
 
 		$fromJson
 			->addBody("if (is_array(\$json)) {")

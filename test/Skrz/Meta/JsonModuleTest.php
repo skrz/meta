@@ -2,10 +2,13 @@
 namespace Skrz\Meta;
 
 use Skrz\Meta\Fixtures\JSON\ClassWithCustomNameProperty;
+use Skrz\Meta\Fixtures\JSON\ClassWithDiscriminatorValueA;
+use Skrz\Meta\Fixtures\JSON\ClassWithDiscriminatorValueB;
 use Skrz\Meta\Fixtures\JSON\ClassWithNoProperty;
 use Skrz\Meta\Fixtures\JSON\ClassWithPublicProperty;
 use Skrz\Meta\Fixtures\JSON\JsonMetaSpec;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithCustomNamePropertyMeta;
+use Skrz\Meta\Fixtures\JSON\Meta\ClassWithDiscriminatorMapMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithNoPropertyMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithPublicPropertyMeta;
 use Symfony\Component\Finder\Finder;
@@ -145,6 +148,59 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 		$instance->setSomeProperty("value");
 		$json = ClassWithCustomNamePropertyMeta::toJsonString($instance);
 		$this->assertEquals('{"some_property":"value"}', $json);
+	}
+
+	public function testClassWithDiscriminatorMapFromJson()
+	{
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\Meta\\ClassWithDiscriminatorMapMeta", ClassWithDiscriminatorMapMeta::getInstance());
+
+		/** @var ClassWithDiscriminatorValueA $aInstance */
+		$aInstance = ClassWithDiscriminatorMapMeta::fromJson(array("value" => "a", "a" => 21, "b" => 42));
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueA", $aInstance);
+		$this->assertEquals("a", $aInstance->value);
+		$this->assertEquals(21, $aInstance->a);
+
+		/** @var ClassWithDiscriminatorValueA $aInstance */
+		$aInstance = ClassWithDiscriminatorMapMeta::fromJson('{"value":"a","a":1,"b":2}');
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueA", $aInstance);
+		$this->assertEquals("a", $aInstance->value);
+		$this->assertEquals(1, $aInstance->a);
+
+		/** @var ClassWithDiscriminatorValueA $aInstance */
+		$aInstance = ClassWithDiscriminatorMapMeta::fromJson(array("a" => array("a" => 21)), "top");
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueA", $aInstance);
+		$this->assertNull($aInstance->value);
+		$this->assertEquals(21, $aInstance->a);
+
+		/** @var ClassWithDiscriminatorValueA $aInstance */
+		$aInstance = ClassWithDiscriminatorMapMeta::fromJson('{"a":{"a":1}}', "top");
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueA", $aInstance);
+		$this->assertNull($aInstance->value);
+		$this->assertEquals(1, $aInstance->a);
+
+		/** @var ClassWithDiscriminatorValueB $bInstance */
+		$bInstance = ClassWithDiscriminatorMapMeta::fromJson(array("value" => "b", "a" => 21, "b" => 42));
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueB", $bInstance);
+		$this->assertEquals("b", $bInstance->value);
+		$this->assertEquals(42, $bInstance->b);
+
+		/** @var ClassWithDiscriminatorValueB $bInstance */
+		$bInstance = ClassWithDiscriminatorMapMeta::fromJson('{"value":"b","a":1,"b":2}');
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueB", $bInstance);
+		$this->assertEquals("b", $bInstance->value);
+		$this->assertEquals(2, $bInstance->b);
+
+		/** @var ClassWithDiscriminatorValueB $bInstance */
+		$bInstance = ClassWithDiscriminatorMapMeta::fromJson(array("b" => array("b" => 42)), "top");
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueB", $bInstance);
+		$this->assertNull($bInstance->value);
+		$this->assertEquals(42, $bInstance->b);
+
+		/** @var ClassWithDiscriminatorValueB $bInstance */
+		$bInstance = ClassWithDiscriminatorMapMeta::fromJson('{"b":{"b":2}}', "top");
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueB", $bInstance);
+		$this->assertNull($bInstance->value);
+		$this->assertEquals(2, $bInstance->b);
 	}
 
 }

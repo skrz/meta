@@ -258,8 +258,6 @@ is platform dependent and always signed, therefore there can be at most 31/63 gr
 ## TODO
 
 - handling recursive structures
-- JSON
-    - @JsonDiscriminatorProperty, @JsonDiscriminatorValue
 - XML serialization/deserialization (model annotations according to [javax.xml.bind.annotation](http://docs.oracle.com/javaee/7/api/javax/xml/bind/annotation/package-summary.html))
     - DOMNode
     - SimpleXMLElement

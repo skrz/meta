@@ -167,14 +167,6 @@ class PhpModule extends AbstractModule
 			->addDocument("")
 			->addDocument("@var string[]");
 
-		// add discriminator property
-		$discriminatorMapProperty = $class->addProperty("discriminatorMap");
-		$discriminatorMapProperty->setStatic(true)->setValue($discriminatorMetaMap)->setVisibility("private");
-		$discriminatorMapProperty
-			->addDocument("Mapping from group ID and discriminator value to meta class name")
-			->addDocument("")
-			->addDocument("@var string[][]");
-
 		foreach (array("Array", "Object") as $what) {
 			// from*() method
 			$from = $class->addMethod("from{$what}");
