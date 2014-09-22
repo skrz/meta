@@ -82,6 +82,11 @@ class Parameter
 
 	public static function fromReflection(ReflectionParameter $reflection = NULL)
 	{
+		if (!defined('PHP_VERSION_ID')) {
+			$version = explode('.', PHP_VERSION);
+
+			define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
+		}
 		if ($reflection === null) {
 			return null;
 		}
@@ -115,7 +120,9 @@ class Parameter
 		$instance->name = $reflection->getName();
 		$instance->passedByReference = $reflection->isPassedByReference();
 		$instance->array = $reflection->isArray();
-		$instance->callable = $reflection->isCallable();
+		if(PHP_VERSION_ID >= 50400) {
+			$instance->callable = $reflection->isCallable();
+		}
 		$instance->position = $reflection->getPosition();
 		$instance->optional = $reflection->isOptional();
 		$instance->defaultValueAvailable = $reflection->isDefaultValueAvailable();

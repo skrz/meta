@@ -162,6 +162,12 @@ class Type extends ObjectType
 
 	public static function fromReflection(ReflectionClass $reflection = NULL)
 	{
+		if (!defined('PHP_VERSION_ID')) {
+			$version = explode('.', PHP_VERSION);
+
+			define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
+		}
+
 		if ($reflection === null) {
 			return null;
 		}
@@ -203,8 +209,10 @@ class Type extends ObjectType
 		$instance->constants = $reflection->getConstants();
 		$instance->interfaceNames = $reflection->getInterfaceNames();
 		$instance->interface = $reflection->isInterface();
-		$instance->traitNames = $reflection->getTraitNames();
-		$instance->trait = $reflection->isTrait();
+		if(PHP_VERSION_ID >= 50400) {
+			$instance->traitNames = $reflection->getTraitNames();
+			$instance->trait = $reflection->isTrait();
+		}
 		$instance->abstract = $reflection->isAbstract();
 		$instance->final = $reflection->isFinal();
 		$instance->modifiers = $reflection->getModifiers();
@@ -229,9 +237,11 @@ class Type extends ObjectType
 		foreach ($reflection->getInterfaces() as $key => $value) {
 			$instance->interfaces[$key] = Type::fromReflection($value, $stack, $reader, $phpParser);
 		}
-		$instance->traits = array();
-		foreach ($reflection->getTraits() as $key => $value) {
-			$instance->traits[$key] = Type::fromReflection($value, $stack, $reader, $phpParser);
+		if(PHP_VERSION_ID >= 50400) {
+			$instance->traits = array();
+			foreach ($reflection->getTraits() as $key => $value) {
+				$instance->traits[$key] = Type::fromReflection($value, $stack, $reader, $phpParser);
+			}
 		}
 		$instance->parentClass = Type::fromReflection($reflection->getParentClass() ? $reflection->getParentClass() : null, $stack, $reader, $phpParser);
 
