@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\Reflection;
 
-class IntType extends NumericType
+class NumericType extends ScalarType
 {
 
 	/** @var MixedType */

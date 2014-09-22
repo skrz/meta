@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\Reflection;
 
-class FloatType extends ScalarType
+class FloatType extends NumericType
 {
 
 	/** @var MixedType */

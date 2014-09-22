@@ -158,6 +158,10 @@ foreach ($classes as $className => $discoveryClassName) {
 		->setOptional(true);
 
 	$fromReflection
+		->addBody("if (!defined('PHP_VERSION_ID')) {")
+		->addBody("\t\$v = explode('.', PHP_VERSION);")
+		->addBody("\tdefine('PHP_VERSION_ID', (\$v[0] * 10000 + \$v[1] * 100 + \$v[2]));")
+		->addBody("}\n")
 		->addBody("if (\$reflection === null) {\n\treturn null;\n}\n")
 		->addBody("if (func_num_args() > 1) {\n\t\$stack = func_get_arg(1);\n} else {\n\t\$stack = new \\ArrayObject();\n}\n")
 		->addBody("\$stackExpression = {$stackExpression[$className]};\n")
@@ -255,11 +259,23 @@ foreach ($classes as $className => $discoveryClassName) {
 			if ($objectType) {
 				if ($arrayType) {
 					$endOfFromReflection->addBody("\$instance->{$propertyName} = array();");
+
+					$indent = "";
+					if ($className === "ReflectionClass" && in_array($propertyName, array("traits"))) {
+						$endOfFromReflection->addBody("if (PHP_VERSION_ID >= 50400) {");
+						$indent = "\t";
+					}
+
 					$endOfFromReflection->addBody(
-						"foreach (\$reflection->{$method->getName()}() as \$key => \$value) {\n" .
-						"\t\$instance->{$propertyName}[\$key] = {$returnType}::fromReflection(\$value, \$stack, \$reader, \$phpParser);\n" .
-						"}"
+						"{$indent}foreach (\$reflection->{$method->getName()}() as \$key => \$value) {\n" .
+						"{$indent}\t\$instance->{$propertyName}[\$key] = {$returnType}::fromReflection(\$value, \$stack, \$reader, \$phpParser);\n" .
+						"{$indent}}"
 					);
+
+					if ($className === "ReflectionClass" && in_array($propertyName, array("traits"))) {
+						$endOfFromReflection->addBody("}");
+					}
+
 				} elseif ($className === "ReflectionMethod" && $propertyName === "prototype") {
 					$endOfFromReflection->addBody("try {\n");
 					$endOfFromReflection->addBody("\t\$instance->{$propertyName} = \$reflection->{$method->getName()}();");
@@ -274,8 +290,14 @@ foreach ($classes as $className => $discoveryClassName) {
 			} elseif ($className === "ReflectionParameter" && in_array($propertyName, array("defaultValue"))) {
 				$fromReflection->addBody("\$instance->{$propertyName} = \$reflection->isDefaultValueAvailable() ? \$reflection->{$method->getName()}() : null;");
 
+			} elseif ($className === "ReflectionParameter" && in_array($propertyName, array("callable"))) {
+				$fromReflection->addBody("\$instance->{$propertyName} = PHP_VERSION_ID >= 50400 ? \$reflection->{$method->getName()}() : null;");
+
 			} elseif ($className === "ReflectionParameter" && in_array($propertyName, array("defaultValueConstant", "defaultValueConstantName"))) {
 				$fromReflection->addBody("\$instance->{$propertyName} = PHP_VERSION_ID >= 50500 && \$reflection->isDefaultValueAvailable() ? \$reflection->{$method->getName()}() : null;");
+
+			} elseif ($className === "ReflectionClass" && in_array($propertyName, array("traitNames", "trait"))) {
+				$fromReflection->addBody("\$instance->{$propertyName} = PHP_VERSION_ID >= 50400 ? \$reflection->{$method->getName()}() : null;");
 
 			} elseif ($className === "ReflectionMethod" && in_array($propertyName, array("generator"))) {
 				$fromReflection->addBody("\$instance->{$propertyName} = PHP_VERSION_ID >= 50500 ? \$reflection->{$method->getName()}() : null;");

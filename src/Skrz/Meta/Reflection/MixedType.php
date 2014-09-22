@@ -52,6 +52,9 @@ class MixedType
 		} elseif ($lowercaseString === "void" || $lowercaseString === "null") {
 			return VoidType::getInstance();
 
+		} elseif ($lowercaseString === "numeric" || $lowercaseString === "number") {
+			return NumericType::getInstance();
+
 		} elseif ($lowercaseString === "int" || $lowercaseString === "integer") {
 			return IntType::getInstance();
 
@@ -64,7 +67,7 @@ class MixedType
 		} elseif ($lowercaseString === "string") {
 			return StringType::getInstance();
 
-		} elseif ($lowercaseString === "resource") {
+		} elseif ($lowercaseString === "resource" || $lowercaseString === "stream") {
 			return ResourceType::getInstance();
 
 		} elseif ($lowercaseString === "callable" || $lowercaseString === "callback" || trim($lowercaseString, "\\") === "closure") {

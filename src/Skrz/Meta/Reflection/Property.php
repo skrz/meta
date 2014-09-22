@@ -82,6 +82,11 @@ class Property
 
 	public static function fromReflection(ReflectionProperty $reflection = NULL)
 	{
+		if (!defined('PHP_VERSION_ID')) {
+			$v = explode('.', PHP_VERSION);
+			define('PHP_VERSION_ID', ($v[0] * 10000 + $v[1] * 100 + $v[2]));
+		}
+
 		if ($reflection === null) {
 			return null;
 		}
