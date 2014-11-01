@@ -32,10 +32,11 @@ class BaseModule extends AbstractModule
 			->addDocument("")
 			->addDocument("THIS CLASS IS AUTO-GENERATED! DO NOT EDIT!");
 
-		// make constructor empty
+		// constructor
 		$constructor = $class->addMethod("__construct");
 		$constructor
-			->addDocument("Constructor made empty, so creating meta class has no side effects");
+			->addDocument("Constructor")
+			->addBody("self::\$instance = \$this; // avoids cyclic dependency stack overflow");
 
 		if ($type->getConstructor()) {
 			if ($type->getConstructor()->isPublic()) {
@@ -68,7 +69,7 @@ class BaseModule extends AbstractModule
 
 		$getInstance
 			->addBody("if (self::\$instance === null) {")
-			->addBody("\tself::\$instance = new self();")
+			->addBody("\tnew self(); // self::\$instance assigned in __construct")
 			->addBody("}")
 			->addBody("return self::\$instance;");
 
