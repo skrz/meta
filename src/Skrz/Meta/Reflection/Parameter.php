@@ -24,11 +24,6 @@ class Parameter
 	private $declaringFunction;
 
 	/**
-	 * @var boolean
-	 */
-	private $declaringFunctionInitialized;
-
-	/**
 	 * @var Type
 	 */
 	private $declaringClass;
@@ -136,6 +131,7 @@ class Parameter
 		$instance->defaultValueAvailable = $reflection->isDefaultValueAvailable();
 		$instance->defaultValue = $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null;
 		$instance->defaultValueConstant = PHP_VERSION_ID >= 50500 && $reflection->isDefaultValueAvailable() ? $reflection->isDefaultValueConstant() : null;
+		$instance->declaringFunction = Method::fromReflection($reflection->getDeclaringFunction() ? $reflection->getDeclaringFunction() : null, $stack, $reader, $phpParser);
 		$instance->declaringClass = Type::fromReflection($reflection->getDeclaringClass() ? $reflection->getDeclaringClass() : null, $stack, $reader, $phpParser);
 
 		if (preg_match('/@param\\s+([a-zA-Z0-9\\\\\\[\\]]+)\\s+\\$' . preg_quote($instance->name) . '/', $instance->declaringFunction->getDocComment(), $m)) {
@@ -200,10 +196,6 @@ class Parameter
 	 */
 	public function getDeclaringFunction()
 	{
-		if (!$this->declaringFunctionInitialized) {
-			$this->declaringFunction = Method::fromReflection($this->reflection->getDeclaringFunction() ? $this->reflection->getDeclaringFunction() : null);
-			$this->declaringFunctionInitialized = true;
-		}
 		return $this->declaringFunction;
 	}
 

@@ -235,7 +235,7 @@ foreach ($classes as $className => $discoveryClassName) {
 					->setVisibility("private");
 			}
 
-			if ($objectType && $propertyName !== "declaringClass") {
+			if ($objectType && !in_array($propertyName, ["declaringClass", "declaringFunction"])) {
 				if (isset($properties[$propertyInitializedName])) {
 					$propertyInitialized = $properties[$propertyInitializedName];
 				} else {
@@ -309,7 +309,7 @@ foreach ($classes as $className => $discoveryClassName) {
 				->addBody("\$this->{$propertyName} = \${$propertyName};")
 				->addBody("return \$this;");
 
-			if ($propertyName === "declaringClass") {
+			if (in_array($propertyName, ["declaringClass", "declaringFunction"])) {
 				$endOfFromReflection->addBody("\$instance->{$propertyName} = {$returnType}::fromReflection(\$reflection->{$method->getName()}() ? \$reflection->{$method->getName()}() : null, \$stack, \$reader, \$phpParser);");
 
 			} elseif ($className === "ReflectionParameter" && in_array($propertyName, array("defaultValue"))) {
