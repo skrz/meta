@@ -74,9 +74,9 @@ class Property
 	public $type;
 
 
-	public function __construct()
+	public function __construct(ReflectionProperty $reflection)
 	{
-
+		$this->reflection = $reflection;
 	}
 
 
@@ -103,7 +103,7 @@ class Property
 			return $stack[$stackExpression];
 		}
 
-		$stack[$stackExpression] = $instance = new Property();
+		$stack[$stackExpression] = $instance = new Property($reflection);
 
 		if (func_num_args() > 2) {
 			$reader = func_get_arg(2);
@@ -128,7 +128,7 @@ class Property
 		$instance->annotations = $reader->getPropertyAnnotations($reflection);
 		$instance->declaringClass = Type::fromReflection($reflection->getDeclaringClass() ? $reflection->getDeclaringClass() : null, $stack, $reader, $phpParser);
 
-		$defaultProperties = $instance->declaringClass->getDefaultProperties();
+		$defaultProperties = $reflection->getDeclaringClass()->getDefaultProperties();
 		if (isset($defaultProperties[$instance->name])) {
 			$instance->defaultValue = $defaultProperties[$instance->name];
 		}

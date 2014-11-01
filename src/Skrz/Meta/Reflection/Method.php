@@ -76,6 +76,11 @@ class Method
 	/**
 	 * @var boolean
 	 */
+	private $prototypeInitialized;
+
+	/**
+	 * @var boolean
+	 */
 	private $closure;
 
 	/**
@@ -139,6 +144,11 @@ class Method
 	private $parameters;
 
 	/**
+	 * @var boolean
+	 */
+	private $parametersInitialized;
+
+	/**
 	 * @var string
 	 */
 	private $shortName;
@@ -164,9 +174,9 @@ class Method
 	public $type;
 
 
-	public function __construct()
+	public function __construct(ReflectionMethod $reflection)
 	{
-
+		$this->reflection = $reflection;
 	}
 
 
@@ -193,7 +203,7 @@ class Method
 			return $stack[$stackExpression];
 		}
 
-		$stack[$stackExpression] = $instance = new Method();
+		$stack[$stackExpression] = $instance = new Method($reflection);
 
 		if (func_num_args() > 2) {
 			$reader = func_get_arg(2);
@@ -234,19 +244,6 @@ class Method
 		$instance->staticVariables = $reflection->getStaticVariables();
 		$instance->annotations = $reader->getMethodAnnotations($reflection);
 		$instance->declaringClass = Type::fromReflection($reflection->getDeclaringClass() ? $reflection->getDeclaringClass() : null, $stack, $reader, $phpParser);
-		try {
-
-			$instance->prototype = $reflection->getPrototype();
-		} catch (\ReflectionException $e) {
-
-			$instance->prototype = null;
-
-		}
-
-		$instance->parameters = array();
-		foreach ($reflection->getParameters() as $key => $value) {
-			$instance->parameters[$key] = Parameter::fromReflection($value, $stack, $reader, $phpParser);
-		}
 
 		if (preg_match('/@return\\s+([a-zA-Z0-9\\\\\\[\\]]+)/', $instance->docComment, $m)) {
 			$typeString = $m[1];
@@ -466,6 +463,14 @@ class Method
 	 */
 	public function getPrototype()
 	{
+		if (!$this->prototypeInitialized) {
+			try {
+				$this->prototype = Method::fromReflection($this->reflection->getPrototype() ? $this->reflection->getPrototype() : null);
+			} catch (\ReflectionException $e) {
+				$this->prototype = null;
+			}
+			$this->prototypeInitialized = true;
+		}
 		return $this->prototype;
 	}
 
@@ -746,6 +751,13 @@ class Method
 	 */
 	public function getParameters()
 	{
+		if (!$this->parametersInitialized) {
+			$this->parameters = array();
+			foreach ($this->reflection->getParameters() as $key => $value) {
+				$this->parameters[$key] = Parameter::fromReflection($value);
+			}
+			$this->parametersInitialized = true;
+		}
 		return $this->parameters;
 	}
 

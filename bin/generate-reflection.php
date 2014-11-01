@@ -144,8 +144,9 @@ foreach ($classes as $className => $discoveryClassName) {
 			->addDocument("@var string");
 	}
 
-	$class->addMethod("__construct")
-		->setBody("");
+	$constructor = $class->addMethod("__construct");
+	$constructor->addParameter("reflection")->setTypeHint("\\" . $className);
+	$constructor->addBody("\$this->reflection = \$reflection;");
 
 	$fromReflection = $class->addMethod("fromReflection");
 	$fromReflection
@@ -166,7 +167,7 @@ foreach ($classes as $className => $discoveryClassName) {
 		->addBody("if (func_num_args() > 1) {\n\t\$stack = func_get_arg(1);\n} else {\n\t\$stack = new \\ArrayObject();\n}\n")
 		->addBody("\$stackExpression = {$stackExpression[$className]};\n")
 		->addBody("if (isset(\$stack[\$stackExpression])) {\n\treturn \$stack[\$stackExpression];\n}\n")
-		->addBody("\$stack[\$stackExpression] = \$instance = new {$class->getName()}();\n");
+		->addBody("\$stack[\$stackExpression] = \$instance = new {$class->getName()}(\$reflection);\n");
 
 	$ns->addUse("Doctrine\\Common\\Annotations\\AnnotationReader", null, $annotationReaderAlias);
 	$fromReflection->addBody("if (func_num_args() > 2) {\n\t\$reader = func_get_arg(2);\n} else {\n\t\$reader = new {$annotationReaderAlias}();\n}\n");
@@ -224,12 +225,26 @@ foreach ($classes as $className => $discoveryClassName) {
 				$propertyName = lcfirst(substr($method->getName(), 3));
 			}
 
+			$propertyInitializedName = $propertyName . "Initialized";
+
 			$properties = $class->getProperties();
 			if (isset($properties[$propertyName])) {
 				$property = $properties[$propertyName];
 			} else {
 				$property = $class->addProperty($propertyName)
 					->setVisibility("private");
+			}
+
+			if ($objectType && $propertyName !== "declaringClass") {
+				if (isset($properties[$propertyInitializedName])) {
+					$propertyInitialized = $properties[$propertyInitializedName];
+				} else {
+					$propertyInitialized = $class->addProperty($propertyInitializedName)
+						->setVisibility("private")
+						->setDocuments(array("@var boolean"));
+				}
+			} else {
+				$propertyInitialized = null;
 			}
 
 			$property
@@ -239,8 +254,47 @@ foreach ($classes as $className => $discoveryClassName) {
 			$getter
 				->addDocument("@return {$returnType}{$arrayType}");
 
+			if ($propertyInitialized) {
+				$getter
+					->addBody("if (!\$this->{$propertyInitializedName}) {");
+
+				if ($arrayType) {
+					$getter->addBody("\t\$this->{$propertyName} = array();");
+
+					$indent = "";
+					if ($className === "ReflectionClass" && in_array($propertyName, array("traits"))) {
+						$getter->addBody("\tif (PHP_VERSION_ID >= 50400) {");
+						$indent = "\t";
+					}
+
+					$getter->addBody(
+						"\t{$indent}foreach (\$this->reflection->{$method->getName()}() as \$key => \$value) {\n" .
+						"\t{$indent}\t\$this->{$propertyName}[\$key] = {$returnType}::fromReflection(\$value);\n" .
+						"\t{$indent}}"
+					);
+
+					if ($className === "ReflectionClass" && in_array($propertyName, array("traits"))) {
+						$getter->addBody("\t}");
+					}
+
+				} elseif ($className === "ReflectionMethod" && $propertyName === "prototype") {
+					$getter->addBody("\ttry {");
+					$getter->addBody("\t\t\$this->{$propertyName} = {$returnType}::fromReflection(\$this->reflection->{$method->getName()}() ? \$this->reflection->{$method->getName()}() : null);");
+					$getter->addBody("\t} catch (\\ReflectionException \$e) {");
+					$getter->addBody("\t\t\$this->{$propertyName} = null;");
+					$getter->addBody("\t}");
+
+				} else {
+					$getter->addBody("\t\$this->{$propertyName} = {$returnType}::fromReflection(\$this->reflection->{$method->getName()}() ? \$this->reflection->{$method->getName()}() : null);");
+				}
+
+				$getter
+					->addBody("\t\$this->{$propertyInitializedName} = true;")
+					->addBody("}");
+			}
+
 			$getter
-				->setBody("return \$this->{$propertyName};");
+				->addBody("return \$this->{$propertyName};");
 
 			$setter = $class->addMethod("set" . ucfirst($propertyName));
 
@@ -255,37 +309,8 @@ foreach ($classes as $className => $discoveryClassName) {
 				->addBody("\$this->{$propertyName} = \${$propertyName};")
 				->addBody("return \$this;");
 
-
-			if ($objectType) {
-				if ($arrayType) {
-					$endOfFromReflection->addBody("\$instance->{$propertyName} = array();");
-
-					$indent = "";
-					if ($className === "ReflectionClass" && in_array($propertyName, array("traits"))) {
-						$endOfFromReflection->addBody("if (PHP_VERSION_ID >= 50400) {");
-						$indent = "\t";
-					}
-
-					$endOfFromReflection->addBody(
-						"{$indent}foreach (\$reflection->{$method->getName()}() as \$key => \$value) {\n" .
-						"{$indent}\t\$instance->{$propertyName}[\$key] = {$returnType}::fromReflection(\$value, \$stack, \$reader, \$phpParser);\n" .
-						"{$indent}}"
-					);
-
-					if ($className === "ReflectionClass" && in_array($propertyName, array("traits"))) {
-						$endOfFromReflection->addBody("}");
-					}
-
-				} elseif ($className === "ReflectionMethod" && $propertyName === "prototype") {
-					$endOfFromReflection->addBody("try {\n");
-					$endOfFromReflection->addBody("\t\$instance->{$propertyName} = \$reflection->{$method->getName()}();");
-					$endOfFromReflection->addBody("} catch (\\ReflectionException \$e) {\n");
-					$endOfFromReflection->addBody("\t\$instance->{$propertyName} = null;\n");
-					$endOfFromReflection->addBody("}\n");
-
-				} else {
-					$endOfFromReflection->addBody("\$instance->{$propertyName} = {$returnType}::fromReflection(\$reflection->{$method->getName()}() ? \$reflection->{$method->getName()}() : null, \$stack, \$reader, \$phpParser);");
-				}
+			if ($propertyName === "declaringClass") {
+				$endOfFromReflection->addBody("\$instance->{$propertyName} = {$returnType}::fromReflection(\$reflection->{$method->getName()}() ? \$reflection->{$method->getName()}() : null, \$stack, \$reader, \$phpParser);");
 
 			} elseif ($className === "ReflectionParameter" && in_array($propertyName, array("defaultValue"))) {
 				$fromReflection->addBody("\$instance->{$propertyName} = \$reflection->isDefaultValueAvailable() ? \$reflection->{$method->getName()}() : null;");
@@ -302,7 +327,7 @@ foreach ($classes as $className => $discoveryClassName) {
 			} elseif ($className === "ReflectionMethod" && in_array($propertyName, array("generator"))) {
 				$fromReflection->addBody("\$instance->{$propertyName} = PHP_VERSION_ID >= 50500 ? \$reflection->{$method->getName()}() : null;");
 
-			} else {
+			} elseif (!$objectType) {
 				$fromReflection->addBody("\$instance->{$propertyName} = \$reflection->{$method->getName()}();");
 			}
 		}
@@ -472,7 +497,7 @@ foreach ($classes as $className => $discoveryClassName) {
 			->addBody("return \$this;");
 
 		$fromReflection
-			->addBody("\$defaultProperties = \$instance->declaringClass->getDefaultProperties();")
+			->addBody("\$defaultProperties = \$reflection->getDeclaringClass()->getDefaultProperties();")
 			->addBody("if (isset(\$defaultProperties[\$instance->name])) {")
 			->addBody("\t\$instance->defaultValue = \$defaultProperties[\$instance->name];")
 			->addBody("}");

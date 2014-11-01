@@ -24,6 +24,11 @@ class Parameter
 	private $declaringFunction;
 
 	/**
+	 * @var boolean
+	 */
+	private $declaringFunctionInitialized;
+
+	/**
 	 * @var Type
 	 */
 	private $declaringClass;
@@ -32,6 +37,11 @@ class Parameter
 	 * @var Type
 	 */
 	private $class;
+
+	/**
+	 * @var boolean
+	 */
+	private $classInitialized;
 
 	/**
 	 * @var boolean
@@ -74,9 +84,9 @@ class Parameter
 	public $type;
 
 
-	public function __construct()
+	public function __construct(ReflectionParameter $reflection)
 	{
-
+		$this->reflection = $reflection;
 	}
 
 
@@ -103,7 +113,7 @@ class Parameter
 			return $stack[$stackExpression];
 		}
 
-		$stack[$stackExpression] = $instance = new Parameter();
+		$stack[$stackExpression] = $instance = new Parameter($reflection);
 
 		if (func_num_args() > 2) {
 			$reader = func_get_arg(2);
@@ -126,9 +136,7 @@ class Parameter
 		$instance->defaultValueAvailable = $reflection->isDefaultValueAvailable();
 		$instance->defaultValue = $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null;
 		$instance->defaultValueConstant = PHP_VERSION_ID >= 50500 && $reflection->isDefaultValueAvailable() ? $reflection->isDefaultValueConstant() : null;
-		$instance->declaringFunction = Method::fromReflection($reflection->getDeclaringFunction() ? $reflection->getDeclaringFunction() : null, $stack, $reader, $phpParser);
 		$instance->declaringClass = Type::fromReflection($reflection->getDeclaringClass() ? $reflection->getDeclaringClass() : null, $stack, $reader, $phpParser);
-		$instance->class = Type::fromReflection($reflection->getClass() ? $reflection->getClass() : null, $stack, $reader, $phpParser);
 
 		if (preg_match('/@param\\s+([a-zA-Z0-9\\\\\\[\\]]+)\\s+\\$' . preg_quote($instance->name) . '/', $instance->declaringFunction->getDocComment(), $m)) {
 			$typeString = $m[1];
@@ -192,6 +200,10 @@ class Parameter
 	 */
 	public function getDeclaringFunction()
 	{
+		if (!$this->declaringFunctionInitialized) {
+			$this->declaringFunction = Method::fromReflection($this->reflection->getDeclaringFunction() ? $this->reflection->getDeclaringFunction() : null);
+			$this->declaringFunctionInitialized = true;
+		}
 		return $this->declaringFunction;
 	}
 
@@ -232,6 +244,10 @@ class Parameter
 	 */
 	public function getClass()
 	{
+		if (!$this->classInitialized) {
+			$this->class = Type::fromReflection($this->reflection->getClass() ? $this->reflection->getClass() : null);
+			$this->classInitialized = true;
+		}
 		return $this->class;
 	}
 

@@ -54,14 +54,29 @@ class Type extends ObjectType
 	private $constructor;
 
 	/**
+	 * @var boolean
+	 */
+	private $constructorInitialized;
+
+	/**
 	 * @var Method[]
 	 */
 	private $methods;
 
 	/**
+	 * @var boolean
+	 */
+	private $methodsInitialized;
+
+	/**
 	 * @var Property[]
 	 */
 	private $properties;
+
+	/**
+	 * @var boolean
+	 */
+	private $propertiesInitialized;
 
 	/**
 	 * @var array
@@ -72,6 +87,11 @@ class Type extends ObjectType
 	 * @var Type[]
 	 */
 	private $interfaces;
+
+	/**
+	 * @var boolean
+	 */
+	private $interfacesInitialized;
 
 	/**
 	 * @var string[]
@@ -87,6 +107,11 @@ class Type extends ObjectType
 	 * @var Type[]
 	 */
 	private $traits;
+
+	/**
+	 * @var boolean
+	 */
+	private $traitsInitialized;
 
 	/**
 	 * @var string[]
@@ -117,6 +142,11 @@ class Type extends ObjectType
 	 * @var Type
 	 */
 	private $parentClass;
+
+	/**
+	 * @var boolean
+	 */
+	private $parentClassInitialized;
 
 	/**
 	 * @var array
@@ -154,9 +184,9 @@ class Type extends ObjectType
 	public $useStatements = array();
 
 
-	public function __construct()
+	public function __construct(ReflectionClass $reflection)
 	{
-
+		$this->reflection = $reflection;
 	}
 
 
@@ -183,7 +213,7 @@ class Type extends ObjectType
 			return $stack[$stackExpression];
 		}
 
-		$stack[$stackExpression] = $instance = new Type();
+		$stack[$stackExpression] = $instance = new Type($reflection);
 
 		if (func_num_args() > 2) {
 			$reader = func_get_arg(2);
@@ -221,26 +251,6 @@ class Type extends ObjectType
 		$instance->annotations = $reader->getClassAnnotations($reflection);
 		$instance->useStatements = $phpParser->parseClass($reflection);
 		$instance->useStatements[strtolower($reflection->getShortName())] = $reflection->getName();
-		$instance->constructor = Method::fromReflection($reflection->getConstructor() ? $reflection->getConstructor() : null, $stack, $reader, $phpParser);
-		$instance->methods = array();
-		foreach ($reflection->getMethods() as $key => $value) {
-			$instance->methods[$key] = Method::fromReflection($value, $stack, $reader, $phpParser);
-		}
-		$instance->properties = array();
-		foreach ($reflection->getProperties() as $key => $value) {
-			$instance->properties[$key] = Property::fromReflection($value, $stack, $reader, $phpParser);
-		}
-		$instance->interfaces = array();
-		foreach ($reflection->getInterfaces() as $key => $value) {
-			$instance->interfaces[$key] = Type::fromReflection($value, $stack, $reader, $phpParser);
-		}
-		$instance->traits = array();
-		if (PHP_VERSION_ID >= 50400) {
-			foreach ($reflection->getTraits() as $key => $value) {
-				$instance->traits[$key] = Type::fromReflection($value, $stack, $reader, $phpParser);
-			}
-		}
-		$instance->parentClass = Type::fromReflection($reflection->getParentClass() ? $reflection->getParentClass() : null, $stack, $reader, $phpParser);
 
 
 		return $instance;
@@ -412,6 +422,10 @@ class Type extends ObjectType
 	 */
 	public function getConstructor()
 	{
+		if (!$this->constructorInitialized) {
+			$this->constructor = Method::fromReflection($this->reflection->getConstructor() ? $this->reflection->getConstructor() : null);
+			$this->constructorInitialized = true;
+		}
 		return $this->constructor;
 	}
 
@@ -432,6 +446,13 @@ class Type extends ObjectType
 	 */
 	public function getMethods()
 	{
+		if (!$this->methodsInitialized) {
+			$this->methods = array();
+			foreach ($this->reflection->getMethods() as $key => $value) {
+				$this->methods[$key] = Method::fromReflection($value);
+			}
+			$this->methodsInitialized = true;
+		}
 		return $this->methods;
 	}
 
@@ -452,6 +473,13 @@ class Type extends ObjectType
 	 */
 	public function getProperties()
 	{
+		if (!$this->propertiesInitialized) {
+			$this->properties = array();
+			foreach ($this->reflection->getProperties() as $key => $value) {
+				$this->properties[$key] = Property::fromReflection($value);
+			}
+			$this->propertiesInitialized = true;
+		}
 		return $this->properties;
 	}
 
@@ -492,6 +520,13 @@ class Type extends ObjectType
 	 */
 	public function getInterfaces()
 	{
+		if (!$this->interfacesInitialized) {
+			$this->interfaces = array();
+			foreach ($this->reflection->getInterfaces() as $key => $value) {
+				$this->interfaces[$key] = Type::fromReflection($value);
+			}
+			$this->interfacesInitialized = true;
+		}
 		return $this->interfaces;
 	}
 
@@ -552,6 +587,15 @@ class Type extends ObjectType
 	 */
 	public function getTraits()
 	{
+		if (!$this->traitsInitialized) {
+			$this->traits = array();
+			if (PHP_VERSION_ID >= 50400) {
+				foreach ($this->reflection->getTraits() as $key => $value) {
+					$this->traits[$key] = Type::fromReflection($value);
+				}
+			}
+			$this->traitsInitialized = true;
+		}
 		return $this->traits;
 	}
 
@@ -672,6 +716,10 @@ class Type extends ObjectType
 	 */
 	public function getParentClass()
 	{
+		if (!$this->parentClassInitialized) {
+			$this->parentClass = Type::fromReflection($this->reflection->getParentClass() ? $this->reflection->getParentClass() : null);
+			$this->parentClassInitialized = true;
+		}
 		return $this->parentClass;
 	}
 
