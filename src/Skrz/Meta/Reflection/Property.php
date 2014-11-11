@@ -132,7 +132,7 @@ class Property
 		if (isset($defaultProperties[$instance->name])) {
 			$instance->defaultValue = $defaultProperties[$instance->name];
 		}
-		if (preg_match('/@var\\s+([a-zA-Z0-9\\\\\\[\\]]+)/', $instance->docComment, $m)) {
+		if (preg_match('/@var\\s+([a-zA-Z0-9\\\\\\[\\]_]+)/', $instance->docComment, $m)) {
 			$typeString = $m[1];
 		}
 		if (isset($typeString)) {

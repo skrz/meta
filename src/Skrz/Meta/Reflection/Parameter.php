@@ -134,7 +134,7 @@ class Parameter
 		$instance->declaringFunction = Method::fromReflection($reflection->getDeclaringFunction() ? $reflection->getDeclaringFunction() : null, $stack, $reader, $phpParser);
 		$instance->declaringClass = Type::fromReflection($reflection->getDeclaringClass() ? $reflection->getDeclaringClass() : null, $stack, $reader, $phpParser);
 
-		if (preg_match('/@param\\s+([a-zA-Z0-9\\\\\\[\\]]+)\\s+\\$' . preg_quote($instance->name) . '/', $instance->declaringFunction->getDocComment(), $m)) {
+		if (preg_match('/@param\\s+([a-zA-Z0-9\\\\\\[\\]_]+)\\s+\\$' . preg_quote($instance->name) . '/', $instance->declaringFunction->getDocComment(), $m)) {
 			$typeString = $m[1];
 		}
 		if (isset($typeString)) {

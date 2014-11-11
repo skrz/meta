@@ -432,7 +432,7 @@ foreach ($classes as $className => $discoveryClassName) {
 		$getPropertyMethod
 			->addParameter("propertyName");
 		$getPropertyMethod
-			->addBody("foreach (\$this->properties as \$property) {")
+			->addBody("foreach (\$this->getProperties() as \$property) {")
 			->addBody("\tif (\$property->getName() === \$propertyName){")
 			->addBody("\t\treturn \$property;")
 			->addBody("\t}")
@@ -447,7 +447,7 @@ foreach ($classes as $className => $discoveryClassName) {
 		$getMethodMethod
 			->addParameter("methodName");
 		$getMethodMethod
-			->addBody("foreach (\$this->methods as \$method) {")
+			->addBody("foreach (\$this->getMethods() as \$method) {")
 			->addBody("\tif (\$method->getName() === \$methodName){")
 			->addBody("\t\treturn \$method;")
 			->addBody("\t}")
@@ -466,7 +466,7 @@ foreach ($classes as $className => $discoveryClassName) {
 		$getParameterMethod
 			->addParameter("parameterName");
 		$getParameterMethod
-			->addBody("foreach (\$this->parameters as \$parameter) {")
+			->addBody("foreach (\$this->getParameters() as \$parameter) {")
 			->addBody("\tif ((is_string(\$parameterName) && \$parameter->getName() === \$parameterName) || (is_int(\$parameterName) && \$parameter->getPosition() === \$parameterName)){")
 			->addBody("\t\treturn \$parameter;")
 			->addBody("\t}")
@@ -525,17 +525,17 @@ foreach ($classes as $className => $discoveryClassName) {
 			->addBody("return \$this;");
 
 		if ($className === "ReflectionProperty") {
-			$varRegex = "/@var\\s+([a-zA-Z0-9\\\\\\[\\]]+)/";
+			$varRegex = "/@var\\s+([a-zA-Z0-9\\\\\\[\\]_]+)/";
 			$fromReflection
 				->addBody("if (preg_match(" . var_export($varRegex, true) . ", \$instance->docComment, \$m)) {\n\t\$typeString = \$m[1];\n}");
 
 		} elseif ($className === "ReflectionMethod") {
-			$returnRegex = "/@return\\s+([a-zA-Z0-9\\\\\\[\\]]+)/";
+			$returnRegex = "/@return\\s+([a-zA-Z0-9\\\\\\[\\]_]+)/";
 			$fromReflection
 				->addBody("if (preg_match(" . var_export($returnRegex, true) . ", \$instance->docComment, \$m)) {\n\t\$typeString = \$m[1];\n}");
 
 		} elseif ($className === "ReflectionParameter") {
-			$returnRegex = "/@param\\s+([a-zA-Z0-9\\\\\\[\\]]+)\\s+\\\$";
+			$returnRegex = "/@param\\s+([a-zA-Z0-9\\\\\\[\\]_]+)\\s+\\\$";
 			$fromReflection
 				->addBody("if (preg_match(" . var_export($returnRegex, true) . " . preg_quote(\$instance->name) . '/', \$instance->declaringFunction->getDocComment(), \$m)) {\n\t\$typeString = \$m[1];\n}");
 		}

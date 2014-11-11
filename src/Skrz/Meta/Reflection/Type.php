@@ -921,7 +921,7 @@ class Type extends ObjectType
 	 */
 	public function getProperty($propertyName)
 	{
-		foreach ($this->properties as $property) {
+		foreach ($this->getProperties() as $property) {
 			if ($property->getName() === $propertyName){
 				return $property;
 			}
@@ -936,7 +936,7 @@ class Type extends ObjectType
 	 */
 	public function getMethod($methodName)
 	{
-		foreach ($this->methods as $method) {
+		foreach ($this->getMethods() as $method) {
 			if ($method->getName() === $methodName){
 				return $method;
 			}

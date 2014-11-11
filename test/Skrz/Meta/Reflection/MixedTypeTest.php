@@ -102,4 +102,13 @@ class MixedTypeTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("Skrz\\Meta\\Reflection\\Fixtures\\SimpleTrait", $simpleClassType->getName());
 	}
 
+	public function testFromStringWithClassWithUnderscores()
+	{
+		$classType = MixedType::fromString("Skrz\\Meta\\Reflection\\Fixtures\\Class_With_Underscores");
+		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\Type", $classType);
+		$this->assertEquals("Skrz\\Meta\\Reflection\\Fixtures\\Class_With_Underscores", $classType->getName());
+
+		$instanceProperty = $classType->getProperty("instance");
+	}
+
 }

@@ -245,7 +245,7 @@ class Method
 		$instance->annotations = $reader->getMethodAnnotations($reflection);
 		$instance->declaringClass = Type::fromReflection($reflection->getDeclaringClass() ? $reflection->getDeclaringClass() : null, $stack, $reader, $phpParser);
 
-		if (preg_match('/@return\\s+([a-zA-Z0-9\\\\\\[\\]]+)/', $instance->docComment, $m)) {
+		if (preg_match('/@return\\s+([a-zA-Z0-9\\\\\\[\\]_]+)/', $instance->docComment, $m)) {
 			$typeString = $m[1];
 		}
 		if (isset($typeString)) {
@@ -899,7 +899,7 @@ class Method
 	 */
 	public function getParameter($parameterName)
 	{
-		foreach ($this->parameters as $parameter) {
+		foreach ($this->getParameters() as $parameter) {
 			if ((is_string($parameterName) && $parameter->getName() === $parameterName) || (is_int($parameterName) && $parameter->getPosition() === $parameterName)){
 				return $parameter;
 			}
