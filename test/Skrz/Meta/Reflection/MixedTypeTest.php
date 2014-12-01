@@ -111,4 +111,15 @@ class MixedTypeTest extends \PHPUnit_Framework_TestCase
 		$instanceProperty = $classType->getProperty("instance");
 	}
 
+	public function testFromStringWithClassWithMethodWithParameters()
+	{
+		$classType = MixedType::fromString("Skrz\\Meta\\Reflection\\Fixtures\\ClassWithMethodWithParameters");
+		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\Type", $classType);
+		$this->assertEquals("Skrz\\Meta\\Reflection\\Fixtures\\ClassWithMethodWithParameters", $classType->getName());
+
+		$method = $classType->getMethod("method");
+		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\Method", $method);
+		$parameters = $method->getParameters();
+	}
+
 }

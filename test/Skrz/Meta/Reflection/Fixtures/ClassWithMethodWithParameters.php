@@ -15,11 +15,11 @@ class ClassWithMethodWithParameters
 	 * @param array $array
 	 * @param SimpleInterface $interface
 	 * @param mixed $mixed
+	 * @param array[array] $arrayArray
 	 */
-	public function method($int, $string, array $array, $interface, $mixed)
+	public function method($int, $string, array $array, $interface, $mixed, $arrayArray)
 	{
 
 	}
 
 }
- 

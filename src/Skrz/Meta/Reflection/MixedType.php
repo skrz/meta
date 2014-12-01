@@ -73,7 +73,7 @@ class MixedType
 		} elseif ($lowercaseString === "callable" || $lowercaseString === "callback" || trim($lowercaseString, "\\") === "closure") {
 			return CallableType::getInstance();
 
-		} elseif ($lowercaseString === "array") {
+		} elseif (strncmp($lowercaseString, "array", 5 /* strlen("array") */) === 0) {
 			return ArrayType::create(MixedType::getInstance());
 
 		} else {
