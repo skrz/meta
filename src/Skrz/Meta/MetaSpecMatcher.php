@@ -53,19 +53,19 @@ class MetaSpecMatcher
 	{
 		$typeName = $type->getName();
 
-		foreach ($this->includePatternRegexps as $includePatternRegexp) {
-			if (!preg_match($includePatternRegexp, $typeName)) {
-				return false;
-			}
-		}
-
 		foreach ($this->excludePatternRegexps as $excludePatternRegexp) {
 			if (preg_match($excludePatternRegexp, $typeName)) {
 				return false;
 			}
 		}
 
-		return true;
+		foreach ($this->includePatternRegexps as $includePatternRegexp) {
+			if (preg_match($includePatternRegexp, $typeName)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
