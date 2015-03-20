@@ -18,7 +18,7 @@ interface JsonMetaInterface
 	public static function fromJson($json, $group = null, $object = null);
 
 	/**
-	 * Serializes object into JSON array of arrays
+	 * Serializes object into JSON string
 	 *
 	 * @param object $object
 	 * @param string $group
