@@ -22,26 +22,9 @@ interface JsonMetaInterface
 	 *
 	 * @param object $object
 	 * @param string $group
+	 * @param int $options
 	 * @return array
 	 */
-	public static function toJson($object, $group = null);
-
-	/**
-	 * Serializes object into JSON serialized string
-	 *
-	 * @param object $object
-	 * @param string $group
-	 * @return mixed
-	 */
-	public static function toJsonString($object, $group = null);
-
-	/**
-	 * Serializes object into JSON serialized pretty string
-	 *
-	 * @param object $object
-	 * @param string $group
-	 * @return string
-	 */
-	public static function toJsonStringPretty($object, $group = null);
+	public static function toJson($object, $group = null, $options = 0);
 
 }

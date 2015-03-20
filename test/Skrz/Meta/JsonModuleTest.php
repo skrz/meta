@@ -46,7 +46,7 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 	{
 		$instance = new ClassWithNoProperty();
 		$json = ClassWithNoPropertyMeta::toJson($instance);
-		$this->assertEmpty((array)$json);
+		$this->assertEquals("{}", $json);
 	}
 
 	public function testClassWithNoPropertyToJsonString()
@@ -81,15 +81,11 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 	{
 		$instance = new ClassWithPublicProperty();
 		$json = ClassWithPublicPropertyMeta::toJson($instance);
-		$this->assertNotEmpty($json);
-		$this->assertObjectHasAttribute("property", $json);
-		$this->assertNull($json->property);
+		$this->assertEquals('{"property":null}', $json);
 
 		$instance->property = "value";
 		$json = ClassWithPublicPropertyMeta::toJson($instance);
-		$this->assertNotEmpty($json);
-		$this->assertObjectHasAttribute("property", $json);
-		$this->assertEquals("value", $json->property);
+		$this->assertEquals('{"property":"value"}', $json);
 	}
 
 	public function testClassWithPublicPropertyToJsonString()
@@ -128,15 +124,11 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 	{
 		$instance = new ClassWithCustomNameProperty();
 		$json = ClassWithCustomNamePropertyMeta::toJson($instance);
-		$this->assertNotEmpty($json);
-		$this->assertObjectHasAttribute("some_property", $json);
-		$this->assertNull($json->some_property);
+		$this->assertEquals('{"some_property":null}', $json);
 
 		$instance->setSomeProperty("value");
 		$json = ClassWithCustomNamePropertyMeta::toJson($instance);
-		$this->assertNotEmpty($json);
-		$this->assertObjectHasAttribute("some_property", $json);
-		$this->assertEquals("value", $json->some_property);
+		$this->assertEquals('{"some_property":"value"}', $json);
 	}
 
 	public function testClassWithCustomNamePropertyToJsonString()
@@ -211,10 +203,10 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 		$bInstance = new ClassWithDiscriminatorValueB();
 		$bInstance->b = 21;
 
-		$this->assertEquals('{"a":42,"value":"a"}', ClassWithDiscriminatorMapMeta::toJsonString($aInstance));
-		$this->assertEquals('{"a":{"a":42,"value":null}}', ClassWithDiscriminatorMapMeta::toJsonString($aInstance, "top"));
-		$this->assertEquals('{"b":21,"value":"b"}', ClassWithDiscriminatorMapMeta::toJsonString($bInstance));
-		$this->assertEquals('{"b":{"b":21,"value":null}}', ClassWithDiscriminatorMapMeta::toJsonString($bInstance, "top"));
+		$this->assertEquals('{"a":42,"value":"a"}', ClassWithDiscriminatorMapMeta::toJson($aInstance));
+		$this->assertEquals('{"a":{"a":42,"value":null}}', ClassWithDiscriminatorMapMeta::toJson($aInstance, "top"));
+		$this->assertEquals('{"b":21,"value":"b"}', ClassWithDiscriminatorMapMeta::toJson($bInstance));
+		$this->assertEquals('{"b":{"b":21,"value":null}}', ClassWithDiscriminatorMapMeta::toJson($bInstance, "top"));
 	}
 
 }

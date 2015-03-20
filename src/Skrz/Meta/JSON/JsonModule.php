@@ -158,18 +158,20 @@ class JsonModule extends AbstractModule
 		$toJson->setStatic(true);
 		$toJson->addParameter("object");
 		$toJson->addParameter("group")->setOptional(true);
+		$toJson->addParameter("options", 0)->setOptional(true);
 		$toJson
-			->addDocument("Serializes \\{$type->getName()} to JSON array")
+			->addDocument("Serializes \\{$type->getName()} to JSON string")
 			->addDocument("")
 			->addDocument("@param {$inputOutputTypeHint} \$object")
 			->addDocument("@param string \$group")
+			->addDocument("@param int \$options")
 			->addDocument("")
 			->addDocument("@throws \\InvalidArgumentException")
 			->addDocument("")
-			->addDocument("@return array");
+			->addDocument("@return string");
 
 		$toJson
-			->addBody("return self::toObject(\$object, 'json:' . \$group);");
+			->addBody("return json_encode(self::toObject(\$object, 'json:' . \$group), \$options);");
 
 		// toJsonString()
 		$toJsonString = $class->addMethod("toJsonString");
@@ -177,16 +179,18 @@ class JsonModule extends AbstractModule
 		$toJsonString->addParameter("object");
 		$toJsonString->addParameter("group")->setOptional(true);
 		$toJsonString
-			->addDocument("Serializes \\{$type->getName()} to JSON string")
+			->addDocument("Serializes \\{$type->getName()} to JSON string (only for BC, TO BE REMOVED)")
 			->addDocument("")
 			->addDocument("@param {$inputOutputTypeHint} \$object")
 			->addDocument("@param string \$group")
 			->addDocument("")
 			->addDocument("@throws \\InvalidArgumentException")
 			->addDocument("")
-			->addDocument("@return array");
+			->addDocument("@deprecated")
+			->addDocument("")
+			->addDocument("@return string");
 
-		$toJsonString->addBody("return json_encode((object)self::toJson(\$object, \$group));");
+		$toJsonString->addBody("return self::toJson(\$object, \$group);");
 
 		// toJsonStringPretty()
 		$toJsonStringPretty = $class->addMethod("toJsonStringPretty");
@@ -194,16 +198,18 @@ class JsonModule extends AbstractModule
 		$toJsonStringPretty->addParameter("object");
 		$toJsonStringPretty->addParameter("group")->setOptional(true);
 		$toJsonStringPretty
-			->addDocument("Serializes \\{$type->getName()} to JSON pretty string")
+			->addDocument("Serializes \\{$type->getName()} to JSON pretty string (only for BC, TO BE REMOVED)")
 			->addDocument("")
 			->addDocument("@param {$inputOutputTypeHint} \$object")
 			->addDocument("@param string \$group")
 			->addDocument("")
 			->addDocument("@throws \\InvalidArgumentException")
 			->addDocument("")
-			->addDocument("@return array");
+			->addDocument("@deprecated")
+			->addDocument("")
+			->addDocument("@return string");
 
-		$toJsonStringPretty->addBody("return json_encode((object)self::toJson(\$object, \$group), JSON_PRETTY_PRINT);");
+		$toJsonStringPretty->addBody("return self::toJson(\$object, \$group, JSON_PRETTY_PRINT);");
 	}
 
 }
