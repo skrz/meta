@@ -409,7 +409,7 @@ class PhpModule extends AbstractModule
 
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
-					$to->addBody("if ((\$id & {$groupId}) > 0) {"); // FIXME: group group IDs by offset
+					$to->addBody("if ((\$id & {$groupId}) > 0" . ($arrayOffset->ignoreNull ? " && isset(\$object->{$property->getName()})" : "") . ") {"); // FIXME: group group IDs by offset
 
 					$objectPath = "\$object->{$property->getName()}";
 					$arrayPath = "\$output[" . var_export($arrayOffset->offset, true) . "]";

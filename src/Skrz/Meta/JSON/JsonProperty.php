@@ -17,4 +17,7 @@ final class JsonProperty
 	/** @var string */
 	public $group = JsonProperty::DEFAULT_GROUP;
 
+	/** @var boolean */
+	public $ignoreNull = true;
+
 }

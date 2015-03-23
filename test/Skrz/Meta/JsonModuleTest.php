@@ -81,7 +81,7 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 	{
 		$instance = new ClassWithPublicProperty();
 		$json = ClassWithPublicPropertyMeta::toJson($instance);
-		$this->assertEquals('{"property":null}', $json);
+		$this->assertEquals('{}', $json);
 
 		$instance->property = "value";
 		$json = ClassWithPublicPropertyMeta::toJson($instance);
@@ -92,7 +92,7 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 	{
 		$instance = new ClassWithPublicProperty();
 		$json = ClassWithPublicPropertyMeta::toJsonString($instance);
-		$this->assertEquals('{"property":null}', $json);
+		$this->assertEquals('{}', $json);
 
 		$instance->property = "value";
 		$json = ClassWithPublicPropertyMeta::toJsonString($instance);
@@ -124,7 +124,7 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 	{
 		$instance = new ClassWithCustomNameProperty();
 		$json = ClassWithCustomNamePropertyMeta::toJson($instance);
-		$this->assertEquals('{"some_property":null}', $json);
+		$this->assertEquals('{}', $json);
 
 		$instance->setSomeProperty("value");
 		$json = ClassWithCustomNamePropertyMeta::toJson($instance);
@@ -135,7 +135,7 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 	{
 		$instance = new ClassWithCustomNameProperty();
 		$json = ClassWithCustomNamePropertyMeta::toJsonString($instance);
-		$this->assertEquals('{"some_property":null}', $json);
+		$this->assertEquals('{}', $json);
 
 		$instance->setSomeProperty("value");
 		$json = ClassWithCustomNamePropertyMeta::toJsonString($instance);
@@ -204,9 +204,9 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 		$bInstance->b = 21;
 
 		$this->assertEquals('{"a":42,"value":"a"}', ClassWithDiscriminatorMapMeta::toJson($aInstance));
-		$this->assertEquals('{"a":{"a":42,"value":null}}', ClassWithDiscriminatorMapMeta::toJson($aInstance, "top"));
+		$this->assertEquals('{"a":{"a":42}}', ClassWithDiscriminatorMapMeta::toJson($aInstance, "top"));
 		$this->assertEquals('{"b":21,"value":"b"}', ClassWithDiscriminatorMapMeta::toJson($bInstance));
-		$this->assertEquals('{"b":{"b":21,"value":null}}', ClassWithDiscriminatorMapMeta::toJson($bInstance, "top"));
+		$this->assertEquals('{"b":{"b":21}}', ClassWithDiscriminatorMapMeta::toJson($bInstance, "top"));
 	}
 
 }

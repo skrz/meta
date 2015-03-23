@@ -89,6 +89,7 @@ class JsonModule extends AbstractModule
 				$annotations[] = $arrayOffset = new PhpArrayOffset();
 				$arrayOffset->offset = $jsonProperty->name;
 				$arrayOffset->group = "json:" . $jsonProperty->group;
+				$arrayOffset->ignoreNull = $jsonProperty->ignoreNull;
 			}
 
 			$property->setAnnotations($annotations);

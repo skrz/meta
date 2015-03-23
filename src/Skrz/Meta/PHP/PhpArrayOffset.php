@@ -18,4 +18,7 @@ final class PhpArrayOffset
 	/** @var string */
 	public $group = PhpArrayOffset::DEFAULT_GROUP;
 
+	/** @var boolean */
+	public $ignoreNull = false;
+
 }
