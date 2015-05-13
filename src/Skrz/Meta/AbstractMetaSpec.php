@@ -132,8 +132,13 @@ abstract class AbstractMetaSpec
 					}
 				}
 
-				if (!file_put_contents($outputFileName, (string)$file)) {
-					throw new MetaException("Could not write output to file '{$outputFileName}'.");
+				$content = (string)$file;
+
+				// do not overwrite files with same content
+				if (!file_exists($outputFileName) || md5_file($outputFileName) !== md5($content)) {
+					if (!file_put_contents($outputFileName, $content)) {
+						throw new MetaException("Could not write output to file '{$outputFileName}'.");
+					}
 				}
 
 				break;
