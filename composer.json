@@ -20,10 +20,14 @@
     },
     "autoload": {
         "psr-4": {
-            "Skrz\\Meta\\": [ "src/Skrz/Meta/", "test/Skrz/Meta/" ]
+            "Skrz\\Meta\\": [
+                "src/Skrz/Meta/",
+                "test/Skrz/Meta/"
+            ]
         },
-        "classmap": [ "src/Skrz/Meta", "test/Skrz/Meta" ],
-        "files": [ "src/annotations.php" ]
+        "files": [
+            "src/annotations.php"
+        ]
     },
     "bin": [
         "bin/meta.php"

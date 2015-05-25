@@ -1,5 +1,23 @@
 # Skrz\Meta
 
+[![Build Status](https://travis-ci.org/skrz/meta.svg?branch=master)](https://travis-ci.org/skrz/master)
+[![Downloads this Month](https://img.shields.io/packagist/dm/skrz/meta.svg)](https://packagist.org/packages/skrz/meta)
+[![Latest stable](https://img.shields.io/packagist/v/skrz/meta.svg)](https://packagist.org/packages/skrz/meta)
+
+> Different wire formats, different data sources, single object model
+
+## Requirements
+
+`Skrz\Meta` requires PHP `>= 5.3.0` and Symfony `>= 2.5.0`.
+
+## Installation
+
+Add as [Composer](https://getcomposer.org/) dependency:
+
+```sh
+$ composer require skrz/meta:@dev
+```
+
 ## Why?
 
 At [Skrz.cz](http://skrz.cz/), we work heavily with many different input/output formats and data sources (databases).
@@ -124,7 +142,7 @@ After the meta classes has been generated, usage is quite simple:
     // )
 
 
-    echo CategoryMeta::toJsonString($childCategory);
+    echo CategoryMeta::toJson($childCategory);
     // {"name":"The child category","slug":"child-category","parentCategory":{"name":"The parent category","slug":"parent-category","parentCategory":null}}
 
 
@@ -201,6 +219,9 @@ Also `Skrz\Meta` offers so called _groups_ - different sources can offer differe
 
 ### `@JsonProperty`
 
+`@JsonProperty` marks names of JSON properties. (Internally every group created by `@JsonProperty` creates PHP group
+prefixed by `json:` - PHP object is first mapped to array using `json:` group, then the array is serialized using
+`json_encode()`.)
 
     namespace Skrz\API;
 
@@ -239,11 +260,103 @@ Also `Skrz\Meta` offers so called _groups_ - different sources can offer differe
     ));
 
     var_export(CategoryMeta::toJson($category));
-    // (object) array(
-    //     "NAME" => "My category name",
-    //     "sLuG" => "category",
-    // )
+    // {"NAME":"My category name","sLuG":"category"}
 
+### `@PhpDiscriminatorMap` & `@JsonDiscriminatorMap`
+
+`@PhpDiscriminatorMap` and `@JsonDiscriminatorMap` encapsulate inheritance.
+
+    namespace Animals;
+    
+    use Skrz\Meta\PHP\PhpArrayOffset;
+    
+    /**
+     * @PhpDiscriminatorMap({
+     *     "cat" => "Animals\Cat", // specify subclass
+     *     "dog" => "Animals\Dog"
+     * })
+    class Animal
+    {
+    
+        /**
+         * @var string
+         */
+        protected $name;
+        
+    }
+    
+    class Cat extends Animal 
+    {
+        public function meow() { echo "{$this->name}: meow"; }
+    }
+    
+    class Dog extends Animal
+    {
+        public function bark() { echo "{$this->name}: woof"; }
+    }
+    
+    // ...
+    
+    use Animals\Meta\AnimalMeta;
+    
+    $cat = AnimalMeta::fromArray(["cat" => ["name" => "Oreo"]]);
+    $cat->meow();
+    // prints "Oreo: meow"
+    
+    $dog = AnimalMeta::fromArray(["dog" => ["name" => "Mutt"]]);
+    $dog->bark();
+    // prints "Mutt: woof"
+
+### `@PhpDiscriminatorOffset` & `@JsonDiscriminatorProperty`
+
+`@PhpDiscriminatorOffset` and `@JsonDiscriminatorProperty` make subclasses differentiated using offset/property.
+
+    namespace Animals;
+    
+    use Skrz\Meta\PHP\PhpArrayOffset;
+    
+    /**
+     * @PhpDiscriminatorOffset("type")
+     * @PhpDiscriminatorMap({
+     *     "cat" => "Animals\Cat", // specify subclass
+     *     "dog" => "Animals\Dog"
+     * })
+    class Animal
+    {
+    
+        /**
+         * @var string
+         */
+        protected $type;
+    
+        /**
+         * @var string
+         */
+        protected $name;
+        
+    }
+    
+    class Cat extends Animal 
+    {
+        public function meow() { echo "{$this->name}: meow"; }
+    }
+    
+    class Dog extends Animal
+    {
+        public function bark() { echo "{$this->name}: woof"; }
+    }
+    
+    // ...
+    
+    use Animals\Meta\AnimalMeta;
+    
+    $cat = AnimalMeta::fromArray(["type" => "cat", "name" => "Oreo"]);
+    $cat->meow();
+    // prints "Oreo: meow"
+    
+    $dog = AnimalMeta::fromArray(["type" => "dog", "name" => "Mutt"]);
+    $dog->bark();
+    // prints "Mutt: woof"
 
 ## Known limitations
 
