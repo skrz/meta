@@ -84,6 +84,8 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 			"\t}\n" .
 			"} elseif (is_array({$inputExpression}) && isset({$inputExpression}['date'])) {\n" .
 			"\t\$datetimeInstanceReturn = new \\DateTime({$inputExpression}['date']);\n" .
+			"} elseif ({$inputExpression} === null) {\n" .
+			"\t\$datetimeInstanceReturn = null;\n" .
 			"} else {\n" .
 			"\tthrow new \\InvalidArgumentException('Could not deserialize date of format ' . " . var_export($this->format, true) . " . '.');\n" .
 			"}",

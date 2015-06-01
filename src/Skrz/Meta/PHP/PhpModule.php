@@ -250,8 +250,9 @@ class PhpModule extends AbstractModule
 				foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
-					$arrayPath = "\$input[" . var_export($arrayOffset->offset, true) . "]";
-					$objectPath = "\$object->{$property->getName()}";
+					$arrayKey = var_export($arrayOffset->offset, true);
+					$baseArrayPath = $arrayPath = "\$input[{$arrayKey}]";
+					$baseObjectPath = $objectPath = "\$object->{$property->getName()}";
 					$from->addBody("if ((\$id & {$groupId}) > 0 && isset({$arrayPath})) {"); // FIXME: group group IDs by offset
 
 					$baseType = $property->getType();
@@ -315,6 +316,8 @@ class PhpModule extends AbstractModule
 					}
 
 					$from
+						->addBody("} elseif ((\$id & {$groupId}) > 0 && array_key_exists({$arrayKey}, \$input) && {$baseArrayPath} === NULL) {")
+						->addBody("\t{$baseObjectPath} = NULL;")
 						->addBody("}");
 				}
 

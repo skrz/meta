@@ -332,4 +332,36 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 		$this->assertArrayNotHasKey("a", $bArray);
 	}
 
+	public function testOverwriteClassWithPublicPropertyFromArray()
+	{
+		$instance = new ClassWithPublicProperty();
+		$instance->property = "foobar";
+		$this->assertEquals("foobar", $instance->property);
+
+		ClassWithPublicPropertyMeta::fromArray(["property" => null], null, $instance);
+		$this->assertNull($instance->property);
+	}
+
+	public function testOverwriteClassWithDatetimePropertyFromArray()
+	{
+		$now = new \DateTime();
+
+		$instance = new ClassWithDatetimeProperty();
+		$instance->datetime = $now;
+		$this->assertEquals($now, $instance->datetime);
+
+		ClassWithDatetimePropertyMeta::fromArray(["datetime" => null], null, $instance);
+		$this->assertNull($instance->datetime);
+	}
+
+	public function testOverwriteClassWithArrayPropertyFromArray()
+	{
+		$instance = new ClassWithArrayProperty();
+		$instance->array = ["foo" => ["bar" => "baz"]];
+		$this->assertEquals(["foo" => ["bar" => "baz"]], $instance->array);
+
+		ClassWithArrayPropertyMeta::fromArray(["array" => null], null, $instance);
+		$this->assertNull($instance->array);
+	}
+
 }
