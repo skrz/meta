@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\Reflection\Fixtures;
 
-class ClassWithProperties 
+class ClassWithProperties
 {
 
 	private $privateProperty;

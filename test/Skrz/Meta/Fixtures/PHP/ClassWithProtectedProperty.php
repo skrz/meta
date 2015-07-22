@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\Fixtures\PHP;
 
-class ClassWithProtectedProperty 
+class ClassWithProtectedProperty
 {
 
 	/**
@@ -21,4 +21,3 @@ class ClassWithProtectedProperty
 	}
 
 }
- 

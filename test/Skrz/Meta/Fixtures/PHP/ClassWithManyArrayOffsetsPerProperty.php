@@ -14,5 +14,5 @@ class ClassWithManyArrayOffsetsPerProperty
 	 * @PhpArrayOffset("bar", group="bar")
 	 */
 	public $property;
+
 }
- 

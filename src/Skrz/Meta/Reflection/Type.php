@@ -190,7 +190,7 @@ class Type extends ObjectType
 	}
 
 
-	public static function fromReflection(ReflectionClass $reflection = NULL)
+	public static function fromReflection(ReflectionClass $reflection = null)
 	{
 		if (!defined('PHP_VERSION_ID')) {
 			$v = explode('.', PHP_VERSION);
@@ -839,12 +839,11 @@ class Type extends ObjectType
 	 * @param string $annotationClassName if supplied, returns only annotations of given class name
 	 * @return object[]
 	 */
-	public function getAnnotations($annotationClassName = NULL)
+	public function getAnnotations($annotationClassName = null)
 	{
 		if ($annotationClassName === null) {
 			return $this->annotations;
 		} else {
-
 			$annotations = array();
 			foreach ($this->annotations as $annotation) {
 				if (is_a($annotation, $annotationClassName)) {
@@ -922,7 +921,7 @@ class Type extends ObjectType
 	public function getProperty($propertyName)
 	{
 		foreach ($this->getProperties() as $property) {
-			if ($property->getName() === $propertyName){
+			if ($property->getName() === $propertyName) {
 				return $property;
 			}
 		}
@@ -937,7 +936,7 @@ class Type extends ObjectType
 	public function getMethod($methodName)
 	{
 		foreach ($this->getMethods() as $method) {
-			if ($method->getName() === $methodName){
+			if ($method->getName() === $methodName) {
 				return $method;
 			}
 		}

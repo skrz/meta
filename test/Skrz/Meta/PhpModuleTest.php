@@ -38,7 +38,8 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 				->name("ClassWith*.php")
 				->notName("*Meta*")
 				->notName("ClassWithNonTransientPrivateProperty.php")
-				->files()));
+				->files()
+		));
 
 		$spec = new PhpMetaSpec();
 		$spec->processFiles($files);

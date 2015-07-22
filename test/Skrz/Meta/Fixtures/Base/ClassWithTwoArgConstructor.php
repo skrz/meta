@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\Fixtures\Base;
 
-class ClassWithTwoArgConstructor 
+class ClassWithTwoArgConstructor
 {
 
 	public $variable1;
@@ -14,6 +14,4 @@ class ClassWithTwoArgConstructor
 		$this->variable2 = $variable2;
 	}
 
-
 }
- 

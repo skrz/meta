@@ -1,5 +1,6 @@
 <?php
 namespace Skrz\Meta\PHP;
+
 use Doctrine\Common\Annotations\Annotation;
 
 /**

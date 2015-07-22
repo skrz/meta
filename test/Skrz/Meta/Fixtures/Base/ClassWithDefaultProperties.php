@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\Fixtures\Base;
 
-class ClassWithDefaultProperties 
+class ClassWithDefaultProperties
 {
 
 	public $defaultsToFoo = "foo";

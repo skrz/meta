@@ -16,17 +16,20 @@ class MetaCommand extends Command
 			->setName("meta")
 			->setDescription("Processes file/directory of files according to given meta spec class.")
 			->addOption(
-				"spec", "s",
+				"spec",
+				"s",
 				InputOption::VALUE_REQUIRED,
 				"Meta spec class name."
 			)
 			->addOption(
-				"file", "f",
+				"file",
+				"f",
 				InputOption::VALUE_REQUIRED,
 				"File to be processed."
 			)
 			->addOption(
-				"directory", "d",
+				"directory",
+				"d",
 				InputOption::VALUE_REQUIRED,
 				"Directory to be processed."
 			);

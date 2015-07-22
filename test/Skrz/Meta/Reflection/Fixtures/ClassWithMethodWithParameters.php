@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\Reflection\Fixtures;
 
-class ClassWithMethodWithParameters 
+class ClassWithMethodWithParameters
 {
 
 	public function mixedMethod($mixed, $anotherMixed)

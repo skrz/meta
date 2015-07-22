@@ -6,7 +6,7 @@ use Skrz\Meta\PHP\PhpDiscriminatorOffset;
 
 /**
  * @author Jakub Kulhan <jakub.kulhan@gmail.com>
- * 
+ *
  * @PhpDiscriminatorOffset("value")
  * @PhpDiscriminatorMap({
  *     "a" = "\Skrz\Meta\Fixtures\PHP\ClassWithDiscriminatorValueA",
@@ -18,7 +18,7 @@ use Skrz\Meta\PHP\PhpDiscriminatorOffset;
  *     "b" = "\Skrz\Meta\Fixtures\PHP\ClassWithDiscriminatorValueB",
  * }, group="top")
  */
-class ClassWithDiscriminatorMap 
+class ClassWithDiscriminatorMap
 {
 
 	/** @var string */

@@ -1,5 +1,6 @@
 <?php
 namespace Skrz\Meta\Fixtures\JSON;
+
 use Skrz\Meta\JSON\JsonDiscriminatorMap;
 use Skrz\Meta\JSON\JsonDiscriminatorProperty;
 use Skrz\Meta\JSON\JsonProperty;
@@ -18,7 +19,7 @@ use Skrz\Meta\JSON\JsonProperty;
  *     "b" = "\Skrz\Meta\Fixtures\JSON\ClassWithDiscriminatorValueB"
  * }, group="top")
  */
-class ClassWithDiscriminatorMap 
+class ClassWithDiscriminatorMap
 {
 
 	/**

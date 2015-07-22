@@ -80,7 +80,7 @@ class Property
 	}
 
 
-	public static function fromReflection(ReflectionProperty $reflection = NULL)
+	public static function fromReflection(ReflectionProperty $reflection = null)
 	{
 		if (!defined('PHP_VERSION_ID')) {
 			$v = explode('.', PHP_VERSION);
@@ -329,12 +329,11 @@ class Property
 	 * @param string $annotationClassName if supplied, returns only annotations of given class name
 	 * @return object[]
 	 */
-	public function getAnnotations($annotationClassName = NULL)
+	public function getAnnotations($annotationClassName = null)
 	{
 		if ($annotationClassName === null) {
 			return $this->annotations;
 		} else {
-
 			$annotations = array();
 			foreach ($this->annotations as $annotation) {
 				if (is_a($annotation, $annotationClassName)) {

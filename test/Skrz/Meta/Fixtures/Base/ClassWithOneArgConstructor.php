@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\Fixtures\Base;
 
-class ClassWithOneArgConstructor 
+class ClassWithOneArgConstructor
 {
 
 	/** @var mixed */

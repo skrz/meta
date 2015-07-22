@@ -25,7 +25,8 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 				->in(__DIR__ . "/Fixtures/JSON")
 				->name("ClassWith*.php")
 				->notName("*Meta*")
-				->files()));
+				->files()
+		));
 
 		$spec = new JsonMetaSpec();
 		$spec->processFiles($files);

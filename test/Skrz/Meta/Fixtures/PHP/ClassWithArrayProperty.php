@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\Fixtures\PHP;
 
-class ClassWithArrayProperty 
+class ClassWithArrayProperty
 {
 
 	/** @var string[][] */

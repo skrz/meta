@@ -1,11 +1,10 @@
 <?php
 namespace Skrz\Meta\Fixtures\JSON;
 
-class ClassWithPublicProperty 
+class ClassWithPublicProperty
 {
 
 	/** @var string */
 	public $property;
 
 }
- 

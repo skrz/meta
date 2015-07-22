@@ -14,12 +14,10 @@ class AParent
 
 interface AnInterface
 {
-
 }
 
 interface AnotherInterface
 {
-
 }
 
 trait ATrait
@@ -34,6 +32,7 @@ trait ATrait
 	{
 
 	}
+
 }
 
 trait BTrait
@@ -48,10 +47,12 @@ trait BTrait
 	{
 
 	}
+
 }
 
 class AClass extends AParent implements AnInterface, AnotherInterface
 {
+
 	use ATrait, BTrait {
 		ATrait::smallTalk insteadof BTrait;
 		BTrait::bigTalk insteadof ATrait;
@@ -77,6 +78,7 @@ class AClass extends AParent implements AnInterface, AnotherInterface
 		static $aStaticVariable = 1;
 		static $anotherStaticVariable = "bar";
 	}
+
 }
 
 require __DIR__ . "/../vendor/autoload.php";
@@ -124,7 +126,6 @@ $stackExpression = array(
 $outputDirectory = __DIR__ . "/../src";
 
 foreach ($classes as $className => $discoveryClassName) {
-
 	$file = new PhpFile();
 	$class = $file->addClass($discoveryClassName);
 	$ns = $class->getNamespace();
@@ -180,8 +181,7 @@ foreach ($classes as $className => $discoveryClassName) {
 	foreach ($rc->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
 		$is = false;
 
-		if (
-			$method->getName() !== "getTraitAliases" &&
+		if ($method->getName() !== "getTraitAliases" &&
 			$method->getName() !== "getStaticProperties" &&
 			$method->getName() !== "isCloneable" &&
 //			$method->getName() !== "getDefaultProperties" &&

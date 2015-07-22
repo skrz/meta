@@ -1,7 +1,7 @@
 <?php
 namespace Skrz\Meta\PHP;
 
-class StatementAndExpressionVO 
+class StatementAndExpressionVO
 {
 
 	/** @var string */
