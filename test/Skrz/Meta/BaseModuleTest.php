@@ -2,11 +2,6 @@
 namespace Skrz\Meta;
 
 use Skrz\Meta\Fixtures\Base\BaseMetaSpec;
-use Skrz\Meta\Fixtures\Base\ClassWithNothing;
-use Skrz\Meta\Fixtures\Base\ClassWithOneArgConstructor;
-use Skrz\Meta\Fixtures\Base\ClassWithTwoArgConstructor;
-use Skrz\Meta\Fixtures\Base\ClassWithZeroArgConstructor;
-use Skrz\Meta\Fixtures\Base\Meta\ClassThatShouldBeIgnoredMeta;
 use Skrz\Meta\Fixtures\Base\Meta\ClassWithDefaultPropertiesMeta;
 use Skrz\Meta\Fixtures\Base\Meta\ClassWithNothingMeta;
 use Skrz\Meta\Fixtures\Base\Meta\ClassWithOneArgConstructorMeta;
