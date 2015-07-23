@@ -29,6 +29,11 @@ class ConstantsModuleTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("Skrz\\Meta\\Fixtures\\Constants\\ClassWithProperties", ClassWithPropertiesMeta::CLASS_NAME);
 	}
 
+	public function testShortNameConstant()
+	{
+		$this->assertEquals("ClassWithProperties", ClassWithPropertiesMeta::SHORT_NAME);
+	}
+
 	public function testEntityNameConstant()
 	{
 		$this->assertEquals("classWithProperties", ClassWithPropertiesMeta::ENTITY_NAME);

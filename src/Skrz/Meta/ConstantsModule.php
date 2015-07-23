@@ -90,6 +90,7 @@ class ConstantsModule extends AbstractModule
 	public function onGenerate(AbstractMetaSpec $spec, MetaSpecMatcher $matcher, Type $type, ClassType $class)
 	{
 		$class->addConst("CLASS_NAME", $type->getName());
+		$class->addConst("SHORT_NAME", $type->getShortName());
 		$class->addConst("ENTITY_NAME", lcfirst($type->getShortName()));
 
 		foreach ($type->getProperties() as $property) {
