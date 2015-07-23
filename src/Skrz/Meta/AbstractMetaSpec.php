@@ -110,13 +110,6 @@ abstract class AbstractMetaSpec
 				}
 
 				$file = new PhpFile();
-				$file
-					->addDocument("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-					->addDocument("!!!                                                    !!!")
-					->addDocument("!!!   THIS FILE HAS BEEN AUTO-GENERATED, DO NOT EDIT   !!!")
-					->addDocument("!!!                                                    !!!")
-					->addDocument("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
 				$class = $this->createMetaClass($type, $file);
 
 				foreach ($matcher->getModules() as $module) {

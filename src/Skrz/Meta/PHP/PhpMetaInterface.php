@@ -26,7 +26,7 @@ interface PhpMetaInterface extends MetaInterface
 	 * @param string $group
 	 * @return array
 	 */
-	public static function toArray($object, $group = null);
+	public static function toArray($object, $group = PhpArrayOffset::DEFAULT_GROUP);
 
 	/**
 	 * Creates object from any object with public properties (mostly \stdClass)
@@ -45,6 +45,6 @@ interface PhpMetaInterface extends MetaInterface
 	 * @param string $group
 	 * @return \stdClass
 	 */
-	public static function toObject($object, $group = null);
+	public static function toObject($object, $group = PhpArrayOffset::DEFAULT_GROUP);
 
 }

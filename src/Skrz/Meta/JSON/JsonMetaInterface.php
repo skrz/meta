@@ -15,7 +15,7 @@ interface JsonMetaInterface
 	 * @param object $object
 	 * @return object
 	 */
-	public static function fromJson($json, $group = null, $object = null);
+	public static function fromJson($json, $group = JsonProperty::DEFAULT_GROUP, $object = null);
 
 	/**
 	 * Serializes object into JSON string
@@ -25,6 +25,6 @@ interface JsonMetaInterface
 	 * @param int $options
 	 * @return array
 	 */
-	public static function toJson($object, $group = null, $options = 0);
+	public static function toJson($object, $group = JsonProperty::DEFAULT_GROUP, $options = 0);
 
 }

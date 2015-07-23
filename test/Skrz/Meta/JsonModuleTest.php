@@ -1,12 +1,14 @@
 <?php
 namespace Skrz\Meta;
 
+use Skrz\Meta\Fixtures\JSON\ClassWithArrayOfJsonRoot;
 use Skrz\Meta\Fixtures\JSON\ClassWithCustomNameProperty;
 use Skrz\Meta\Fixtures\JSON\ClassWithDiscriminatorValueA;
 use Skrz\Meta\Fixtures\JSON\ClassWithDiscriminatorValueB;
 use Skrz\Meta\Fixtures\JSON\ClassWithNoProperty;
 use Skrz\Meta\Fixtures\JSON\ClassWithPublicProperty;
 use Skrz\Meta\Fixtures\JSON\JsonMetaSpec;
+use Skrz\Meta\Fixtures\JSON\Meta\ClassWithArrayOfJsonRootMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithCustomNamePropertyMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithDiscriminatorMapMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithNoPropertyMeta;
@@ -208,6 +210,69 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('{"a":{"a":42}}', ClassWithDiscriminatorMapMeta::toJson($aInstance, "top"));
 		$this->assertEquals('{"b":21,"value":"b"}', ClassWithDiscriminatorMapMeta::toJson($bInstance));
 		$this->assertEquals('{"b":{"b":21}}', ClassWithDiscriminatorMapMeta::toJson($bInstance, "top"));
+	}
+
+	public function testClassWithArrayOfJsonRootFromArrayOfJson()
+	{
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\Meta\\ClassWithArrayOfJsonRootMeta", ClassWithArrayOfJsonRootMeta::getInstance());
+
+		$instance = ClassWithArrayOfJsonRootMeta::fromArrayOfJson(array("direct" => "foo", "nested" => '{"property":"bar"}'));
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithArrayOfJsonRoot", $instance);
+		$this->assertEquals("foo", $instance->direct);
+		$this->assertNotNull($instance->nested);
+		$this->assertEquals("bar", $instance->nested->property);
+
+		ClassWithArrayOfJsonRootMeta::fromArrayOfJson(array("direct" => "qux"), null, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithArrayOfJsonRoot", $instance);
+		$this->assertEquals("qux", $instance->direct);
+		$this->assertNotNull($instance->nested);
+		$this->assertEquals("bar", $instance->nested->property);
+
+		ClassWithArrayOfJsonRootMeta::fromArrayOfJson(array("nested" => '{"property":"baz"}'), null, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithArrayOfJsonRoot", $instance);
+		$this->assertEquals("qux", $instance->direct);
+		$this->assertNotNull($instance->nested);
+		$this->assertEquals("baz", $instance->nested->property);
+
+		ClassWithArrayOfJsonRootMeta::fromArrayOfJson(array("arrayOfStrings" => '[]'), null, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithArrayOfJsonRoot", $instance);
+		$this->assertEquals("qux", $instance->direct);
+		$this->assertNotNull($instance->nested);
+		$this->assertEquals("baz", $instance->nested->property);
+		$this->assertEquals(array(), $instance->arrayOfStrings);
+
+		ClassWithArrayOfJsonRootMeta::fromArrayOfJson(array("arrayOfStrings" => '["zzz"]'), null, $instance);
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithArrayOfJsonRoot", $instance);
+		$this->assertEquals("qux", $instance->direct);
+		$this->assertNotNull($instance->nested);
+		$this->assertEquals("baz", $instance->nested->property);
+		$this->assertEquals(array("zzz"), $instance->arrayOfStrings);
+	}
+
+	public function testClassWithArrayOfJsonRootToArrayOfJson()
+	{
+		$instance = new ClassWithArrayOfJsonRoot();
+
+		$instance->direct = "foo";
+		$this->assertEquals(array("direct" => "foo"), ClassWithArrayOfJsonRootMeta::toArrayOfJson($instance));
+
+		$instance->nested = new ClassWithPublicProperty();
+		$this->assertEquals(array("direct" => "foo", "nested" => '{}'), ClassWithArrayOfJsonRootMeta::toArrayOfJson($instance));
+
+		$instance->nested->property = "bar";
+		$this->assertEquals(array("direct" => "foo", "nested" => '{"property":"bar"}'), ClassWithArrayOfJsonRootMeta::toArrayOfJson($instance));
+
+		$instance->nested = null;
+		$this->assertEquals(array("direct" => "foo"), ClassWithArrayOfJsonRootMeta::toArrayOfJson($instance));
+
+		$instance->arrayOfStrings = array();
+		$this->assertEquals(array("direct" => "foo", "arrayOfStrings" => '[]'), ClassWithArrayOfJsonRootMeta::toArrayOfJson($instance));
+
+		$instance->arrayOfStrings[] = "qux";
+		$this->assertEquals(array("direct" => "foo", "arrayOfStrings" => '["qux"]'), ClassWithArrayOfJsonRootMeta::toArrayOfJson($instance));
+
+		$instance->arrayOfStrings[] = "baz";
+		$this->assertEquals(array("direct" => "foo", "arrayOfStrings" => '["qux","baz"]'), ClassWithArrayOfJsonRootMeta::toArrayOfJson($instance));
 	}
 
 }

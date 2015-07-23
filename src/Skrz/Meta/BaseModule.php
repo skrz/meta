@@ -30,7 +30,11 @@ class BaseModule extends AbstractModule
 		$class
 			->addDocument("Meta class for \\{$type->getName()}")
 			->addDocument("")
-			->addDocument("THIS CLASS IS AUTO-GENERATED! DO NOT EDIT!");
+			->addDocument("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+			->addDocument("!!!                                                     !!!")
+			->addDocument("!!!   THIS CLASS HAS BEEN AUTO-GENERATED, DO NOT EDIT   !!!")
+			->addDocument("!!!                                                     !!!")
+			->addDocument("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
 		// constructor
 		$constructor = $class->addMethod("__construct");

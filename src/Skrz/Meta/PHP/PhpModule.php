@@ -8,6 +8,7 @@ use Skrz\Meta\AbstractModule;
 use Skrz\Meta\MetaException;
 use Skrz\Meta\MetaSpecMatcher;
 use Skrz\Meta\Reflection\ArrayType;
+use Skrz\Meta\Reflection\Property;
 use Skrz\Meta\Reflection\ScalarType;
 use Skrz\Meta\Reflection\Type;
 
@@ -278,13 +279,7 @@ class PhpModule extends AbstractModule
 						$from->addBody(rtrim($before));
 					}
 
-					$matchingPropertySerializer = null;
-					foreach ($this->propertySerializers as $propertySerializer) {
-						if ($propertySerializer->matchesDeserialize($property, $arrayOffset->group)) {
-							$matchingPropertySerializer = $propertySerializer;
-							break;
-						}
-					}
+					$matchingPropertySerializer = $this->getMatchingPropertySerializer($property, $arrayOffset);
 
 					if ($matchingPropertySerializer !== null) {
 						$sevo = $matchingPropertySerializer->deserialize($property, $arrayOffset->group, $arrayPath);
@@ -438,13 +433,7 @@ class PhpModule extends AbstractModule
 						$to->addBody(rtrim($before));
 					}
 
-					$matchingPropertySerializer = null;
-					foreach ($this->propertySerializers as $propertySerializer) {
-						if ($propertySerializer->matchesSerialize($property, $arrayOffset->group)) {
-							$matchingPropertySerializer = $propertySerializer;
-							break;
-						}
-					}
+					$matchingPropertySerializer = $this->getMatchingPropertySerializer($property, $arrayOffset);
 
 					if ($matchingPropertySerializer !== null) {
 						$sevo = $matchingPropertySerializer->serialize($property, $arrayOffset->group, $objectPath);
@@ -482,6 +471,19 @@ class PhpModule extends AbstractModule
 
 			$to->addBody("return " . ($what === "Object" ? "(object)" : "") . "\$output;");
 		}
+	}
+
+	public function getMatchingPropertySerializer(Property $property, PhpArrayOffset $arrayOffset)
+	{
+		$matchingPropertySerializer = null;
+		foreach ($this->propertySerializers as $propertySerializer) {
+			if ($propertySerializer->matchesSerialize($property, $arrayOffset->group)) {
+				$matchingPropertySerializer = $propertySerializer;
+				break;
+			}
+		}
+
+		return $matchingPropertySerializer;
 	}
 
 }
