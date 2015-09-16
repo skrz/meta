@@ -163,12 +163,14 @@ class JsonModule extends AbstractModule
 		$toJson->setStatic(true);
 		$toJson->addParameter("object");
 		$toJson->addParameter("group")->setOptional(true);
+		$toJson->addParameter("filterOrOptions")->setOptional(true);
 		$toJson->addParameter("options", 0)->setOptional(true);
 		$toJson
 			->addDocument("Serializes \\{$type->getName()} to JSON string")
 			->addDocument("")
 			->addDocument("@param {$inputOutputTypeHint} \$object")
 			->addDocument("@param string \$group")
+			->addDocument("@param array|int \$filterOrOptions")
 			->addDocument("@param int \$options")
 			->addDocument("")
 			->addDocument("@throws \\InvalidArgumentException")
@@ -176,7 +178,12 @@ class JsonModule extends AbstractModule
 			->addDocument("@return string");
 
 		$toJson
-			->addBody("return json_encode(self::toObject(\$object, 'json:' . \$group), \$options);");
+			->addBody("if (is_int(\$filterOrOptions)) {")
+			->addBody("\t\$options = \$filterOrOptions;")
+			->addBody("\t\$filterOrOptions = NULL;")
+			->addBody("}")
+			->addBody("")
+			->addBody("return json_encode(self::toObject(\$object, 'json:' . \$group, \$filterOrOptions), \$options);");
 
 		// toJsonString()
 		$toJsonString = $class->addMethod("toJsonString");
@@ -216,108 +223,113 @@ class JsonModule extends AbstractModule
 
 		$toJsonStringPretty->addBody("return self::toJson(\$object, \$group, JSON_PRETTY_PRINT);");
 
-		if ($type->hasAnnotation("Skrz\\Meta\\JSON\\ArrayOfJsonRoot")) {
-			$ns->addUse("Skrz\\Meta\\JSON\\ArrayOfJsonMetaInterface");
-			$class->addImplement("Skrz\\Meta\\JSON\\ArrayOfJsonMetaInterface");
+		// fromArrayOfJson(), toArrayOfJson()
+		$fromArrayOfJson = $class->addMethod("fromArrayOfJson");
+		$fromArrayOfJson->setStatic(true);
+		$fromArrayOfJson->addParameter("input");
+		$fromArrayOfJson->addParameter("group")->setOptional(true);
+		$fromArrayOfJson->addParameter("object")->setOptional(true);
 
-			$fromArrayOfJson = $class->addMethod("fromArrayOfJson");
-			$fromArrayOfJson->setStatic(true);
-			$fromArrayOfJson->addParameter("input");
-			$fromArrayOfJson->addParameter("group")->setOptional(true);
-			$fromArrayOfJson->addParameter("object")->setOptional(true);
+		$fromArrayOfJson
+			->addDocument("Creates \\{$type->getName()} from array of JSON-serialized properties")
+			->addDocument("")
+			->addDocument("@param array \$input")
+			->addDocument("@param string \$group")
+			->addDocument("@param {$inputOutputTypeHint} \$object")
+			->addDocument("")
+			->addDocument("@return {$inputOutputTypeHint}");
 
-			$fromArrayOfJson
-				->addDocument("Creates \\{$type->getName()} from array of JSON-serialized properties")
-				->addDocument("")
-				->addDocument("@param array \$input")
-				->addDocument("@param string \$group")
-				->addDocument("@param {$inputOutputTypeHint} \$object")
-				->addDocument("")
-				->addDocument("@return {$inputOutputTypeHint}");
-
-			$fromArrayOfJson
-				->addBody("\$group = 'json:' . \$group;")
-				->addBody("if (!isset(self::\$groups[\$group])) {")
-				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
-				->addBody("} else {")
-				->addBody("\t\$id = self::\$groups[\$group];")
-				->addBody("}")
-				->addBody("");
+		$fromArrayOfJson
+			->addBody("\$group = 'json:' . \$group;")
+			->addBody("if (!isset(self::\$groups[\$group])) {")
+			->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
+			->addBody("} else {")
+			->addBody("\t\$id = self::\$groups[\$group];")
+			->addBody("}")
+			->addBody("");
 
 
-			$toArrayOfJson = $class->addMethod("toArrayOfJson");
-			$toArrayOfJson->setStatic(true);
-			$toArrayOfJson->addParameter("object");
-			$toArrayOfJson->addParameter("group")->setOptional(true);
-			$toArrayOfJson->addParameter("options", 0)->setOptional(true);
-			$toArrayOfJson
-				->addDocument("Transforms \\{$type->getName()} into array of JSON-serialized strings")
-				->addDocument("")
-				->addDocument("@param {$inputOutputTypeHint} \$object")
-				->addDocument("@param string \$group")
-				->addDocument("@param int \$options")
-				->addDocument("")
-				->addDocument("@throws \\InvalidArgumentException")
-				->addDocument("")
-				->addDocument("@return array");
+		$toArrayOfJson = $class->addMethod("toArrayOfJson");
+		$toArrayOfJson->setStatic(true);
+		$toArrayOfJson->addParameter("object");
+		$toArrayOfJson->addParameter("group")->setOptional(true);
+		$toArrayOfJson->addParameter("filterOrOptions", 0)->setOptional(true);
+		$toArrayOfJson->addParameter("options", 0)->setOptional(true);
+		$toArrayOfJson
+			->addDocument("Transforms \\{$type->getName()} into array of JSON-serialized strings")
+			->addDocument("")
+			->addDocument("@param {$inputOutputTypeHint} \$object")
+			->addDocument("@param string \$group")
+			->addDocument("@param array|int \$filterOrOptions")
+			->addDocument("@param int \$options")
+			->addDocument("")
+			->addDocument("@throws \\InvalidArgumentException")
+			->addDocument("")
+			->addDocument("@return array");
 
-			$toArrayOfJson
-				->addBody("\$group = 'json:' . \$group;")
-				->addBody("if (!isset(self::\$groups[\$group])) {")
-				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
-				->addBody("} else {")
-				->addBody("\t\$id = self::\$groups[\$group];")
-				->addBody("}")
-				->addBody("")
-				->addBody("\$output = (array)self::toObject(\$object, \$group);")
-				->addBody("");
+		$toArrayOfJson
+			->addBody("if (is_int(\$filterOrOptions)) {")
+			->addBody("\t\$options = \$filterOrOptions;")
+			->addBody("\t\$filter = NULL;")
+			->addBody("} else {")
+			->addBody("\t\$filter = \$filterOrOptions;")
+			->addBody("}")
+			->addBody("")
+			->addBody("\$group = 'json:' . \$group;")
+			->addBody("if (!isset(self::\$groups[\$group])) {")
+			->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
+			->addBody("} else {")
+			->addBody("\t\$id = self::\$groups[\$group];")
+			->addBody("}")
+			->addBody("")
+			->addBody("\$output = (array)self::toObject(\$object, \$group, \$filter);")
+			->addBody("");
 
-			$groups = $class->getProperty("groups")->value;
+		$groups = $class->getProperty("groups")->value;
 
-			foreach ($type->getProperties() as $property) {
-				if ($property->getType() instanceof ScalarType) {
-					continue; // skip scalar fields
-				}
-
-				foreach ($property->getAnnotations("Skrz\\Meta\\JSON\\JsonProperty") as $jsonProperty) {
-					/** @var JsonProperty $jsonProperty */
-					$arrayOffset = new PhpArrayOffset();
-					$arrayOffset->offset = $jsonProperty->name;
-					$arrayOffset->group = "json:" . $jsonProperty->group;
-
-					if ($this->phpModule->getMatchingPropertySerializer($property, $arrayOffset) !== null) {
-						continue; // skip custom-serialized fields
-					}
-
-					$groupId = $groups[$arrayOffset->group];
-
-					$inputPath = var_export($arrayOffset->offset, true);
-
-					$fromArrayOfJson
-						->addBody("if ((\$id & {$groupId}) > 0 && isset(\$input[{$inputPath}]) && is_string(\$input[{$inputPath}])) {")
-						->addBody("\t\$decoded = json_decode(\$input[{$inputPath}], true);")
-						->addBody("\tif (\$decoded === null && \$input[{$inputPath}] !== '' && strcasecmp(\$input[{$inputPath}], 'null')) {")
-						->addBody("\t\tthrow new \\InvalidArgumentException('Could not decode given JSON: ' . \$input[{$inputPath}] . '.');")
-						->addBody("\t}")
-						->addBody("\t\$input[{$inputPath}] = \$decoded;")
-						->addBody("}")
-						->addBody("");
-
-					$toArrayOfJson
-						->addBody("if ((\$id & {$groupId}) > 0 && isset(\$output[{$inputPath}])) {")
-						->addBody("\t\$output[{$inputPath}] = json_encode(\$output[{$inputPath}], \$options);")
-						->addBody("}")
-						->addBody("");
-				}
+		foreach ($type->getProperties() as $property) {
+			if ($property->getType() instanceof ScalarType) {
+				continue; // skip scalar fields
 			}
 
-			$fromArrayOfJson
-				->addBody("/** @var object \$input */")
-				->addBody("return self::fromObject(\$input, \$group, \$object);");
+			foreach ($property->getAnnotations("Skrz\\Meta\\JSON\\JsonProperty") as $jsonProperty) {
+				/** @var JsonProperty $jsonProperty */
+				$arrayOffset = new PhpArrayOffset();
+				$arrayOffset->offset = $jsonProperty->name;
+				$arrayOffset->group = "json:" . $jsonProperty->group;
 
-			$toArrayOfJson
-				->addBody("return \$output;");
+				if ($this->phpModule->getMatchingPropertySerializer($property, $arrayOffset) !== null) {
+					continue; // skip custom-serialized fields
+				}
+
+				$groupId = $groups[$arrayOffset->group];
+
+				$inputPath = var_export($arrayOffset->offset, true);
+
+				$fromArrayOfJson
+					->addBody("if ((\$id & {$groupId}) > 0 && isset(\$input[{$inputPath}]) && is_string(\$input[{$inputPath}])) {")
+					->addBody("\t\$decoded = json_decode(\$input[{$inputPath}], true);")
+					->addBody("\tif (\$decoded === null && \$input[{$inputPath}] !== '' && strcasecmp(\$input[{$inputPath}], 'null')) {")
+					->addBody("\t\tthrow new \\InvalidArgumentException('Could not decode given JSON: ' . \$input[{$inputPath}] . '.');")
+					->addBody("\t}")
+					->addBody("\t\$input[{$inputPath}] = \$decoded;")
+					->addBody("}")
+					->addBody("");
+
+				$toArrayOfJson
+					->addBody("if ((\$id & {$groupId}) > 0 && isset(\$output[{$inputPath}]) && (\$filter === null || isset(\$filter[{$inputPath}]))) {")
+					->addBody("\t\$output[{$inputPath}] = json_encode(\$output[{$inputPath}], \$options);")
+					->addBody("}")
+					->addBody("");
+			}
 		}
+
+		$fromArrayOfJson
+			->addBody("/** @var object \$input */")
+			->addBody("return self::fromObject(\$input, \$group, \$object);");
+
+		$toArrayOfJson
+			->addBody("return \$output;");
 	}
 
 }

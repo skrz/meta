@@ -5,12 +5,14 @@ use Skrz\Meta\Fixtures\JSON\ClassWithArrayOfJsonRoot;
 use Skrz\Meta\Fixtures\JSON\ClassWithCustomNameProperty;
 use Skrz\Meta\Fixtures\JSON\ClassWithDiscriminatorValueA;
 use Skrz\Meta\Fixtures\JSON\ClassWithDiscriminatorValueB;
+use Skrz\Meta\Fixtures\JSON\ClassWithMoreProperties;
 use Skrz\Meta\Fixtures\JSON\ClassWithNoProperty;
 use Skrz\Meta\Fixtures\JSON\ClassWithPublicProperty;
 use Skrz\Meta\Fixtures\JSON\JsonMetaSpec;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithArrayOfJsonRootMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithCustomNamePropertyMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithDiscriminatorMapMeta;
+use Skrz\Meta\Fixtures\JSON\Meta\ClassWithMorePropertiesMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithNoPropertyMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithPublicPropertyMeta;
 use Symfony\Component\Finder\Finder;
@@ -273,6 +275,65 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 
 		$instance->arrayOfStrings[] = "baz";
 		$this->assertEquals(array("direct" => "foo", "arrayOfStrings" => '["qux","baz"]'), ClassWithArrayOfJsonRootMeta::toArrayOfJson($instance));
+	}
+
+	public function testClassWithMorePropertiesFiltered()
+	{
+		$instance = new ClassWithMoreProperties();
+		$instance->a = "foo1";
+		$instance->b = "foo2";
+		$instance->c = "foo3";
+		$instance->d = "foo4";
+		$instance->e = "foo5";
+
+		$this->assertEquals(
+			'{"a":"foo1","b":"foo2","c":"foo3","d":"foo4","e":"foo5"}',
+			ClassWithMorePropertiesMeta::toJson($instance)
+		);
+
+		$this->assertEquals(
+			'{"a":"foo1"}',
+			ClassWithMorePropertiesMeta::toJson($instance, null, [
+				"a" => true,
+			])
+		);
+
+		$this->assertEquals(
+			'{"b":"foo2","c":"foo3","d":"foo4"}',
+			ClassWithMorePropertiesMeta::toJson($instance, null, [
+				"b" => true,
+				"c" => true,
+				"d" => true,
+			])
+		);
+
+		$instance2 = new ClassWithMoreProperties();
+		$instance2->a = "foo6";
+		$instance->f = $instance2;
+
+		$this->assertEquals(
+			'{"e":"foo5","f":{"a":"foo6","b":null}}',
+			ClassWithMorePropertiesMeta::toJson($instance, null, [
+				"e" => true,
+				"f" => [
+					"a" => true,
+					"b" => true,
+				],
+			])
+		);
+
+		$instance3 = new ClassWithMoreProperties();
+		$instance3->a = "foo7";
+		$instance->g = [$instance2, $instance3];
+
+		$this->assertEquals(
+			'{"g":[{"a":"foo6"},{"a":"foo7"}]}',
+			ClassWithMorePropertiesMeta::toJson($instance, null, [
+				"g" => [
+					"a" => true,
+				],
+			])
+		);
 	}
 
 }

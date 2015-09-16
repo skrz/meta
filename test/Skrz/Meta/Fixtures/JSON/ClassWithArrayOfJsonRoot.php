@@ -1,12 +1,8 @@
 <?php
 namespace Skrz\Meta\Fixtures\JSON;
 
-use Skrz\Meta\JSON\ArrayOfJsonRoot;
-
 /**
  * @author Jakub Kulhan <jakub.kulhan@gmail.com>
- *
- * @ArrayOfJsonRoot
  */
 class ClassWithArrayOfJsonRoot
 {

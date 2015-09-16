@@ -327,12 +327,14 @@ class PhpModule extends AbstractModule
 			$to->setStatic(true);
 			$to->addParameter("object");
 			$to->addParameter("group")->setOptional(true);
+			$to->addParameter("filter")->setTypeHint("array")->setOptional(true);
 
 			$to
 				->addDocument("Serializes \\{$type->getName()} to " . strtolower($what))
 				->addDocument("")
 				->addDocument("@param {$inputOutputTypeHint} \$object")
 				->addDocument("@param string \$group")
+				->addDocument("@param array \$filter")
 				->addDocument("")
 				->addDocument("@throws \\Exception")
 				->addDocument("")
@@ -421,7 +423,12 @@ class PhpModule extends AbstractModule
 
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
-					$to->addBody("\tif ((\$id & {$groupId}) > 0" . ($arrayOffset->ignoreNull ? " && isset(\$object->{$property->getName()})" : "") . ") {"); // FIXME: group group IDs by offset
+					$to->addBody(
+						"\tif ((\$id & {$groupId}) > 0" .
+						($arrayOffset->ignoreNull
+							? " && ((isset(\$object->{$property->getName()}) && \$filter === null)"
+							: " && (\$filter === null"
+						) . " || isset(\$filter[" . var_export($arrayOffset->offset, true) . "]))) {"); // FIXME: group group IDs by offset
 
 					$objectPath = "\$object->{$property->getName()}";
 					$arrayPath = "\$output[" . var_export($arrayOffset->offset, true) . "]";
@@ -465,7 +472,8 @@ class PhpModule extends AbstractModule
 						$to->addBody(
 							"{$indent}{$arrayPath} = {$propertyTypeMetaClassNameAlias}::to{$what}(" .
 							"{$objectPath}, " .
-							"\$group" .
+							"\$group, " .
+							"\$filter === NULL ? NULL : \$filter[" . var_export($arrayOffset->offset, true) . "]" .
 							");"
 						);
 

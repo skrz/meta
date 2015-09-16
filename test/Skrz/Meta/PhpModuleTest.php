@@ -8,6 +8,7 @@ use Skrz\Meta\Fixtures\PHP\ClassWithDatetimeProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithDiscriminatorValueA;
 use Skrz\Meta\Fixtures\PHP\ClassWithDiscriminatorValueB;
 use Skrz\Meta\Fixtures\PHP\ClassWithManyArrayOffsetsPerProperty;
+use Skrz\Meta\Fixtures\PHP\ClassWithMoreProperties;
 use Skrz\Meta\Fixtures\PHP\ClassWithNoProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithPrivateProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithPropertyReferencingClass;
@@ -19,6 +20,7 @@ use Skrz\Meta\Fixtures\PHP\Meta\ClassWithCustomOffsetPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithDatetimePropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithDiscriminatorMapMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithManyArrayOffsetsPerPropertyMeta;
+use Skrz\Meta\Fixtures\PHP\Meta\ClassWithMorePropertiesMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithNoPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithPrivatePropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithPropertyReferencingClassMeta;
@@ -423,6 +425,94 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 			$this->assertEquals(0, count(Stack::$objects));
 			$this->assertEquals('You have to pass object of class Skrz\Meta\Fixtures\PHP\ClassWithRecursiveProperty.', $e->getMessage());
 		}
+	}
+
+	public function testClassWithMorePropertiesFiltered()
+	{
+		$instance = new ClassWithMoreProperties();
+		$instance->a = "foo1";
+		$instance->b = "foo2";
+		$instance->c = "foo3";
+		$instance->d = "foo4";
+		$instance->e = "foo5";
+
+		$this->assertEquals(
+			[
+				"a" => "foo1",
+				"b" => "foo2",
+				"c" => "foo3",
+				"d" => "foo4",
+				"e" => "foo5",
+				"f" => null,
+				"g" => [],
+			],
+			ClassWithMorePropertiesMeta::toArray($instance)
+		);
+
+		$this->assertEquals(
+			[
+				"a" => "foo1",
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, [
+				"a" => true,
+			])
+		);
+
+		$this->assertEquals(
+			[
+				"b" => "foo2",
+				"c" => "foo3",
+				"d" => "foo4",
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, [
+				"b" => true,
+				"c" => true,
+				"d" => true,
+			])
+		);
+
+		$instance2 = new ClassWithMoreProperties();
+		$instance2->a = "foo6";
+		$instance->f = $instance2;
+
+		$this->assertEquals(
+			[
+				"e" => "foo5",
+				"f" => [
+					"a" => "foo6",
+					"b" => null,
+				],
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, [
+				"e" => true,
+				"f" => [
+					"a" => true,
+					"b" => true,
+				],
+			])
+		);
+
+		$instance3 = new ClassWithMoreProperties();
+		$instance3->a = "foo7";
+		$instance->g = [$instance2, $instance3];
+
+		$this->assertEquals(
+			[
+				"g" => [
+					[
+						"a" => "foo6",
+					],
+					[
+						"a" => "foo7",
+					]
+				],
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, [
+				"g" => [
+					"a" => true,
+				],
+			])
+		);
 	}
 
 }

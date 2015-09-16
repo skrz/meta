@@ -13,6 +13,7 @@ interface JsonMetaInterface
 	 * @param string|array $json
 	 * @param string $group
 	 * @param object $object
+	 *
 	 * @return object
 	 */
 	public static function fromJson($json, $group = JsonProperty::DEFAULT_GROUP, $object = null);
@@ -22,9 +23,34 @@ interface JsonMetaInterface
 	 *
 	 * @param object $object
 	 * @param string $group
+	 * @param array|int $filterOrOptions
 	 * @param int $options
+	 *
 	 * @return array
 	 */
-	public static function toJson($object, $group = JsonProperty::DEFAULT_GROUP, $options = 0);
+	public static function toJson($object, $group = JsonProperty::DEFAULT_GROUP, $filterOrOptions = null, $options = 0);
+
+	/**
+	 * Creates object from array of JSON-serialized properties
+	 *
+	 * @param array $input
+	 * @param string $group
+	 * @param object $object
+	 *
+	 * @return object
+	 */
+	public static function fromArrayOfJson($input, $group = JsonProperty::DEFAULT_GROUP, $object = null);
+
+	/**
+	 * Transforms object into array of JSON-serialized strings
+	 *
+	 * @param object $object
+	 * @param string $group
+	 * @param array|int $filterOrOptions
+	 * @param int $options
+	 *
+	 * @return array
+	 */
+	public static function toArrayOfJson($object, $group = JsonProperty::DEFAULT_GROUP, $filterOrOptions = null, $options = 0);
 
 }
