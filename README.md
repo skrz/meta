@@ -289,6 +289,7 @@ use Skrz\Meta\PHP\PhpArrayOffset;
  *     "cat" => "Animals\Cat", // specify subclass
  *     "dog" => "Animals\Dog"
  * })
+ */
 class Animal
 {
 
@@ -337,6 +338,7 @@ use Skrz\Meta\PHP\PhpArrayOffset;
  *     "cat" => "Animals\Cat", // specify subclass
  *     "dog" => "Animals\Dog"
  * })
+ */
 class Animal
 {
 
