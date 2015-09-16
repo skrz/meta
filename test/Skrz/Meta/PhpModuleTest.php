@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta;
 
+use Skrz\Meta\Fixtures\PHP\ArrayCollection;
 use Skrz\Meta\Fixtures\PHP\ClassWithArrayProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithCustomOffsetProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithDatetimeProperty;
@@ -251,6 +252,32 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 	{
 		$instance = new ClassWithArrayProperty();
 		$instance->array = array("foo" => array("bar" => "baz"));
+		$array = ClassWithArrayPropertyMeta::toArray($instance);
+		$this->assertNotEmpty($array);
+		$this->assertArrayHasKey("array", $array);
+		$this->assertArrayHasKey("foo", $array["array"]);
+		$this->assertArrayHasKey("bar", $array["array"]["foo"]);
+		$this->assertEquals("baz", $array["array"]["foo"]["bar"]);
+	}
+
+	public function testClassWithArrayPropertyFromArrayWithArrayCollection()
+	{
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\Meta\\ClassWithArrayPropertyMeta", ClassWithArrayPropertyMeta::getInstance());
+
+		$instance = ClassWithArrayPropertyMeta::fromArray(array("array" => new ArrayCollection(array("foo" => array("bar" => "baz")))));
+		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\PHP\\ClassWithArrayProperty", $instance);
+		$this->assertNotEmpty($instance->array);
+		$this->assertArrayHasKey("foo", $instance->array);
+		$this->assertArrayHasKey("bar", $instance->array["foo"]);
+		$this->assertEquals("baz", $instance->array["foo"]["bar"]);
+
+		$this->assertSame($instance, ClassWithArrayPropertyMeta::fromArray(array(), null, $instance));
+	}
+
+	public function testClassWithArrayPropertyToArrayWithArrayCollection()
+	{
+		$instance = new ClassWithArrayProperty();
+		$instance->array = new ArrayCollection(array("foo" => array("bar" => "baz")));
 		$array = ClassWithArrayPropertyMeta::toArray($instance);
 		$this->assertNotEmpty($array);
 		$this->assertArrayHasKey("array", $array);

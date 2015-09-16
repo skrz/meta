@@ -268,7 +268,7 @@ class PhpModule extends AbstractModule
 						$before .= "{$indent}if (!(isset({$objectPath}) && is_array({$objectPath}))) {\n";
 						$before .= "{$indent}\t{$objectPath} = array();\n";
 						$before .= "{$indent}}\n";
-						$before .= "{$indent}foreach ((array){$arrayPath} as \$k{$i} => \$v{$i}) {\n";
+						$before .= "{$indent}foreach ({$arrayPath} instanceof \\Traversable ? {$arrayPath} : (array){$arrayPath} as \$k{$i} => \$v{$i}) {\n";
 						$after = "{$indent}}\n" . $after;
 						$indent .= "\t";
 						$arrayPath = "\$v{$i}";
@@ -422,7 +422,7 @@ class PhpModule extends AbstractModule
 						$before .= "{$indent}if (!(isset({$arrayPath}) && is_array({$arrayPath}))) {\n";
 						$before .= "{$indent}\t{$arrayPath} = array();\n";
 						$before .= "{$indent}}\n";
-						$before .= "{$indent}foreach ((array){$objectPath} as \$k{$i} => \$v{$i}) {\n";
+						$before .= "{$indent}foreach ({$objectPath} instanceof \\Traversable ? {$objectPath} : (array){$objectPath} as \$k{$i} => \$v{$i}) {\n";
 						$after = "{$indent}}\n" . $after;
 						$indent .= "\t";
 						$arrayPath .= "[\$k{$i}]";
