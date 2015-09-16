@@ -1,6 +1,6 @@
 # Skrz\Meta
 
-[![Build Status](https://travis-ci.org/skrz/meta.svg?branch=master)](https://travis-ci.org/skrz/master)
+[![Build Status](https://travis-ci.org/skrz/meta.svg?branch=master)](https://travis-ci.org/skrz/,eta)
 [![Downloads this Month](https://img.shields.io/packagist/dm/skrz/meta.svg)](https://packagist.org/packages/skrz/meta)
 [![Latest stable](https://img.shields.io/packagist/v/skrz/meta.svg)](https://packagist.org/packages/skrz/meta)
 
@@ -370,7 +370,6 @@ is platform dependent and always signed, therefore there can be at most 31/63 gr
 
 ## TODO
 
-- handling recursive structures
 - YAML - just like JSON
 - XML serialization/deserialization (model annotations according to [javax.xml.bind.annotation](http://docs.oracle.com/javaee/7/api/javax/xml/bind/annotation/package-summary.html))
     - DOMNode
