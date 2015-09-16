@@ -10,6 +10,7 @@
     }
   ],
   "require": {
+    "php": ">=5.3",
     "doctrine/annotations": "~1.2",
     "nette/php-generator": "~2.3",
     "symfony/finder": "~2.7",

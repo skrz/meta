@@ -13,6 +13,7 @@ use Skrz\Meta\Fixtures\PHP\ClassWithPrivateProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithPropertyReferencingClass;
 use Skrz\Meta\Fixtures\PHP\ClassWithProtectedProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithPublicProperty;
+use Skrz\Meta\Fixtures\PHP\ClassWithRecursiveProperty;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithArrayPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithCustomOffsetPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithDatetimePropertyMeta;
@@ -23,7 +24,9 @@ use Skrz\Meta\Fixtures\PHP\Meta\ClassWithPrivatePropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithPropertyReferencingClassMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithProtectedPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithPublicPropertyMeta;
+use Skrz\Meta\Fixtures\PHP\Meta\ClassWithRecursivePropertyMeta;
 use Skrz\Meta\Fixtures\PHP\PhpMetaSpec;
+use Skrz\Meta\PHP\Stack;
 use Symfony\Component\Finder\Finder;
 
 class PhpModuleTest extends \PHPUnit_Framework_TestCase
@@ -390,6 +393,36 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 
 		ClassWithArrayPropertyMeta::fromArray(["array" => null], null, $instance);
 		$this->assertNull($instance->array);
+	}
+
+	public function testClassWithRecursiveProperty()
+	{
+		$a = new ClassWithRecursiveProperty();
+		$a->property = $a;
+
+		$this->assertEquals(0, count(Stack::$objects));
+		$this->assertEquals(["property" => null], ClassWithRecursivePropertyMeta::toArray($a));
+		$this->assertEquals(0, count(Stack::$objects));
+
+		$b = new ClassWithRecursiveProperty();
+		$a->property = $b;
+		$b->property = $a;
+
+		$this->assertEquals(0, count(Stack::$objects));
+		$this->assertEquals(["property" => ["property" => null]], ClassWithRecursivePropertyMeta::toArray($a));
+		$this->assertEquals(0, count(Stack::$objects));
+
+		try {
+			$b->property = "wtf";
+
+			$this->assertEquals(0, count(Stack::$objects));
+			ClassWithRecursivePropertyMeta::toArray($a);
+			$this->fail("An exception should be thrown.");
+
+		} catch (\Exception $e) {
+			$this->assertEquals(0, count(Stack::$objects));
+			$this->assertEquals('You have to pass object of class Skrz\Meta\Fixtures\PHP\ClassWithRecursiveProperty.', $e->getMessage());
+		}
 	}
 
 }

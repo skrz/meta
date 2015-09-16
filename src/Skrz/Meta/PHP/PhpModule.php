@@ -103,6 +103,7 @@ class PhpModule extends AbstractModule
 
 		$ns->addUse("Skrz\\Meta\\PHP\\PhpMetaInterface");
 		$ns->addUse($type->getName(), null, $typeAlias);
+		$ns->addUse("Skrz\\Meta\\PHP\\Stack", null, $stackAlias);
 		$class->addImplement("Skrz\\Meta\\PHP\\PhpMetaInterface");
 
 		// get groups
@@ -189,7 +190,7 @@ class PhpModule extends AbstractModule
 				->addDocument("@param string \$group")
 				->addDocument("@param {$inputOutputTypeHint} \$object")
 				->addDocument("")
-				->addDocument("@throws \\InvalidArgumentException")
+				->addDocument("@throws \\Exception")
 				->addDocument("")
 				->addDocument("@return {$inputOutputTypeHint}");
 
@@ -333,7 +334,7 @@ class PhpModule extends AbstractModule
 				->addDocument("@param {$inputOutputTypeHint} \$object")
 				->addDocument("@param string \$group")
 				->addDocument("")
-				->addDocument("@throws \\InvalidArgumentException")
+				->addDocument("@throws \\Exception")
 				->addDocument("")
 				->addDocument("@return " . strtolower($what));
 
@@ -392,7 +393,20 @@ class PhpModule extends AbstractModule
 				->addBody("");
 
 			$to
-				->addBody("\$output = array();")
+				->addBody("if ({$stackAlias}::\$objects === null) {")
+				->addBody("\t{$stackAlias}::\$objects = new \\SplObjectStorage();")
+				->addBody("}")
+				->addBody("")
+				->addBody("if ({$stackAlias}::\$objects->contains(\$object)) {")
+				->addBody("\treturn null;")
+				->addBody("}")
+				->addBody("")
+				->addBody("{$stackAlias}::\$objects->attach(\$object);")
+				->addBody("");
+
+			$to
+				->addBody("try {")
+				->addBody("\t\$output = array();")
 				->addBody("");
 
 			foreach ($type->getProperties() as $property) {
@@ -407,12 +421,12 @@ class PhpModule extends AbstractModule
 
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
-					$to->addBody("if ((\$id & {$groupId}) > 0" . ($arrayOffset->ignoreNull ? " && isset(\$object->{$property->getName()})" : "") . ") {"); // FIXME: group group IDs by offset
+					$to->addBody("\tif ((\$id & {$groupId}) > 0" . ($arrayOffset->ignoreNull ? " && isset(\$object->{$property->getName()})" : "") . ") {"); // FIXME: group group IDs by offset
 
 					$objectPath = "\$object->{$property->getName()}";
 					$arrayPath = "\$output[" . var_export($arrayOffset->offset, true) . "]";
 					$baseType = $property->getType();
-					$indent = "\t";
+					$indent = "\t\t";
 					$before = "";
 					$after = "";
 					for ($i = 0; $baseType instanceof ArrayType; ++$i) {
@@ -463,13 +477,22 @@ class PhpModule extends AbstractModule
 						$to->addBody(rtrim($after));
 					}
 
-					$to->addBody("}");
+					$to->addBody("\t}");
 				}
 
 				$to->addBody("");
 			}
 
-			$to->addBody("return " . ($what === "Object" ? "(object)" : "") . "\$output;");
+			$to
+				->addBody("} catch (\\Exception \$e) {")
+				->addBody("\t{$stackAlias}::\$objects->detach(\$object);")
+				->addBody("\tthrow \$e;")
+				->addBody("}")
+				->addBody("");
+
+			$to
+				->addBody("{$stackAlias}::\$objects->detach(\$object);")
+				->addBody("return " . ($what === "Object" ? "(object)" : "") . "\$output;");
 		}
 	}
 

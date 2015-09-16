@@ -8,14 +8,14 @@
 
 ## Requirements
 
-`Skrz\Meta` requires PHP `>= 5.3.0` and Symfony `>= 2.5.0`.
+`Skrz\Meta` requires PHP `>= 5.3.0` and Symfony `>= 2.7.0`.
 
 ## Installation
 
 Add as [Composer](https://getcomposer.org/) dependency:
 
 ```sh
-$ composer require skrz/meta:@dev
+$ composer require skrz/meta
 ```
 
 ## Why?
