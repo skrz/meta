@@ -121,20 +121,21 @@ class BaseModuleTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(base64_decode("2jmj7l5rSw0yVb/vlWAYkK/YBwk="), ClassToBeHashedMeta::hash($instance, "sha1", true));
 
 		$instance->a = "abc";
-		$this->assertEquals("fdaad1c3ab76c0a6197bcc05040a98ca", ClassToBeHashedMeta::hash($instance));
+		$this->assertEquals("e638f7d51818758264fa897a551e5511", ClassToBeHashedMeta::hash($instance));
 
 		$instance->b = 5;
 		$instance->c = array(array(1.5, 1.7), array(345.1, 361.0));
 		$instance2 = new ClassToBeHashed();
 		$instance->d = $instance2;
-		$this->assertEquals("d42a9f7962f8699d7fbfc880d56539a8", ClassToBeHashedMeta::hash($instance));
+
+		$this->assertEquals("00707660af3ff981126e25c1b3baeb88", ClassToBeHashedMeta::hash($instance));
 
 		$instance->hash = ClassToBeHashedMeta::hash($instance);
-		$this->assertEquals("d42a9f7962f8699d7fbfc880d56539a8", ClassToBeHashedMeta::hash($instance));
+		$this->assertEquals("00707660af3ff981126e25c1b3baeb88", ClassToBeHashedMeta::hash($instance));
 
 		$ctx = hash_init("md5");
 		$this->assertEquals(null, ClassToBeHashedMeta::hash($instance, $ctx));
-		$this->assertEquals("d42a9f7962f8699d7fbfc880d56539a8", hash_final($ctx));
+		$this->assertEquals("00707660af3ff981126e25c1b3baeb88", hash_final($ctx));
 	}
 
 }
