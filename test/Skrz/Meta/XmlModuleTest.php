@@ -41,7 +41,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $doc;
 				},
-				ImageMeta::getInstance(),
+				function () {
+					return ImageMeta::getInstance();
+				},
 				function (Image $image) {
 					$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\XML\\Image", $image);
 					$this->assertEquals("http://example.net/image.jpg", $image->url);
@@ -57,7 +59,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $doc;
 				},
-				ParamMeta::getInstance(),
+				function () {
+					return ParamMeta::getInstance();
+				},
 				function (Param $param) {
 					$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\XML\\Param", $param);
 					$this->assertEquals("color", $param->name);
@@ -105,7 +109,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $doc;
 				},
-				ProductMeta::getInstance(),
+				function () {
+					return ProductMeta::getInstance();
+				},
 				function (Product $product) {
 					$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\XML\\Product", $product);
 					$this->assertEquals(1, $product->uid);
@@ -141,10 +147,12 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider fromXmlDataProvider
 	 */
-	public function testFromXmlReader(callable $buildDoc, XmlMetaInterface $meta, callable $validate)
+	public function testFromXmlReader(callable $buildDoc, callable $buildMeta, callable $validate)
 	{
 		/** @var \DOMDocument $doc */
 		$doc = $buildDoc();
+		/** @var XmlMetaInterface $meta */
+		$meta = $buildMeta();
 
 		$xml = new \XMLReader();
 		$xml->XML($doc->saveXML());
@@ -158,10 +166,12 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider fromXmlDataProvider
 	 */
-	public function testFromXmlElement(callable $buildDoc, XmlMetaInterface $meta, callable $validate)
+	public function testFromXmlElement(callable $buildDoc, callable $buildMeta, callable $validate)
 	{
 		/** @var \DOMDocument $doc */
 		$doc = $buildDoc();
+		/** @var XmlMetaInterface $meta */
+		$meta = $buildMeta();
 
 		$instance = $meta->fromXml($doc->firstChild);
 
@@ -178,7 +188,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $image;
 				},
-				ImageMeta::getInstance(),
+				function () {
+					return ImageMeta::getInstance();
+				},
 				'<?xml version="1.0"?>' . PHP_EOL .
 				'<imageroot>http://example.net/image.jpg</imageroot>' . PHP_EOL,
 			],
@@ -190,7 +202,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $param;
 				},
-				ParamMeta::getInstance(),
+				function () {
+					return ParamMeta::getInstance();
+				},
 				'<?xml version="1.0"?>' . PHP_EOL .
 				'<paramroot name="color">blue</paramroot>' . PHP_EOL,
 			],
@@ -200,7 +214,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $product;
 				},
-				ProductMeta::getInstance(),
+				function () {
+					return ProductMeta::getInstance();
+				},
 				'<?xml version="1.0"?>' . PHP_EOL .
 				'<productroot><params/></productroot>' . PHP_EOL,
 			],
@@ -211,7 +227,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $product;
 				},
-				ProductMeta::getInstance(),
+				function () {
+					return ProductMeta::getInstance();
+				},
 				'<?xml version="1.0"?>' . PHP_EOL .
 				'<productroot uid="2423"><params/></productroot>' . PHP_EOL,
 			],
@@ -223,7 +241,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $product;
 				},
-				ProductMeta::getInstance(),
+				function () {
+					return ProductMeta::getInstance();
+				},
 				'<?xml version="1.0"?>' . PHP_EOL .
 				'<productroot uid="2423"><item_id>SDFA</item_id><params/></productroot>' . PHP_EOL,
 			],
@@ -235,7 +255,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $product;
 				},
-				ProductMeta::getInstance(),
+				function () {
+					return ProductMeta::getInstance();
+				},
 				'<?xml version="1.0"?>' . PHP_EOL .
 				'<productroot uid="2423"><category>A</category><category>B</category><category>C</category><params/></productroot>' . PHP_EOL,
 			],
@@ -252,7 +274,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $product;
 				},
-				ProductMeta::getInstance(),
+				function () {
+					return ProductMeta::getInstance();
+				},
 				'<?xml version="1.0"?>' . PHP_EOL .
 				'<productroot uid="2423"><imgurl>http://example.net/a.jpg</imgurl><imgurl>http://example.net/b.jpg</imgurl><params/></productroot>' . PHP_EOL,
 			],
@@ -264,7 +288,9 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 
 					return $product;
 				},
-				ProductMeta::getInstance(),
+				function () {
+					return ProductMeta::getInstance();
+				},
 				'<?xml version="1.0"?>' . PHP_EOL .
 				'<productroot><params/><skrz><priceorig>1500</priceorig><discount>30</discount></skrz></productroot>' . PHP_EOL,
 			],
@@ -274,8 +300,11 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider toXmlDataProvider
 	 */
-	public function testToXmlWriter(callable $buildEntity, XmlMetaInterface $meta, $expected)
+	public function testToXmlWriter(callable $buildEntity, callable $buildMeta, $expected)
 	{
+		/** @var XmlMetaInterface $meta */
+		$meta = $buildMeta();
+
 		$xml = new \XMLWriter();
 		$xml->openMemory();
 		$xml->startDocument();
@@ -303,8 +332,11 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @dataProvider toXmlDataProvider
 	 */
-	public function testToXmlElement(callable $buildEntity, XmlMetaInterface $meta, $expected)
+	public function testToXmlElement(callable $buildEntity, callable $buildMeta, $expected)
 	{
+		/** @var XmlMetaInterface $meta */
+		$meta = $buildMeta();
+
 		$xml = new \DOMDocument();
 
 		$xml->appendChild($meta->toXml($buildEntity(), null, $xml));

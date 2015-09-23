@@ -289,6 +289,7 @@ var_export(CategoryMeta::toJson($category));
 ```php
 /**
  * @XmlElement(name="SHOPITEM")
+ */
 class Product
 {
     /**
