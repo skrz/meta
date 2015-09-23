@@ -303,7 +303,7 @@ class PhpModule extends AbstractModule
 						);
 
 					} else {
-						throw new MetaException("Unsupported property type " . get_class($baseType) . ".");
+						throw new MetaException("Unsupported property type " . get_class($baseType) . " ({$type->getName()}::\${$property->getName()}).");
 					}
 
 					if (!empty($after)) {

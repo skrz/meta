@@ -287,6 +287,8 @@ var_export(CategoryMeta::toJson($category));
 
 
 ```php
+// example: serialize object to XMLWriter
+
 /**
  * @XmlElement(name="SHOPITEM")
  */
@@ -296,6 +298,7 @@ class Product
      * @var string
      *
      * @XmlElement(name="ITEM_ID")
+     */
     public $itemId;
     
     /**

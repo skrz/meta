@@ -4,7 +4,7 @@ namespace Skrz\Meta\Fixtures\Base;
 class ClassWithOneArgConstructor
 {
 
-	/** @var mixed */
+	/** @var string */
 	public $variable;
 
 	public function __construct($variable)

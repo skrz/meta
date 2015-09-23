@@ -2,6 +2,8 @@
 namespace Skrz\Meta;
 
 use Skrz\Meta\Fixtures\Base\BaseMetaSpec;
+use Skrz\Meta\Fixtures\Base\ClassToBeHashed;
+use Skrz\Meta\Fixtures\Base\Meta\ClassToBeHashedMeta;
 use Skrz\Meta\Fixtures\Base\Meta\ClassWithDefaultPropertiesMeta;
 use Skrz\Meta\Fixtures\Base\Meta\ClassWithNothingMeta;
 use Skrz\Meta\Fixtures\Base\Meta\ClassWithOneArgConstructorMeta;
@@ -108,6 +110,31 @@ class BaseModuleTest extends \PHPUnit_Framework_TestCase
 		ClassWithDefaultPropertiesMeta::reset($instance);
 		$this->assertEquals("foo", $instance->defaultsToFoo);
 		$this->assertEquals(42, $instance->defaultsTo42);
+	}
+
+	public function testClassToBeHashed()
+	{
+		$instance = new ClassToBeHashed();
+		$this->assertEquals("d41d8cd98f00b204e9800998ecf8427e", ClassToBeHashedMeta::hash($instance));
+		$this->assertEquals(base64_decode("1B2M2Y8AsgTpgAmY7PhCfg=="), ClassToBeHashedMeta::hash($instance, "md5", true));
+		$this->assertEquals("da39a3ee5e6b4b0d3255bfef95601890afd80709", ClassToBeHashedMeta::hash($instance, "sha1"));
+		$this->assertEquals(base64_decode("2jmj7l5rSw0yVb/vlWAYkK/YBwk="), ClassToBeHashedMeta::hash($instance, "sha1", true));
+
+		$instance->a = "abc";
+		$this->assertEquals("fdaad1c3ab76c0a6197bcc05040a98ca", ClassToBeHashedMeta::hash($instance));
+
+		$instance->b = 5;
+		$instance->c = array(array(1.5, 1.7), array(345.1, 361.0));
+		$instance2 = new ClassToBeHashed();
+		$instance->d = $instance2;
+		$this->assertEquals("d42a9f7962f8699d7fbfc880d56539a8", ClassToBeHashedMeta::hash($instance));
+
+		$instance->hash = ClassToBeHashedMeta::hash($instance);
+		$this->assertEquals("d42a9f7962f8699d7fbfc880d56539a8", ClassToBeHashedMeta::hash($instance));
+
+		$ctx = hash_init("md5");
+		$this->assertEquals(null, ClassToBeHashedMeta::hash($instance, $ctx));
+		$this->assertEquals("d42a9f7962f8699d7fbfc880d56539a8", hash_final($ctx));
 	}
 
 }
