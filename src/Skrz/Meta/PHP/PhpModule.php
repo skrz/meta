@@ -7,6 +7,7 @@ use Skrz\Meta\AbstractMetaSpec;
 use Skrz\Meta\AbstractModule;
 use Skrz\Meta\MetaException;
 use Skrz\Meta\MetaSpecMatcher;
+use Skrz\Meta\PropertySerializerInterface;
 use Skrz\Meta\Reflection\ArrayType;
 use Skrz\Meta\Reflection\Property;
 use Skrz\Meta\Reflection\ScalarType;
@@ -33,7 +34,6 @@ class PhpModule extends AbstractModule
 	public function addPropertySerializer(PropertySerializerInterface $propertySerializer)
 	{
 		$this->propertySerializers[] = $propertySerializer;
-
 		return $this;
 	}
 
@@ -103,14 +103,13 @@ class PhpModule extends AbstractModule
 
 		$ns->addUse("Skrz\\Meta\\PHP\\PhpMetaInterface");
 		$ns->addUse($type->getName(), null, $typeAlias);
-		$ns->addUse("Skrz\\Meta\\PHP\\Stack", null, $stackAlias);
+		$ns->addUse("Skrz\\Meta\\Stack", null, $stackAlias);
 		$class->addImplement("Skrz\\Meta\\PHP\\PhpMetaInterface");
 
 		// get groups
 		foreach ($type->getProperties() as $property) {
 			foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
 				/** @var PhpArrayOffset $arrayOffset */
-
 				if (!isset($groups[$arrayOffset->group])) {
 					$groups[$arrayOffset->group] = 1 << $i++;
 				}

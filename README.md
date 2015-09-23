@@ -186,6 +186,7 @@ class Category
 {
     /**
      * @var string
+     *
      * @PhpArrayOffset("THE_NAME")
      * @PhpArrayOffset("name", group="javascript")
      */
@@ -193,6 +194,7 @@ class Category
 
     /**
      * @var string
+     *
      * @PhpArrayOffset("THE_SLUG")
      * @PhpArrayOffset("slug", group="javascript")
      */
@@ -244,6 +246,7 @@ class Category
 {
     /**
      * @var string
+     *
      * @PhpArrayOffset("THE_NAME")
      * @JsonProperty("NAME")
      */
@@ -251,6 +254,7 @@ class Category
 
     /**
      * @var string
+     *
      * @PhpArrayOffset("THE_SLUG")
      * @JsonProperty("sLuG")
      */
@@ -274,6 +278,54 @@ $category = CategoryMeta::fromArray(array(
 var_export(CategoryMeta::toJson($category));
 // {"NAME":"My category name","sLuG":"category"}
 ```
+
+### `@XmlElement` & `@XmlElementWrapper` & `@XmlAttribute` & `@XmlValue`
+
+- Modelled after [javax.xml.bind.annotation](http://docs.oracle.com/javaee/7/api/javax/xml/bind/annotation/package-summary.html).
+- Works with [`XMLWriter`](php.net/xmlwriter) or [`DOMDocument`](php.net/domdocument) (for streaming or DOM-based XML APIs).
+
+
+
+```php
+/**
+ * @XmlElement(name="SHOPITEM")
+class Product
+{
+    /**
+     * @var string
+     *
+     * @XmlElement(name="ITEM_ID")
+    public $itemId;
+    
+    /**
+     * @var string[]
+     *
+     * @XmlElement(name="CATEGORYTEXT")
+     */
+    public $categoryTexts;
+}
+
+$product = new Product();
+$product->itemId = "SKU123";
+$product->categoryTexts = array("Home Appliances", "Dishwashers");
+
+$xml = new \XMLWriter();
+$xml->openMemory();
+$xml->setIndent(true);
+$xml->startDocument();
+$meta->toXml($product, null, $xml);
+$xml->endDocument();
+
+echo $xml->outputMemory();
+// <?xml version="1.0"?>
+// <SHOPITEM>
+//   <ITEM_ID>SKU123</ITEM_ID>
+//   <CATEGORYTEXT>Home Appliances</CATEGORYTEXT>
+//   <CATEGORYTEXT>Dishwashers</CATEGORYTEXT>
+// </SHOPITEM>
+```
+
+For more examples see classes in `test/Skrz/Meta/Fixtures/XML` and `test/Skrz/Meta/XmlModuleTest.php`.
 
 ### `@PhpDiscriminatorMap` & `@JsonDiscriminatorMap`
 
@@ -390,11 +442,7 @@ is platform dependent and always signed, therefore there can be at most 31/63 gr
 ## TODO
 
 - YAML - just like JSON
-- XML serialization/deserialization (model annotations according to [javax.xml.bind.annotation](http://docs.oracle.com/javaee/7/api/javax/xml/bind/annotation/package-summary.html))
-    - DOMNode
-    - SimpleXMLElement
-    - XMLReader
-    - XMLWriter
+- `@XmlElementRef`
 
 ## License
 

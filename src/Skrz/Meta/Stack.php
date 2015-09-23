@@ -1,5 +1,5 @@
 <?php
-namespace Skrz\Meta\PHP;
+namespace Skrz\Meta;
 
 final class Stack
 {

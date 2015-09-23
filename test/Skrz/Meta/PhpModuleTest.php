@@ -28,7 +28,6 @@ use Skrz\Meta\Fixtures\PHP\Meta\ClassWithProtectedPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithPublicPropertyMeta;
 use Skrz\Meta\Fixtures\PHP\Meta\ClassWithRecursivePropertyMeta;
 use Skrz\Meta\Fixtures\PHP\PhpMetaSpec;
-use Skrz\Meta\PHP\Stack;
 use Symfony\Component\Finder\Finder;
 
 class PhpModuleTest extends \PHPUnit_Framework_TestCase
