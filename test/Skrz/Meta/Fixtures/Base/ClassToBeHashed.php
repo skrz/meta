@@ -18,6 +18,9 @@ class ClassToBeHashed
 	/** @var ClassToBeHashed */
 	public $d;
 
+	/** @var \DateTime */
+	public $e;
+
 	/**
 	 * @var string
 	 *

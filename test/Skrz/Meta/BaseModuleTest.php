@@ -127,15 +127,16 @@ class BaseModuleTest extends \PHPUnit_Framework_TestCase
 		$instance->c = array(array(1.5, 1.7), array(345.1, 361.0));
 		$instance2 = new ClassToBeHashed();
 		$instance->d = $instance2;
+		$instance->e = new \DateTime("2015-01-01", new \DateTimeZone("UTC"));
 
-		$this->assertEquals("00707660af3ff981126e25c1b3baeb88", ClassToBeHashedMeta::hash($instance));
+		$this->assertEquals("fb5cb1a12c56aa69911897f45577599e", ClassToBeHashedMeta::hash($instance));
 
 		$instance->hash = ClassToBeHashedMeta::hash($instance);
-		$this->assertEquals("00707660af3ff981126e25c1b3baeb88", ClassToBeHashedMeta::hash($instance));
+		$this->assertEquals("fb5cb1a12c56aa69911897f45577599e", ClassToBeHashedMeta::hash($instance));
 
 		$ctx = hash_init("md5");
 		$this->assertEquals(null, ClassToBeHashedMeta::hash($instance, $ctx));
-		$this->assertEquals("00707660af3ff981126e25c1b3baeb88", hash_final($ctx));
+		$this->assertEquals("fb5cb1a12c56aa69911897f45577599e", hash_final($ctx));
 	}
 
 }
