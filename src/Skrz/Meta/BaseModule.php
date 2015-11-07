@@ -237,7 +237,7 @@ class BaseModule extends AbstractModule
 			->addBody("if (is_string(\$algoOrCtx)) {")
 			->addBody("\treturn hash_final(\$ctx, \$raw);")
 			->addBody("} else {")
-			->addBody("\treturn NULL;")
+			->addBody("\treturn null;")
 			->addBody("}");
 	}
 

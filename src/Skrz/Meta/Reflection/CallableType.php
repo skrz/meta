@@ -24,4 +24,9 @@ class CallableType extends ScalarType
 
 	}
 
+	public function __toString()
+	{
+		return "callable";
+	}
+
 }

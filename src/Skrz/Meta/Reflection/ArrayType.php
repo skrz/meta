@@ -28,11 +28,21 @@ class ArrayType extends MixedType
 	}
 
 	/**
-	 * @return \Skrz\Meta\Reflection\MixedType
+	 * @return MixedType
 	 */
 	public function getBaseType()
 	{
 		return $this->baseType;
+	}
+
+	public function isArray()
+	{
+		return true;
+	}
+
+	public function __toString()
+	{
+		return ((string)$this->baseType) . "[]";
 	}
 
 }

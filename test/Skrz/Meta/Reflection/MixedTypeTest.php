@@ -1,10 +1,6 @@
 <?php
 namespace Skrz\Meta\Reflection;
 
-use Skrz\Meta\Reflection\Fixtures\SimpleClass;
-use Skrz\Meta\Reflection\Fixtures\SimpleInterface;
-use Skrz\Meta\Reflection\Fixtures\SimpleTrait;
-
 class MixedTypeTest extends \PHPUnit_Framework_TestCase
 {
 

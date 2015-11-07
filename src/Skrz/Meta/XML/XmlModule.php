@@ -319,20 +319,20 @@ class XmlModule extends AbstractModule
 					throw new MetaException("fromXml() cannot process multi-dimensional arrays ({$type->getName()}::\${$property->getName()}).");
 				}
 
-				$elementsByName[$name] .=
-					"if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " .
-					var_export($xmlElement->namespace, true) . " && " .
-					(isset($wrappers[$wrapperId])
-						? "(\$depth === 2 || (\$depth === 3 && (\$wrapped & {$wrappers[$wrapperId]}) > 0))"
-						: "\$depth === 2"
-					) . ") {\n";
+				$elementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . var_export($xmlElement->namespace, true) . " && ";
+				if (isset($wrappers[$wrapperId])) {
+					$elementsByName[$name] .= "(\$depth === 2 || (\$depth === 3 && (\$wrapped & {$wrappers[$wrapperId]}) > 0))";
+				} else {
+					$elementsByName[$name] .= "\$depth === 2";
+				}
+				$elementsByName[$name] .= ") {\n";
 
 				if ($propertyType instanceof Type) {
 					$propertyTypeMetaClassName = $spec->createMetaClassName($propertyType);
 					$ns->addUse($propertyTypeMetaClassName, null, $propertyTypeMetaClassNameAlias);
 					$elementsByName[$name] .=
 						"\t\$value = {$propertyTypeMetaClassNameAlias}::fromXml(\$xml, \$group" .
-						($isArray ? "" : ", isset(\$object->{$property->getName()}) ? \$object->{$property->getName()} : NULL") .
+						($isArray ? "" : ", isset(\$object->{$property->getName()}) ? \$object->{$property->getName()} : null") .
 						");\n";
 
 				} else {
@@ -414,7 +414,7 @@ class XmlModule extends AbstractModule
 		$xmlReadValue->addParameter("xml")->setTypeHint("\\XMLReader");
 
 		$xmlReadValue
-			->addBody("\$value = NULL;")
+			->addBody("\$value = null;")
 			->addBody("\$valueDepth = intval(!\$xml->isEmptyElement);")
 			->addBody("while (\$valueDepth > 0 && \$xml->read()) {")
 			->addBody("\tif (\$xml->nodeType === \\XMLReader::ELEMENT && !\$xml->isEmptyElement) {")
@@ -535,19 +535,20 @@ class XmlModule extends AbstractModule
 					throw new MetaException("fromXml() cannot process multi-dimensional arrays ({$type->getName()}::\${$property->getName()}).");
 				}
 
-				$elementsByName[$name] .=
-					"if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . var_export(empty($xmlElement->namespace) ? null : $xmlElement->namespace, true) . " && " .
-					(isset($wrappers[$wrapperId])
-						? "(\$sp === 0 || (\$sp === 1 && (\$wrapped & {$wrappers[$wrapperId]}) > 0))"
-						: "\$sp === 0"
-					) . ") {\n";
+				$elementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . var_export(empty($xmlElement->namespace) ? null : $xmlElement->namespace, true) . " && ";
+				if (isset($wrappers[$wrapperId])) {
+					$elementsByName[$name] .= "(\$sp === 0 || (\$sp === 1 && (\$wrapped & {$wrappers[$wrapperId]}) > 0))";
+				} else {
+					$elementsByName[$name] .= "\$sp === 0";
+				}
+				$elementsByName[$name] .= ") {\n";
 
 				if ($propertyType instanceof Type) {
 					$propertyTypeMetaClassName = $spec->createMetaClassName($propertyType);
 					$ns->addUse($propertyTypeMetaClassName, null, $propertyTypeMetaClassNameAlias);
 					$elementsByName[$name] .=
 						"\t\$value = {$propertyTypeMetaClassNameAlias}::fromXml(\$node, \$group" .
-						($isArray ? "" : ", isset(\$object->{$property->getName()}) ? \$object->{$property->getName()} : NULL") .
+						($isArray ? "" : ", isset(\$object->{$property->getName()}) ? \$object->{$property->getName()} : null") .
 						");\n";
 
 				} else {
@@ -661,7 +662,7 @@ class XmlModule extends AbstractModule
 			->addBody("{$stackAlias}::\$objects->attach(\$object);")
 			->addBody("")
 			->addBody("if (\$filterOrXml instanceof \\XMLWriter || \$filterOrXml instanceof \\DOMDocument) {")
-			->addBody("\t\$filter = NULL;")
+			->addBody("\t\$filter = null;")
 			->addBody("\t\$el = \$xml;")
 			->addBody("\t\$xml = \$filterOrXml;")
 			->addBody("} else {")
@@ -723,7 +724,7 @@ class XmlModule extends AbstractModule
 
 				$groupId = $groups[$xmlAttribute->group];
 
-				$toXmlWriter->addBody("if ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === NULL || isset(\$filter[" . var_export("@" . $xmlAttribute->name, true) . "]))) {");
+				$toXmlWriter->addBody("if ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[" . var_export("@" . $xmlAttribute->name, true) . "]))) {");
 
 				$matchingPropertySerializer = null;
 				foreach ($this->propertySerializers as $propertySerializer) {
@@ -748,7 +749,7 @@ class XmlModule extends AbstractModule
 				}
 
 				if ($xmlAttribute->namespace) {
-					$toXmlWriter->addBody("\t\$xml->writeAttributeNS(NULL, " . var_export($xmlAttribute->name, true) . ", " . var_export($xmlAttribute->namespace, true) . ", {$sevo->getExpression()});");
+					$toXmlWriter->addBody("\t\$xml->writeAttributeNS(null, " . var_export($xmlAttribute->name, true) . ", " . var_export($xmlAttribute->namespace, true) . ", {$sevo->getExpression()});");
 
 				} else {
 					$toXmlWriter->addBody("\t\$xml->writeAttribute(" . var_export($xmlAttribute->name, true) . ", {$sevo->getExpression()});");
@@ -841,7 +842,7 @@ class XmlModule extends AbstractModule
 				$elementNamespaceStr = var_export($xmlElement->namespace, true);
 				$elementNameStr = var_export($xmlElement->name, true);
 
-				$toXmlWriter->addBody("\tif ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === NULL || isset(\$filter[{$elementNameStr}]))) {");
+				$toXmlWriter->addBody("\tif ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[{$elementNameStr}]))) {");
 
 				$matchingPropertySerializer = null;
 				foreach ($this->propertySerializers as $propertySerializer) {
@@ -872,7 +873,7 @@ class XmlModule extends AbstractModule
 				}
 
 				if ($xmlElement->namespace) {
-					$toXmlWriter->addBody("{$indent}\$xml->startElementNS(NULL, {$elementNameStr}, {$elementNamespaceStr});");
+					$toXmlWriter->addBody("{$indent}\$xml->startElementNS(null, {$elementNameStr}, {$elementNamespaceStr});");
 				} else {
 					$toXmlWriter->addBody("{$indent}\$xml->startElement({$elementNameStr});");
 				}
@@ -893,7 +894,7 @@ class XmlModule extends AbstractModule
 					$toXmlWriter->addBody(
 						"{$indent}{$propertyTypeMetaClassNameAlias}::toXml({$value}, " .
 						"\$group, " .
-						"\$filter === NULL ? NULL : \$filter[{$elementNameStr}], " .
+						"\$filter === null ? null : \$filter[{$elementNameStr}], " .
 						"\$xml" .
 						");"
 					);
@@ -927,10 +928,10 @@ class XmlModule extends AbstractModule
 					$propertiesIssets[] = "isset(\$object->{$property->getName()})";
 				}
 
-				$toXmlWriter->addBody("\tif ((\$id & {$groupId}) > 0 && (" . implode(" || ", $propertiesIssets) . ") && (\$filter === NULL || isset(\$filter[{$nameStr}]))) {");
+				$toXmlWriter->addBody("\tif ((\$id & {$groupId}) > 0 && (" . implode(" || ", $propertiesIssets) . ") && (\$filter === null || isset(\$filter[{$nameStr}]))) {");
 
 				if ($xmlElementWrapper->namespace) {
-					$toXmlWriter->addBody("\t\t\$xml->startElementNS(NULL, {$nameStr}, {$namespaceStr});");
+					$toXmlWriter->addBody("\t\t\$xml->startElementNS(null, {$nameStr}, {$namespaceStr});");
 				} else {
 					$toXmlWriter->addBody("\t\t\$xml->startElement({$nameStr});");
 				}
@@ -945,7 +946,7 @@ class XmlModule extends AbstractModule
 						$elementNameStr = var_export($xmlElement->name, true);
 
 						// no need to check group ID, already checked by wrapper
-						$toXmlWriter->addBody("\t\tif (isset(\$object->{$property->getName()}) && (\$filter === NULL || isset(\$filter[{$nameStr}][{$elementNameStr}]))) {");
+						$toXmlWriter->addBody("\t\tif (isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[{$nameStr}][{$elementNameStr}]))) {");
 
 						$matchingPropertySerializer = null;
 						foreach ($this->propertySerializers as $propertySerializer) {
@@ -976,7 +977,7 @@ class XmlModule extends AbstractModule
 						}
 
 						if ($xmlElement->namespace) {
-							$toXmlWriter->addBody("{$indent}\$xml->startElementNS(NULL, {$elementNameStr}, {$elementNamespaceStr});");
+							$toXmlWriter->addBody("{$indent}\$xml->startElementNS(null, {$elementNameStr}, {$elementNamespaceStr});");
 						} else {
 							$toXmlWriter->addBody("{$indent}\$xml->startElement({$elementNameStr});");
 						}
@@ -997,7 +998,7 @@ class XmlModule extends AbstractModule
 							$toXmlWriter->addBody(
 								"{$indent}{$propertyTypeMetaClassNameAlias}::toXml({$value}, " .
 								"\$group, " .
-								"\$filter === NULL ? NULL : \$filter[{$nameStr}][{$elementNameStr}], " .
+								"\$filter === null ? null : \$filter[{$nameStr}][{$elementNameStr}], " .
 								"\$xml" .
 								");"
 							);
@@ -1074,7 +1075,7 @@ class XmlModule extends AbstractModule
 				$attributeNameStr = var_export($xmlAttribute->name, true);
 				$attributeFilterStr = var_export("@" . $xmlAttribute->name, true);
 
-				$toXmlElement->addBody("if ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === NULL || isset(\$filter[{$attributeFilterStr}]))) {");
+				$toXmlElement->addBody("if ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[{$attributeFilterStr}]))) {");
 
 				$matchingPropertySerializer = null;
 				foreach ($this->propertySerializers as $propertySerializer) {
@@ -1191,7 +1192,7 @@ class XmlModule extends AbstractModule
 				$elementNamespaceStr = var_export($xmlElement->namespace, true);
 				$elementNameStr = var_export($xmlElement->name, true);
 
-				$toXmlElement->addBody("\tif ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === NULL || isset(\$filter[{$elementNameStr}]))) {");
+				$toXmlElement->addBody("\tif ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[{$elementNameStr}]))) {");
 
 				$matchingPropertySerializer = null;
 				foreach ($this->propertySerializers as $propertySerializer) {
@@ -1243,7 +1244,7 @@ class XmlModule extends AbstractModule
 					$toXmlElement->addBody(
 						"{$indent}{$propertyTypeMetaClassNameAlias}::toXml({$value}, " .
 						"\$group, " .
-						"\$filter === NULL ? NULL : \$filter[{$elementNameStr}], " .
+						"\$filter === null ? null : \$filter[{$elementNameStr}], " .
 						"\$xml, " .
 						"\$subEl" .
 						");"
@@ -1278,7 +1279,7 @@ class XmlModule extends AbstractModule
 					$propertiesIssets[] = "isset(\$object->{$property->getName()})";
 				}
 
-				$toXmlElement->addBody("\tif ((\$id & {$groupId}) > 0 && (" . implode(" || ", $propertiesIssets) . ") && (\$filter === NULL || isset(\$filter[{$nameStr}]))) {");
+				$toXmlElement->addBody("\tif ((\$id & {$groupId}) > 0 && (" . implode(" || ", $propertiesIssets) . ") && (\$filter === null || isset(\$filter[{$nameStr}]))) {");
 
 				if ($xmlElementWrapper->namespace) {
 					$toXmlElement->addBody("\t\t\$wrapperEl = \$xml->createElementNS({$namespaceStr}, {$nameStr});");
@@ -1296,7 +1297,7 @@ class XmlModule extends AbstractModule
 						$elementNameStr = var_export($xmlElement->name, true);
 
 						// no need to check group ID, already checked by wrapper
-						$toXmlElement->addBody("\t\tif (isset(\$object->{$property->getName()}) && (\$filter === NULL || isset(\$filter[{$nameStr}][{$elementNameStr}]))) {");
+						$toXmlElement->addBody("\t\tif (isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[{$nameStr}][{$elementNameStr}]))) {");
 
 						$matchingPropertySerializer = null;
 						foreach ($this->propertySerializers as $propertySerializer) {
@@ -1348,7 +1349,7 @@ class XmlModule extends AbstractModule
 							$toXmlElement->addBody(
 								"{$indent}{$propertyTypeMetaClassNameAlias}::toXml({$value}, " .
 								"\$group, " .
-								"\$filter === NULL ? NULL : \$filter[{$nameStr}][{$elementNameStr}], " .
+								"\$filter === null ? null : \$filter[{$nameStr}][{$elementNameStr}], " .
 								"\$xml, " .
 								"\$subEl" .
 								");"

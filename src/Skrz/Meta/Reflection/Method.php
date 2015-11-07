@@ -7,170 +7,106 @@ use ReflectionMethod;
 
 class Method
 {
-
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	public $name;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	public $class;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $public;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $private;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $protected;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $abstract;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $final;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $static;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $constructor;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $destructor;
 
-	/**
-	 * @var integer
-	 */
+	/** @var integer */
 	private $modifiers;
 
-	/**
-	 * @var Type
-	 */
+	/** @var Type */
 	private $declaringClass;
 
-	/**
-	 * @var Method
-	 */
+	/** @var Method */
 	private $prototype;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $prototypeInitialized;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $closure;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $deprecated;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $internal;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $userDefined;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $generator;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
+	private $variadic;
+
+	/** @var boolean */
 	private $docComment;
 
-	/**
-	 * @var integer
-	 */
+	/** @var integer */
 	private $endLine;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $extensionName;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $fileName;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $namespaceName;
 
-	/**
-	 * @var integer
-	 */
+	/** @var integer */
 	private $numberOfParameters;
 
-	/**
-	 * @var integer
-	 */
+	/** @var integer */
 	private $numberOfRequiredParameters;
 
-	/**
-	 * @var Parameter[]
-	 */
+	/** @var Parameter[] */
 	private $parameters;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $parametersInitialized;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $shortName;
 
-	/**
-	 * @var integer
-	 */
+	/** @var integer */
 	private $startLine;
 
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	private $staticVariables;
 
-	/**
-	 * @var object[]
-	 */
+	/** @var object[] */
 	private $annotations = array();
 
-	/**
-	 * @var MixedType
-	 */
+	/** @var MixedType */
 	public $type;
 
 
@@ -180,7 +116,7 @@ class Method
 	}
 
 
-	public static function fromReflection(ReflectionMethod $reflection = null)
+	public static function fromReflection(ReflectionMethod $reflection = NULL)
 	{
 		if (!defined('PHP_VERSION_ID')) {
 			$v = explode('.', PHP_VERSION);
@@ -231,6 +167,7 @@ class Method
 		$instance->internal = $reflection->isInternal();
 		$instance->userDefined = $reflection->isUserDefined();
 		$instance->generator = PHP_VERSION_ID >= 50500 ? $reflection->isGenerator() : null;
+		$instance->variadic = $reflection->isVariadic();
 		$instance->docComment = $reflection->getDocComment();
 		$instance->endLine = $reflection->getEndLine();
 		$instance->extensionName = $reflection->getExtensionName();
@@ -589,6 +526,26 @@ class Method
 	/**
 	 * @return boolean
 	 */
+	public function isVariadic()
+	{
+		return $this->variadic;
+	}
+
+
+	/**
+	 * @param boolean $variadic
+	 * @return $this
+	 */
+	public function setVariadic($variadic)
+	{
+		$this->variadic = $variadic;
+		return $this;
+	}
+
+
+	/**
+	 * @return boolean
+	 */
 	public function getDocComment()
 	{
 		return $this->docComment;
@@ -837,11 +794,12 @@ class Method
 	 * @param string $annotationClassName if supplied, returns only annotations of given class name
 	 * @return object[]
 	 */
-	public function getAnnotations($annotationClassName = null)
+	public function getAnnotations($annotationClassName = NULL)
 	{
 		if ($annotationClassName === null) {
 			return $this->annotations;
 		} else {
+
 			$annotations = array();
 			foreach ($this->annotations as $annotation) {
 				if (is_a($annotation, $annotationClassName)) {
@@ -899,7 +857,7 @@ class Method
 	public function getParameter($parameterName)
 	{
 		foreach ($this->getParameters() as $parameter) {
-			if ((is_string($parameterName) && $parameter->getName() === $parameterName) || (is_int($parameterName) && $parameter->getPosition() === $parameterName)) {
+			if ((is_string($parameterName) && $parameter->getName() === $parameterName) || (is_int($parameterName) && $parameter->getPosition() === $parameterName)){
 				return $parameter;
 			}
 		}

@@ -24,4 +24,9 @@ class FloatType extends NumericType
 
 	}
 
+	public function __toString()
+	{
+		return "float";
+	}
+
 }

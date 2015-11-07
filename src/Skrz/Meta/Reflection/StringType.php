@@ -24,4 +24,9 @@ class StringType extends ScalarType
 
 	}
 
+	public function __toString()
+	{
+		return "string";
+	}
+
 }

@@ -3,10 +3,14 @@ namespace Skrz\Meta;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpFile;
-use Skrz\Meta\Reflection\Reflector;
 use Skrz\Meta\Reflection\Type;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @author Jakub Kulhan <jakub.kulhan@gmail.com>
+ *
+ * @deprecated Use MetaSpec instead.
+ */
 abstract class AbstractMetaSpec
 {
 
@@ -48,7 +52,7 @@ abstract class AbstractMetaSpec
 	 * @param string $pattern
 	 * @return MetaSpecMatcher
 	 */
-	protected function match($pattern)
+	public function match($pattern)
 	{
 		$this->matchers[] = $matcher = new MetaSpecMatcher($this);
 		return $matcher->match($pattern);
@@ -94,51 +98,66 @@ abstract class AbstractMetaSpec
 		$matched = false;
 
 		foreach ($types as $type) {
-			/** @var Type $type */
-			foreach ($this->matchers as $matcher) {
-				if (!$matcher->matches($type)) {
-					continue;
+			$result = $this->compile($type);
+
+			if ($result === null) {
+				continue;
+			}
+
+			$matched = true;
+
+			$outputFileName = $this->createOutputFileName($type, $result->getClass());
+			$outputDirectory = dirname($outputFileName);
+
+			if (!is_dir($outputDirectory)) {
+				if (!mkdir($outputDirectory, 0777, true)) {
+					throw new MetaException("Could not create output directory '{$outputDirectory}'.");
 				}
+			}
 
-				if ($type->isAbstract()) {
-					continue;
+			$content = (string)$result->getFile();
+
+			// do not overwrite files with same content
+			if (!file_exists($outputFileName) || md5_file($outputFileName) !== md5($content)) {
+				if (!file_put_contents($outputFileName, $content)) {
+					throw new MetaException("Could not write output to file '{$outputFileName}'.");
 				}
-
-				$matched = true;
-				foreach ($matcher->getModules() as $module) {
-					$module->onBeforeGenerate($this, $matcher, $type);
-				}
-
-				$file = new PhpFile();
-				$class = $this->createMetaClass($type, $file);
-
-				foreach ($matcher->getModules() as $module) {
-					$module->onGenerate($this, $matcher, $type, $class);
-				}
-
-				$outputFileName = $this->createOutputFileName($type, $class);
-				$outputDirectory = dirname($outputFileName);
-
-				if (!is_dir($outputDirectory)) {
-					if (!mkdir($outputDirectory, 0777, true)) {
-						throw new MetaException("Could not create output directory '{$outputDirectory}'.");
-					}
-				}
-
-				$content = (string)$file;
-
-				// do not overwrite files with same content
-				if (!file_exists($outputFileName) || md5_file($outputFileName) !== md5($content)) {
-					if (!file_put_contents($outputFileName, $content)) {
-						throw new MetaException("Could not write output to file '{$outputFileName}'.");
-					}
-				}
-
-				break;
 			}
 		}
 
 		return $matched;
+	}
+
+	/**
+	 * @param Type $type
+	 * @return Result
+	 */
+	public function compile(Type $type)
+	{
+		if ($type->isAbstract()) {
+			return null;
+		}
+
+		foreach ($this->matchers as $matcher) {
+			if (!$matcher->matches($type)) {
+				continue;
+			}
+
+			foreach ($matcher->getModules() as $module) {
+				$module->onBeforeGenerate($this, $matcher, $type);
+			}
+
+			$file = new PhpFile();
+			$class = $this->createMetaClass($type, $file);
+
+			foreach ($matcher->getModules() as $module) {
+				$module->onGenerate($this, $matcher, $type, $class);
+			}
+
+			return new Result($file, $class);
+		}
+
+		return null;
 	}
 
 	public function createMetaClassName(Type $type)

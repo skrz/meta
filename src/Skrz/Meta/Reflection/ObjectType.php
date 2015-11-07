@@ -24,4 +24,9 @@ class ObjectType extends MixedType
 
 	}
 
+	public function __toString()
+	{
+		return "object";
+	}
+
 }

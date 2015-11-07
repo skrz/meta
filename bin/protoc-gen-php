@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+namespace Skrz\Meta;
+
+use Google\Protobuf\Compiler\CodeGeneratorResponse;
+use Google\Protobuf\Compiler\Meta\CodeGeneratorRequestMeta;
+use Google\Protobuf\Compiler\Meta\CodeGeneratorResponseMeta;
+use Skrz\Meta\Protobuf\ProtocGenPhp;
+
+require_once __DIR__ . "/../vendor/autoload.php";
+
+$request = CodeGeneratorRequestMeta::fromProtobuf(file_get_contents("php://stdin"));
+$generator = new ProtocGenPhp();
+echo CodeGeneratorResponseMeta::toProtobuf($generator->handle($request));

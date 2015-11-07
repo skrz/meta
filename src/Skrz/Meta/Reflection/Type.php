@@ -7,180 +7,109 @@ use ReflectionClass;
 
 class Type extends ObjectType
 {
-
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	public $name;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $internal;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $userDefined;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $instantiable;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $fileName;
 
-	/**
-	 * @var integer
-	 */
+	/** @var integer */
 	private $startLine;
 
-	/**
-	 * @var integer
-	 */
+	/** @var integer */
 	private $endLine;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $docComment;
 
-	/**
-	 * @var Method
-	 */
+	/** @var Method */
 	private $constructor;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $constructorInitialized;
 
-	/**
-	 * @var Method[]
-	 */
+	/** @var Method[] */
 	private $methods;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $methodsInitialized;
 
-	/**
-	 * @var Property[]
-	 */
+	/** @var Property[] */
 	private $properties;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $propertiesInitialized;
 
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	private $constants;
 
-	/**
-	 * @var Type[]
-	 */
+	/** @var Type[] */
 	private $interfaces;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $interfacesInitialized;
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private $interfaceNames;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $interface;
 
-	/**
-	 * @var Type[]
-	 */
+	/** @var Type[] */
 	private $traits;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $traitsInitialized;
 
-	/**
-	 * @var string[]
-	 */
+	/** @var string[] */
 	private $traitNames;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $trait;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $abstract;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $final;
 
-	/**
-	 * @var integer
-	 */
+	/** @var integer */
 	private $modifiers;
 
-	/**
-	 * @var Type
-	 */
+	/** @var Type */
 	private $parentClass;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $parentClassInitialized;
 
-	/**
-	 * @var array
-	 */
+	/** @var array */
 	private $defaultProperties;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $iterateable;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $extensionName;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $namespaceName;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	private $shortName;
 
-	/**
-	 * @var object[]
-	 */
+	/** @var object[] */
 	private $annotations = array();
 
-	/**
-	 * @var string[] array of lowercased alias => FQN use statements
-	 */
+	/** @var string[] array of lowercased alias => FQN use statements */
 	public $useStatements = array();
 
 
@@ -190,7 +119,7 @@ class Type extends ObjectType
 	}
 
 
-	public static function fromReflection(ReflectionClass $reflection = null)
+	public static function fromReflection(ReflectionClass $reflection = NULL)
 	{
 		if (!defined('PHP_VERSION_ID')) {
 			$v = explode('.', PHP_VERSION);
@@ -839,11 +768,12 @@ class Type extends ObjectType
 	 * @param string $annotationClassName if supplied, returns only annotations of given class name
 	 * @return object[]
 	 */
-	public function getAnnotations($annotationClassName = null)
+	public function getAnnotations($annotationClassName = NULL)
 	{
 		if ($annotationClassName === null) {
 			return $this->annotations;
 		} else {
+
 			$annotations = array();
 			foreach ($this->annotations as $annotation) {
 				if (is_a($annotation, $annotationClassName)) {
@@ -921,7 +851,7 @@ class Type extends ObjectType
 	public function getProperty($propertyName)
 	{
 		foreach ($this->getProperties() as $property) {
-			if ($property->getName() === $propertyName) {
+			if ($property->getName() === $propertyName){
 				return $property;
 			}
 		}
@@ -936,11 +866,17 @@ class Type extends ObjectType
 	public function getMethod($methodName)
 	{
 		foreach ($this->getMethods() as $method) {
-			if ($method->getName() === $methodName) {
+			if ($method->getName() === $methodName){
 				return $method;
 			}
 		}
 		return null;
+	}
+
+
+	public function __toString()
+	{
+		return $this->getName();
 	}
 
 }

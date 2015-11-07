@@ -311,8 +311,8 @@ class PhpModule extends AbstractModule
 					}
 
 					$from
-						->addBody("} elseif ((\$id & {$groupId}) > 0 && array_key_exists({$arrayKey}, \$input) && {$baseArrayPath} === NULL) {")
-						->addBody("\t{$baseObjectPath} = NULL;")
+						->addBody("} elseif ((\$id & {$groupId}) > 0 && array_key_exists({$arrayKey}, \$input) && {$baseArrayPath} === null) {")
+						->addBody("\t{$baseObjectPath} = null;")
 						->addBody("}");
 				}
 
@@ -422,12 +422,14 @@ class PhpModule extends AbstractModule
 
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
-					$to->addBody(
-						"\tif ((\$id & {$groupId}) > 0" .
-						($arrayOffset->ignoreNull
-							? " && ((isset(\$object->{$property->getName()}) && \$filter === null)"
-							: " && (\$filter === null"
-						) . " || isset(\$filter[" . var_export($arrayOffset->offset, true) . "]))) {"); // FIXME: group group IDs by offset
+					$if = "\tif ((\$id & {$groupId}) > 0";
+					if ($arrayOffset->ignoreNull) {
+						$if .= " && ((isset(\$object->{$property->getName()}) && \$filter === null)";
+					} else {
+						$if .= " && (\$filter === null";
+					}
+					$if .= " || isset(\$filter[" . var_export($arrayOffset->offset, true) . "]))) {"; // FIXME: group group IDs by offset
+					$to->addBody($if);
 
 					$objectPath = "\$object->{$property->getName()}";
 					$arrayPath = "\$output[" . var_export($arrayOffset->offset, true) . "]";
@@ -472,7 +474,7 @@ class PhpModule extends AbstractModule
 							"{$indent}{$arrayPath} = {$propertyTypeMetaClassNameAlias}::to{$what}(" .
 							"{$objectPath}, " .
 							"\$group, " .
-							"\$filter === NULL ? NULL : \$filter[" . var_export($arrayOffset->offset, true) . "]" .
+							"\$filter === null ? null : \$filter[" . var_export($arrayOffset->offset, true) . "]" .
 							");"
 						);
 

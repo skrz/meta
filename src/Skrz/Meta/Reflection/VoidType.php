@@ -24,4 +24,9 @@ class VoidType extends MixedType
 
 	}
 
+	public function __toString()
+	{
+		return "void";
+	}
+
 }

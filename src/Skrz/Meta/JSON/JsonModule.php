@@ -180,7 +180,7 @@ class JsonModule extends AbstractModule
 		$toJson
 			->addBody("if (is_int(\$filterOrOptions)) {")
 			->addBody("\t\$options = \$filterOrOptions;")
-			->addBody("\t\$filterOrOptions = NULL;")
+			->addBody("\t\$filterOrOptions = null;")
 			->addBody("}")
 			->addBody("")
 			->addBody("return json_encode(self::toObject(\$object, 'json:' . \$group, \$filterOrOptions), \$options);");
@@ -270,7 +270,7 @@ class JsonModule extends AbstractModule
 		$toArrayOfJson
 			->addBody("if (is_int(\$filterOrOptions)) {")
 			->addBody("\t\$options = \$filterOrOptions;")
-			->addBody("\t\$filter = NULL;")
+			->addBody("\t\$filter = null;")
 			->addBody("} else {")
 			->addBody("\t\$filter = \$filterOrOptions;")
 			->addBody("}")

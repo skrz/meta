@@ -565,6 +565,10 @@ foreach ($classes as $className => $discoveryClassName) {
 	$fromReflection
 		->addBody("\nreturn \$instance;");
 
+	if ($discoveryClassName === "Skrz\\Meta\\Reflection\\Type") {
+		$class->addMethod("__toString")->addBody("return \$this->getName();");
+	}
+
 	file_put_contents(
 		$outputDirectory . "/" . str_replace("\\", "/", $discoveryClassName) . ".php",
 		(string)$file

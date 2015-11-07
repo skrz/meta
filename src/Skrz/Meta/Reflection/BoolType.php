@@ -24,4 +24,9 @@ class BoolType extends ScalarType
 
 	}
 
+	public function __toString()
+	{
+		return "bool";
+	}
+
 }

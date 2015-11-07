@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+// @spec Skrz\Meta\Fixtures\Protobuf\ProtobufMetaSpec
+package skrz.meta.fixtures.protobuf;
+
+message ClassWithNoProperty {
+
+}
+
+message ClassWithVarintProperty {
+	int32 x = 1;
+}
+
+message ClassWithFixed64Property {
+	fixed64 x = 1;
+}
+
+message ClassWithStringProperty {
+	string x = 1;
+}
+
+message ClassWithEmbeddedMessageProperty {
+	message Embedded {
+		string x = 1;
+	}
+	Embedded x = 1;
+}
