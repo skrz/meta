@@ -223,7 +223,7 @@ class Binary
 			$s = pack("q", $n);
 			$s = self::isLittleEndian() ? $s : self::swapEndian64($s);
 		} else {
-			$s = pack("LL", ($n & 0xffffffff00000000) >> 32, $n & 0x00000000ffffffff);
+			$s = pack("NN", ($n & 0xffffffff00000000) >> 32, $n & 0x00000000ffffffff);
 			$s = self::isLittleEndian() ? self::swapEndian64($s) : $s; // intentionally reverse order
 		}
 
@@ -257,7 +257,7 @@ class Binary
 		if (self::isNative64BitPack()) {
 			$s = pack("P", $n);
 		} else {
-			$s = pack("LL", ($n & 0xffffffff00000000) >> 32, $n & 0x00000000ffffffff);
+			$s = pack("NN", ($n & 0xffffffff00000000) >> 32, $n & 0x00000000ffffffff);
 			$s = self::isLittleEndian() ? self::swapEndian64($s) : $s; // intentionally reverse order
 		}
 
