@@ -65,9 +65,6 @@ class Method
 	private $generator;
 
 	/** @var boolean */
-	private $variadic;
-
-	/** @var boolean */
 	private $docComment;
 
 	/** @var integer */
@@ -167,7 +164,6 @@ class Method
 		$instance->internal = $reflection->isInternal();
 		$instance->userDefined = $reflection->isUserDefined();
 		$instance->generator = PHP_VERSION_ID >= 50500 ? $reflection->isGenerator() : null;
-		$instance->variadic = $reflection->isVariadic();
 		$instance->docComment = $reflection->getDocComment();
 		$instance->endLine = $reflection->getEndLine();
 		$instance->extensionName = $reflection->getExtensionName();
@@ -519,26 +515,6 @@ class Method
 	public function setGenerator($generator)
 	{
 		$this->generator = $generator;
-		return $this;
-	}
-
-
-	/**
-	 * @return boolean
-	 */
-	public function isVariadic()
-	{
-		return $this->variadic;
-	}
-
-
-	/**
-	 * @param boolean $variadic
-	 * @return $this
-	 */
-	public function setVariadic($variadic)
-	{
-		$this->variadic = $variadic;
 		return $this;
 	}
 

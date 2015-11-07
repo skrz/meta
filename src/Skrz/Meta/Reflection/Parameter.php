@@ -46,9 +46,6 @@ class Parameter
 	/** @var boolean */
 	private $defaultValueConstant;
 
-	/** @var boolean */
-	private $variadic;
-
 	/** @var MixedType */
 	public $type;
 
@@ -105,7 +102,6 @@ class Parameter
 		$instance->defaultValueAvailable = $reflection->isDefaultValueAvailable();
 		$instance->defaultValue = $reflection->isDefaultValueAvailable() ? $reflection->getDefaultValue() : null;
 		$instance->defaultValueConstant = PHP_VERSION_ID >= 50500 && $reflection->isDefaultValueAvailable() ? $reflection->isDefaultValueConstant() : null;
-		$instance->variadic = $reflection->isVariadic();
 		$instance->declaringFunction = Method::fromReflection($reflection->getDeclaringFunction() ? $reflection->getDeclaringFunction() : null, $stack, $reader, $phpParser);
 		$instance->declaringClass = Type::fromReflection($reflection->getDeclaringClass() ? $reflection->getDeclaringClass() : null, $stack, $reader, $phpParser);
 
@@ -366,26 +362,6 @@ class Parameter
 	public function setDefaultValueConstant($defaultValueConstant)
 	{
 		$this->defaultValueConstant = $defaultValueConstant;
-		return $this;
-	}
-
-
-	/**
-	 * @return boolean
-	 */
-	public function isVariadic()
-	{
-		return $this->variadic;
-	}
-
-
-	/**
-	 * @param boolean $variadic
-	 * @return $this
-	 */
-	public function setVariadic($variadic)
-	{
-		$this->variadic = $variadic;
 		return $this;
 	}
 
