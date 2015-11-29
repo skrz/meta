@@ -162,7 +162,7 @@ $someCategory = CategoryMeta::fromJson(array(
 var_export($someCategory instanceof Category);
 // TRUE
 
-var_export($someCategory->name === "Some category);
+var_export($someCategory->name === "Some category");
 // TRUE
 ```
 
