@@ -156,13 +156,13 @@ echo CategoryMeta::toJson($childCategory);
 
 $someCategory = CategoryMeta::fromJson(array(
     "name" => "Some category",
-    "ufo" => 42, // unknown fields are ignores
+    "ufo" => 42, // unknown fields are ignored
 ));
 
 var_export($someCategory instanceof Category);
 // TRUE
 
-var_export($someCategory->name === "Some category);
+var_export($someCategory->name === "Some category");
 // TRUE
 ```
 
