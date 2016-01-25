@@ -1,8 +1,8 @@
 <?php
 namespace Skrz\Meta;
 
-use Skrz\Meta\Reflection\Type;
 use Nette\PhpGenerator\ClassType;
+use Skrz\Meta\Reflection\Type;
 
 abstract class AbstractModule
 {

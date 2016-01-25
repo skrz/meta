@@ -24,4 +24,9 @@ class IntType extends NumericType
 
 	}
 
+	public function __toString()
+	{
+		return "int";
+	}
+
 }

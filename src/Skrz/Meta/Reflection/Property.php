@@ -7,70 +7,43 @@ use ReflectionProperty;
 
 class Property
 {
-
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	public $name;
 
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	public $class;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $public;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $private;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $protected;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $static;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $default;
 
-	/**
-	 * @var integer
-	 */
+	/** @var integer */
 	private $modifiers;
 
-	/**
-	 * @var Type
-	 */
+	/** @var Type */
 	private $declaringClass;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $docComment;
 
-	/**
-	 * @var object[]
-	 */
+	/** @var object[] */
 	private $annotations = array();
 
-	/**
-	 * @var mixed default value
-	 */
+	/** @var mixed default value */
 	public $defaultValue;
 
-	/**
-	 * @var MixedType
-	 */
+	/** @var MixedType */
 	public $type;
 
 
@@ -80,7 +53,7 @@ class Property
 	}
 
 
-	public static function fromReflection(ReflectionProperty $reflection = null)
+	public static function fromReflection(ReflectionProperty $reflection = NULL)
 	{
 		if (!defined('PHP_VERSION_ID')) {
 			$v = explode('.', PHP_VERSION);
@@ -329,11 +302,12 @@ class Property
 	 * @param string $annotationClassName if supplied, returns only annotations of given class name
 	 * @return object[]
 	 */
-	public function getAnnotations($annotationClassName = null)
+	public function getAnnotations($annotationClassName = NULL)
 	{
 		if ($annotationClassName === null) {
 			return $this->annotations;
 		} else {
+
 			$annotations = array();
 			foreach ($this->annotations as $annotation) {
 				if (is_a($annotation, $annotationClassName)) {

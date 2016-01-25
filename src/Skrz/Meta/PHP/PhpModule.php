@@ -7,6 +7,7 @@ use Skrz\Meta\AbstractMetaSpec;
 use Skrz\Meta\AbstractModule;
 use Skrz\Meta\MetaException;
 use Skrz\Meta\MetaSpecMatcher;
+use Skrz\Meta\PropertySerializerInterface;
 use Skrz\Meta\Reflection\ArrayType;
 use Skrz\Meta\Reflection\Property;
 use Skrz\Meta\Reflection\ScalarType;
@@ -33,7 +34,6 @@ class PhpModule extends AbstractModule
 	public function addPropertySerializer(PropertySerializerInterface $propertySerializer)
 	{
 		$this->propertySerializers[] = $propertySerializer;
-
 		return $this;
 	}
 
@@ -103,14 +103,13 @@ class PhpModule extends AbstractModule
 
 		$ns->addUse("Skrz\\Meta\\PHP\\PhpMetaInterface");
 		$ns->addUse($type->getName(), null, $typeAlias);
-		$ns->addUse("Skrz\\Meta\\PHP\\Stack", null, $stackAlias);
+		$ns->addUse("Skrz\\Meta\\Stack", null, $stackAlias);
 		$class->addImplement("Skrz\\Meta\\PHP\\PhpMetaInterface");
 
 		// get groups
 		foreach ($type->getProperties() as $property) {
 			foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
 				/** @var PhpArrayOffset $arrayOffset */
-
 				if (!isset($groups[$arrayOffset->group])) {
 					$groups[$arrayOffset->group] = 1 << $i++;
 				}
@@ -304,7 +303,7 @@ class PhpModule extends AbstractModule
 						);
 
 					} else {
-						throw new MetaException("Unsupported property type " . get_class($baseType) . ".");
+						throw new MetaException("Unsupported property type " . get_class($baseType) . " ({$type->getName()}::\${$property->getName()}).");
 					}
 
 					if (!empty($after)) {
@@ -312,8 +311,8 @@ class PhpModule extends AbstractModule
 					}
 
 					$from
-						->addBody("} elseif ((\$id & {$groupId}) > 0 && array_key_exists({$arrayKey}, \$input) && {$baseArrayPath} === NULL) {")
-						->addBody("\t{$baseObjectPath} = NULL;")
+						->addBody("} elseif ((\$id & {$groupId}) > 0 && array_key_exists({$arrayKey}, \$input) && {$baseArrayPath} === null) {")
+						->addBody("\t{$baseObjectPath} = null;")
 						->addBody("}");
 				}
 
@@ -423,12 +422,14 @@ class PhpModule extends AbstractModule
 
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
-					$to->addBody(
-						"\tif ((\$id & {$groupId}) > 0" .
-						($arrayOffset->ignoreNull
-							? " && ((isset(\$object->{$property->getName()}) && \$filter === null)"
-							: " && (\$filter === null"
-						) . " || isset(\$filter[" . var_export($arrayOffset->offset, true) . "]))) {"); // FIXME: group group IDs by offset
+					$if = "\tif ((\$id & {$groupId}) > 0";
+					if ($arrayOffset->ignoreNull) {
+						$if .= " && ((isset(\$object->{$property->getName()}) && \$filter === null)";
+					} else {
+						$if .= " && (\$filter === null";
+					}
+					$if .= " || isset(\$filter[" . var_export($arrayOffset->offset, true) . "]))) {"; // FIXME: group group IDs by offset
+					$to->addBody($if);
 
 					$objectPath = "\$object->{$property->getName()}";
 					$arrayPath = "\$output[" . var_export($arrayOffset->offset, true) . "]";
@@ -473,7 +474,7 @@ class PhpModule extends AbstractModule
 							"{$indent}{$arrayPath} = {$propertyTypeMetaClassNameAlias}::to{$what}(" .
 							"{$objectPath}, " .
 							"\$group, " .
-							"\$filter === NULL ? NULL : \$filter[" . var_export($arrayOffset->offset, true) . "]" .
+							"\$filter === null ? null : \$filter[" . var_export($arrayOffset->offset, true) . "]" .
 							");"
 						);
 

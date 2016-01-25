@@ -2,6 +2,8 @@
 namespace Skrz\Meta;
 
 use Nette\PhpGenerator\ClassType;
+use Skrz\Meta\Reflection\ArrayType;
+use Skrz\Meta\Reflection\ScalarType;
 use Skrz\Meta\Reflection\Type;
 
 class BaseModule extends AbstractModule
@@ -143,6 +145,100 @@ class BaseModule extends AbstractModule
 			}
 			$reset->addBody("\$object->{$property->getName()} = " . var_export($property->getDefaultValue(), true) . ";");
 		}
+
+		// hash() method
+		$hash = $class->addMethod("hash");
+		$hash->setStatic(true);
+		$hash
+			->addDocument("Computes hash of \\{$type->getName()}")
+			->addDocument("")
+			->addDocument("@param object \$object")
+			->addDocument("@param string|resource \$algoOrCtx")
+			->addDocument("@param bool \$raw")
+			->addDocument("")
+			->addDocument("@return string|void");
+		$hash->addParameter("object");
+		$hash->addParameter("algoOrCtx")->setDefaultValue("md5")->setOptional(true);
+		$hash->addParameter("raw")->setDefaultValue(false)->setOptional(true);
+
+		$hash
+			->addBody("if (is_string(\$algoOrCtx)) {")
+			->addBody("\t\$ctx = hash_init(\$algoOrCtx);")
+			->addBody("} else {")
+			->addBody("\t\$ctx = \$algoOrCtx;")
+			->addBody("}")
+			->addBody("");
+
+		foreach ($type->getProperties() as $property) {
+			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
+				continue;
+			}
+
+			if ($property->hasAnnotation("Skrz\\Meta\\Hash")) {
+				continue;
+			}
+
+			$objectPath = "\$object->{$property->getName()}";
+
+			$hash->addBody("if (isset({$objectPath})) {");
+			$hash->addBody("\thash_update(\$ctx, " . var_export($property->getName(), true) .");");
+
+			$baseType = $property->getType();
+			$indent = "\t";
+			$before = "";
+			$after = "";
+			for ($i = 0; $baseType instanceof ArrayType; ++$i) {
+				$arrayType = $baseType;
+				$baseType = $arrayType->getBaseType();
+
+				$before .= "{$indent}foreach ({$objectPath} instanceof \\Traversable ? {$objectPath} : (array){$objectPath} as \$v{$i}) {\n";
+				$after = "{$indent}}\n" . $after;
+				$indent .= "\t";
+				$objectPath = "\$v{$i}";
+			}
+
+			if (!empty($before)) {
+				$hash->addBody(rtrim($before));
+			}
+
+			if ($baseType instanceof ScalarType) {
+				$hash->addBody("{$indent}hash_update(\$ctx, (string){$objectPath});");
+
+			} elseif ($baseType instanceof Type) {
+				$datetimeType = false;
+
+				for ($t = $baseType; $t; $t = $t->getParentClass()) {
+					if ($t->getName() === "DateTime") {
+						$datetimeType = true;
+						break;
+					}
+				}
+
+				if ($datetimeType) {
+					$hash->addBody("{$indent}hash_update(\$ctx, {$objectPath} instanceof \\DateTime ? {$objectPath}->format(\\DateTime::ISO8601) : '');");
+				} else {
+					$propertyTypeMetaClassName = $spec->createMetaClassName($baseType);
+					$namespace->addUse($propertyTypeMetaClassName, null, $propertyTypeMetaClassNameAlias);
+					$hash->addBody("{$indent}{$propertyTypeMetaClassNameAlias}::hash({$objectPath}, \$ctx);");
+				}
+
+			} else {
+				throw new MetaException("Unsupported property type " . get_class($baseType) . " ({$type->getName()}::\${$property->getName()}).");
+			}
+
+			if (!empty($after)) {
+				$hash->addBody(rtrim($after));
+			}
+
+			$hash->addBody("}")->addBody("");
+		}
+
+		$hash
+			->addBody("if (is_string(\$algoOrCtx)) {")
+			->addBody("\treturn hash_final(\$ctx, \$raw);")
+			->addBody("} else {")
+			->addBody("\treturn null;")
+			->addBody("}");
 	}
 
 }

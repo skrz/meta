@@ -24,4 +24,9 @@ class ScalarType extends MixedType
 
 	}
 
+	public function __toString()
+	{
+		return "scalar";
+	}
+
 }

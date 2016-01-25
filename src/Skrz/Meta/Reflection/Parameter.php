@@ -7,75 +7,46 @@ use ReflectionParameter;
 
 class Parameter
 {
-
-	/**
-	 * @var string
-	 */
+	/** @var string */
 	public $name;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $passedByReference;
 
-	/**
-	 * @var Method
-	 */
+	/** @var Method */
 	private $declaringFunction;
 
-	/**
-	 * @var Type
-	 */
+	/** @var Type */
 	private $declaringClass;
 
-	/**
-	 * @var Type
-	 */
+	/** @var Type */
 	private $class;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $classInitialized;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $array;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $callable;
 
-	/**
-	 * @var integer
-	 */
+	/** @var integer */
 	private $position;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $optional;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $defaultValueAvailable;
 
-	/**
-	 * @var mixed
-	 */
+	/** @var mixed */
 	private $defaultValue;
 
-	/**
-	 * @var boolean
-	 */
+	/** @var boolean */
 	private $defaultValueConstant;
 
-	/**
-	 * @var MixedType
-	 */
+	/** @var MixedType */
 	public $type;
 
 
@@ -85,7 +56,7 @@ class Parameter
 	}
 
 
-	public static function fromReflection(ReflectionParameter $reflection = null)
+	public static function fromReflection(ReflectionParameter $reflection = NULL)
 	{
 		if (!defined('PHP_VERSION_ID')) {
 			$v = explode('.', PHP_VERSION);

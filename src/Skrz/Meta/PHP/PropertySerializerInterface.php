@@ -1,39 +1,8 @@
 <?php
 namespace Skrz\Meta\PHP;
 
-use Skrz\Meta\Reflection\Property;
+use Skrz\Meta\PropertySerializerInterface as BasePropertySerializerInterface;
 
-interface PropertySerializerInterface
+interface PropertySerializerInterface extends BasePropertySerializerInterface
 {
-
-	/**
-	 * @param Property $property
-	 * @param string $group
-	 * @return boolean
-	 */
-	public function matchesSerialize(Property $property, $group);
-
-	/**
-	 * @param Property $property
-	 * @param string $group
-	 * @return boolean
-	 */
-	public function matchesDeserialize(Property $property, $group);
-
-	/**
-	 * @param Property $property
-	 * @param string $group
-	 * @param string $inputExpression
-	 * @return StatementAndExpressionVO
-	 */
-	public function serialize(Property $property, $group, $inputExpression);
-
-	/**
-	 * @param Property $property
-	 * @param string $group
-	 * @param string $inputExpression
-	 * @return StatementAndExpressionVO
-	 */
-	public function deserialize(Property $property, $group, $inputExpression);
-
 }

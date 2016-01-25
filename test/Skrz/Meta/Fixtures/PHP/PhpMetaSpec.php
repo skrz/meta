@@ -2,7 +2,7 @@
 namespace Skrz\Meta\Fixtures\PHP;
 
 use Skrz\Meta\AbstractMetaSpec;
-use Skrz\Meta\PHP\DateTimeFormattingSerializer;
+use Skrz\Meta\DateTimeFormattingSerializer;
 use Skrz\Meta\PHP\PhpModule;
 
 class PhpMetaSpec extends AbstractMetaSpec

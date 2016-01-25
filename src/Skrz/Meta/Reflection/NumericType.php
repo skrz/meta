@@ -24,4 +24,9 @@ class NumericType extends ScalarType
 
 	}
 
+	public function __toString()
+	{
+		return "numeric";
+	}
+
 }

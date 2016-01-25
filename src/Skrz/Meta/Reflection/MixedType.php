@@ -135,4 +135,14 @@ class MixedType
 		}
 	}
 
+	public function isArray()
+	{
+		return false;
+	}
+
+	public function __toString()
+	{
+		return "mixed";
+	}
+
 }

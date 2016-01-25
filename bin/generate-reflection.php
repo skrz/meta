@@ -184,6 +184,7 @@ foreach ($classes as $className => $discoveryClassName) {
 		if ($method->getName() !== "getTraitAliases" &&
 			$method->getName() !== "getStaticProperties" &&
 			$method->getName() !== "isCloneable" &&
+			$method->getName() !== "isVariadic" &&
 //			$method->getName() !== "getDefaultProperties" &&
 			(strncmp($method->getName(), "get", 3) === 0 || ($is = (strncmp($method->getName(), "is", 2) === 0))) &&
 			($method->getNumberOfParameters() === 0 || $method->getName() === "getProperties" || $method->getName() === "getMethods")
@@ -564,6 +565,10 @@ foreach ($classes as $className => $discoveryClassName) {
 
 	$fromReflection
 		->addBody("\nreturn \$instance;");
+
+	if ($discoveryClassName === "Skrz\\Meta\\Reflection\\Type") {
+		$class->addMethod("__toString")->addBody("return \$this->getName();");
+	}
 
 	file_put_contents(
 		$outputDirectory . "/" . str_replace("\\", "/", $discoveryClassName) . ".php",

@@ -24,4 +24,9 @@ class ResourceType extends ScalarType
 
 	}
 
+	public function __toString()
+	{
+		return "resource";
+	}
+
 }
