@@ -1,10 +1,13 @@
 <?php
 namespace Skrz\Meta\JSON;
 
+use Skrz\Meta\Fields\FieldsInterface;
+use Skrz\Meta\MetaInterface;
+
 /**
  * @author Jakub Kulhan <jakub.kulhan@gmail.com>
  */
-interface JsonMetaInterface
+interface JsonMetaInterface extends MetaInterface
 {
 
 	/**
@@ -23,7 +26,7 @@ interface JsonMetaInterface
 	 *
 	 * @param object $object
 	 * @param string $group
-	 * @param array|int $filterOrOptions
+	 * @param array|FieldsInterface|int $filterOrOptions
 	 * @param int $options
 	 *
 	 * @return array
@@ -46,7 +49,7 @@ interface JsonMetaInterface
 	 *
 	 * @param object $object
 	 * @param string $group
-	 * @param array|int $filterOrOptions
+	 * @param array|FieldsInterface|int $filterOrOptions
 	 * @param int $options
 	 *
 	 * @return array

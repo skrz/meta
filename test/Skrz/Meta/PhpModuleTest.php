@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta;
 
+use Skrz\Meta\Fields\Fields;
 use Skrz\Meta\Fixtures\PHP\ArrayCollection;
 use Skrz\Meta\Fixtures\PHP\ClassWithArrayProperty;
 use Skrz\Meta\Fixtures\PHP\ClassWithCustomOffsetProperty;
@@ -511,6 +512,166 @@ class PhpModuleTest extends \PHPUnit_Framework_TestCase
 					"a" => true,
 				],
 			])
+		);
+	}
+
+	public function testClassWithMorePropertiesFilteredByFieldsFromArray()
+	{
+		$instance = new ClassWithMoreProperties();
+		$instance->a = "foo1";
+		$instance->b = "foo2";
+		$instance->c = "foo3";
+		$instance->d = "foo4";
+		$instance->e = "foo5";
+
+		$this->assertEquals(
+			[
+				"a" => "foo1",
+				"b" => "foo2",
+				"c" => "foo3",
+				"d" => "foo4",
+				"e" => "foo5",
+				"f" => null,
+				"g" => [],
+			],
+			ClassWithMorePropertiesMeta::toArray($instance)
+		);
+
+		$this->assertEquals(
+			[
+				"a" => "foo1",
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, Fields::fromArray([
+				"a" => true,
+			]))
+		);
+
+		$this->assertEquals(
+			[
+				"b" => "foo2",
+				"c" => "foo3",
+				"d" => "foo4",
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, Fields::fromArray([
+				"b" => true,
+				"c" => true,
+				"d" => true,
+			]))
+		);
+
+		$instance2 = new ClassWithMoreProperties();
+		$instance2->a = "foo6";
+		$instance->f = $instance2;
+
+		$this->assertEquals(
+			[
+				"e" => "foo5",
+				"f" => [
+					"a" => "foo6",
+					"b" => null,
+				],
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, Fields::fromArray([
+				"e" => true,
+				"f" => [
+					"a" => true,
+					"b" => true,
+				],
+			]))
+		);
+
+		$instance3 = new ClassWithMoreProperties();
+		$instance3->a = "foo7";
+		$instance->g = [$instance2, $instance3];
+
+		$this->assertEquals(
+			[
+				"g" => [
+					[
+						"a" => "foo6",
+					],
+					[
+						"a" => "foo7",
+					]
+				],
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, Fields::fromArray([
+				"g" => [
+					"a" => true,
+				],
+			]))
+		);
+	}
+
+	public function testClassWithMorePropertiesFilteredByFieldsFromString()
+	{
+		$instance = new ClassWithMoreProperties();
+		$instance->a = "foo1";
+		$instance->b = "foo2";
+		$instance->c = "foo3";
+		$instance->d = "foo4";
+		$instance->e = "foo5";
+
+		$this->assertEquals(
+			[
+				"a" => "foo1",
+				"b" => "foo2",
+				"c" => "foo3",
+				"d" => "foo4",
+				"e" => "foo5",
+				"f" => null,
+				"g" => [],
+			],
+			ClassWithMorePropertiesMeta::toArray($instance)
+		);
+
+		$this->assertEquals(
+			[
+				"a" => "foo1",
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, Fields::fromString("a"))
+		);
+
+		$this->assertEquals(
+			[
+				"b" => "foo2",
+				"c" => "foo3",
+				"d" => "foo4",
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, Fields::fromString("b,c,d"))
+		);
+
+		$instance2 = new ClassWithMoreProperties();
+		$instance2->a = "foo6";
+		$instance->f = $instance2;
+
+		$this->assertEquals(
+			[
+				"e" => "foo5",
+				"f" => [
+					"a" => "foo6",
+					"b" => null,
+				],
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, Fields::fromString("e,f{a,b}"))
+		);
+
+		$instance3 = new ClassWithMoreProperties();
+		$instance3->a = "foo7";
+		$instance->g = [$instance2, $instance3];
+
+		$this->assertEquals(
+			[
+				"g" => [
+					[
+						"a" => "foo6",
+					],
+					[
+						"a" => "foo7",
+					]
+				],
+			],
+			ClassWithMorePropertiesMeta::toArray($instance, null, Fields::fromString("g{a}"))
 		);
 	}
 

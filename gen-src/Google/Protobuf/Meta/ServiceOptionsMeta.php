@@ -223,7 +223,7 @@ class ServiceOptionsMeta extends ServiceOptions implements MetaInterface, Protob
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, array $filter = NULL)
+	public static function toProtobuf($object, $filter = NULL)
 	{
 		$output = '';
 

@@ -8,7 +8,7 @@
 
 ## Requirements
 
-`Skrz\Meta` requires PHP `>= 5.3.0` and Symfony `>= 2.7.0`.
+`Skrz\Meta` requires PHP `>= 5.4.0` and Symfony `>= 2.7.0`.
 
 ## Installation
 
@@ -166,6 +166,40 @@ var_export($someCategory->name === "Some category");
 // TRUE
 ```
 
+### Fields
+
+- Fields represent set of symbolic field paths.
+- They are composite (fields can have sub-fields).
+- Fields can be supplied as `$filter` parameters in `to*()` methods.
+
+```php
+use Skrz\API\Category;
+use Skrz\API\Meta\CategoryMeta;
+use Skrz\Meta\Fields\Fields;
+
+$parentCategory = new Category();
+$parentCategory->name = "The parent category";
+$parentCategory->slug = "parent-category";
+
+$childCategory = new Category();
+$childCategory->name = "The child category";
+$childCategory->slug = "child-category";
+$childCategory->parentCategory = $parentCategory;
+
+
+var_export(CategoryMeta::toArray($childCategory, null, Fields::fromString("name,parentCategory{name}")));
+// array(
+//     "name" => "The child category",
+//     "parentCategory" => array(
+//         "name" => "The parent category",
+//     ),
+// )
+```
+
+Fields are inspired by:
+
+- [Facebook Graph API's `?fields=...` query parameter](https://developers.facebook.com/docs/graph-api/using-graph-api#fields)
+- [Google Protocol Buffers' `FieldMask`](https://github.com/google/protobuf/blob/master/src/google/protobuf/field_mask.proto) (and its [JSON serialization](https://developers.google.com/protocol-buffers/docs/proto3#json))
 
 ### Annotations
 

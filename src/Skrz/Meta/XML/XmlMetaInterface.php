@@ -1,7 +1,10 @@
 <?php
 namespace Skrz\Meta\XML;
 
-interface XmlMetaInterface
+use Skrz\Meta\Fields\FieldsInterface;
+use Skrz\Meta\MetaInterface;
+
+interface XmlMetaInterface extends MetaInterface
 {
 
 	/**
@@ -20,7 +23,7 @@ interface XmlMetaInterface
 	 *
 	 * @param object $object
 	 * @param string $group
-	 * @param array|\XMLWriter|\DOMDocument $filterOrXml
+	 * @param array|FieldsInterface|\XMLWriter|\DOMDocument $filterOrXml
 	 * @param \XMLWriter|\DOMDocument|\DOMElement $xml
 	 * @param \DOMElement $el
 	 *

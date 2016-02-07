@@ -297,7 +297,7 @@ class MethodDescriptorProtoMeta extends MethodDescriptorProto implements MetaInt
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, array $filter = NULL)
+	public static function toProtobuf($object, $filter = NULL)
 	{
 		$output = '';
 

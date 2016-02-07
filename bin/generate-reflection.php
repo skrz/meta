@@ -185,6 +185,8 @@ foreach ($classes as $className => $discoveryClassName) {
 			$method->getName() !== "getStaticProperties" &&
 			$method->getName() !== "isCloneable" &&
 			$method->getName() !== "isVariadic" &&
+			$method->getName() !== "getType" && // TODO: PHP 7
+			$method->getName() !== "isAnonymous" && // TODO: PHP 7
 //			$method->getName() !== "getDefaultProperties" &&
 			(strncmp($method->getName(), "get", 3) === 0 || ($is = (strncmp($method->getName(), "is", 2) === 0))) &&
 			($method->getNumberOfParameters() === 0 || $method->getName() === "getProperties" || $method->getName() === "getMethods")
