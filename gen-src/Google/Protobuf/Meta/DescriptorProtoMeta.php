@@ -438,7 +438,7 @@ class DescriptorProtoMeta extends DescriptorProto implements MetaInterface, Prot
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, array $filter = NULL)
+	public static function toProtobuf($object, $filter = NULL)
 	{
 		$output = '';
 

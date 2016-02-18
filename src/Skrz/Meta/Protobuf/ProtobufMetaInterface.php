@@ -1,10 +1,13 @@
 <?php
 namespace Skrz\Meta\Protobuf;
 
+use Skrz\Meta\Fields\FieldsInterface;
+use Skrz\Meta\MetaInterface;
+
 /**
  * @author Jakub Kulhan <jakub.kulhan@gmail.com>
  */
-interface ProtobufMetaInterface
+interface ProtobufMetaInterface extends MetaInterface
 {
 
 	/**
@@ -23,10 +26,10 @@ interface ProtobufMetaInterface
 	 * Serializes object state to Protocol Buffers message.
 	 *
 	 * @param object $object
-	 * @param array $filter
+	 * @param array|FieldsInterface $filter
 	 *
 	 * @return array
 	 */
-	public static function toProtobuf($object, array $filter = null);
+	public static function toProtobuf($object, $filter = null);
 
 }

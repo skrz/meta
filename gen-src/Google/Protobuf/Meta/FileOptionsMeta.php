@@ -450,7 +450,7 @@ class FileOptionsMeta extends FileOptions implements MetaInterface, ProtobufMeta
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, array $filter = NULL)
+	public static function toProtobuf($object, $filter = NULL)
 	{
 		$output = '';
 

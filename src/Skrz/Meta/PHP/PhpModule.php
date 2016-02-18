@@ -326,7 +326,7 @@ class PhpModule extends AbstractModule
 			$to->setStatic(true);
 			$to->addParameter("object");
 			$to->addParameter("group")->setOptional(true);
-			$to->addParameter("filter")->setTypeHint("array")->setOptional(true);
+			$to->addParameter("filter")->setOptional(true);
 
 			$to
 				->addDocument("Serializes \\{$type->getName()} to " . strtolower($what))

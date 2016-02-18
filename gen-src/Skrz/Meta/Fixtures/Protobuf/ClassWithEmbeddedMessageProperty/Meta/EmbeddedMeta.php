@@ -185,7 +185,7 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 	 *
 	 * @return array
 	 */
-	public static function toArray($object, $group = NULL, array $filter = NULL)
+	public static function toArray($object, $group = NULL, $filter = NULL)
 	{
 		if ($object === null) {
 			return null;
@@ -275,7 +275,7 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 	 *
 	 * @return object
 	 */
-	public static function toObject($object, $group = NULL, array $filter = NULL)
+	public static function toObject($object, $group = NULL, $filter = NULL)
 	{
 		if ($object === null) {
 			return null;
@@ -393,7 +393,7 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, array $filter = NULL)
+	public static function toProtobuf($object, $filter = NULL)
 	{
 		$output = '';
 

@@ -186,7 +186,7 @@ class ClassWithEmbeddedMessagePropertyMeta extends ClassWithEmbeddedMessagePrope
 	 *
 	 * @return array
 	 */
-	public static function toArray($object, $group = NULL, array $filter = NULL)
+	public static function toArray($object, $group = NULL, $filter = NULL)
 	{
 		if ($object === null) {
 			return null;
@@ -276,7 +276,7 @@ class ClassWithEmbeddedMessagePropertyMeta extends ClassWithEmbeddedMessagePrope
 	 *
 	 * @return object
 	 */
-	public static function toObject($object, $group = NULL, array $filter = NULL)
+	public static function toObject($object, $group = NULL, $filter = NULL)
 	{
 		if ($object === null) {
 			return null;
@@ -393,7 +393,7 @@ class ClassWithEmbeddedMessagePropertyMeta extends ClassWithEmbeddedMessagePrope
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, array $filter = NULL)
+	public static function toProtobuf($object, $filter = NULL)
 	{
 		$output = '';
 

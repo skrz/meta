@@ -223,7 +223,7 @@ class EnumValueOptionsMeta extends EnumValueOptions implements MetaInterface, Pr
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, array $filter = NULL)
+	public static function toProtobuf($object, $filter = NULL)
 	{
 		$output = '';
 

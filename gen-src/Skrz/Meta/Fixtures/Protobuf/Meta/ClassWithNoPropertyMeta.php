@@ -171,7 +171,7 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 	 *
 	 * @return array
 	 */
-	public static function toArray($object, $group = NULL, array $filter = NULL)
+	public static function toArray($object, $group = NULL, $filter = NULL)
 	{
 		if ($object === null) {
 			return null;
@@ -251,7 +251,7 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 	 *
 	 * @return object
 	 */
-	public static function toObject($object, $group = NULL, array $filter = NULL)
+	public static function toObject($object, $group = NULL, $filter = NULL)
 	{
 		if ($object === null) {
 			return null;
@@ -350,7 +350,7 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, array $filter = NULL)
+	public static function toProtobuf($object, $filter = NULL)
 	{
 		$output = '';
 

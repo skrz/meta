@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta\PHP;
 
+use Skrz\Meta\Fields\FieldsInterface;
 use Skrz\Meta\MetaInterface;
 
 /**
@@ -25,11 +26,11 @@ interface PhpMetaInterface extends MetaInterface
 	 *
 	 * @param object $object
 	 * @param string $group
-	 * @param array $filter
+	 * @param array|FieldsInterface $filter
 	 *
 	 * @return array
 	 */
-	public static function toArray($object, $group = PhpArrayOffset::DEFAULT_GROUP, array $filter = null);
+	public static function toArray($object, $group = PhpArrayOffset::DEFAULT_GROUP, $filter = null);
 
 	/**
 	 * Creates object from any object with public properties (mostly \stdClass)
@@ -47,10 +48,10 @@ interface PhpMetaInterface extends MetaInterface
 	 *
 	 * @param object $object
 	 * @param string $group
-	 * @param array $filter
+	 * @param array|FieldsInterface $filter
 	 *
 	 * @return \stdClass
 	 */
-	public static function toObject($object, $group = PhpArrayOffset::DEFAULT_GROUP, array $filter = null);
+	public static function toObject($object, $group = PhpArrayOffset::DEFAULT_GROUP, $filter = null);
 
 }

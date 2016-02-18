@@ -356,7 +356,7 @@ class ProtobufModule extends AbstractModule
 		$toProtobuf = $class->addMethod("toProtobuf");
 		$toProtobuf->setStatic(true);
 		$toProtobuf->addParameter("object");
-		$toProtobuf->addParameter("filter", null)->setTypeHint("array");
+		$toProtobuf->addParameter("filter", null);
 		$toProtobuf
 			->addDocument("Serialized \\{$type->getName()} to Protocol Buffers message.")
 			->addDocument("")

@@ -250,7 +250,7 @@ class FileMeta extends File implements MetaInterface, ProtobufMetaInterface
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, array $filter = NULL)
+	public static function toProtobuf($object, $filter = NULL)
 	{
 		$output = '';
 

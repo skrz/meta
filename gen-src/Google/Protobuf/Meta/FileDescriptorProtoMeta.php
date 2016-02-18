@@ -459,7 +459,7 @@ class FileDescriptorProtoMeta extends FileDescriptorProto implements MetaInterfa
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, array $filter = NULL)
+	public static function toProtobuf($object, $filter = NULL)
 	{
 		$output = '';
 
