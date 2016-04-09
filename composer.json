@@ -10,11 +10,12 @@
     }
   ],
   "require": {
-    "php": ">=5.3",
+    "php": ">=5.5.9",
     "doctrine/annotations": "~1.2",
     "nette/php-generator": "~2.3",
-    "symfony/finder": "~2.7",
-    "symfony/console": "~2.7"
+    "symfony/finder": "~3.0",
+    "symfony/console": "~3.0",
+    "protocolbuffers/protoc-gen-php": "~0.1"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.6"
