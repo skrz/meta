@@ -142,7 +142,7 @@ foreach ($classes as $className => $discoveryClassName) {
 
 	foreach ($rc->getProperties() as $property) {
 		$class->addProperty($property->getName())
-			->addDocument("@var string");
+			->addComment("@var string");
 	}
 
 	$constructor = $class->addMethod("__construct");
@@ -255,7 +255,7 @@ foreach ($classes as $className => $discoveryClassName) {
 
 			$getter = $class->addMethod(($is ? "is" : "get") . ucfirst($propertyName));
 			$getter
-				->addDocument("@return {$returnType}{$arrayType}");
+				->addComment("@return {$returnType}{$arrayType}");
 
 			if ($propertyInitialized) {
 				$getter
@@ -302,8 +302,8 @@ foreach ($classes as $className => $discoveryClassName) {
 			$setter = $class->addMethod("set" . ucfirst($propertyName));
 
 			$setter
-				->addDocument("@param {$returnType}{$arrayType} \${$propertyName}")
-				->addDocument("@return \$this");
+				->addComment("@param {$returnType}{$arrayType} \${$propertyName}")
+				->addComment("@return \$this");
 
 			$setter
 				->addParameter($propertyName);
@@ -339,7 +339,7 @@ foreach ($classes as $className => $discoveryClassName) {
 	if ($currentAnnotationReaderMethod) {
 		$class->addProperty("annotations")
 			->setVisibility("private")
-			->addDocument("@var object[]")
+			->addComment("@var object[]")
 			->setValue(array());
 
 		$fromReflection->addBody("\$instance->annotations = \$reader->{$currentAnnotationReaderMethod}(\$reflection);");
@@ -350,8 +350,8 @@ foreach ($classes as $className => $discoveryClassName) {
 			->setDefaultValue(null)
 			->setOptional(true);
 		$getter
-			->addDocument("@param string \$annotationClassName if supplied, returns only annotations of given class name")
-			->addDocument("@return object[]");
+			->addComment("@param string \$annotationClassName if supplied, returns only annotations of given class name")
+			->addComment("@return object[]");
 		$getter
 			->addBody("if (\$annotationClassName === null) {")
 			->addBody("\treturn \$this->annotations;")
@@ -369,9 +369,9 @@ foreach ($classes as $className => $discoveryClassName) {
 		$oneAnnotationGetter
 			->addParameter("annotationClassName");
 		$oneAnnotationGetter
-			->addDocument("@param string \$annotationClassName")
-			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("@return object");
+			->addComment("@param string \$annotationClassName")
+			->addComment("@throws \\InvalidArgumentException")
+			->addComment("@return object");
 
 		$oneAnnotationGetter
 			->addBody("\$annotations = \$this->getAnnotations(\$annotationClassName);")
@@ -387,15 +387,15 @@ foreach ($classes as $className => $discoveryClassName) {
 		$hasAnnotation
 			->addParameter("annotationClassName");
 		$hasAnnotation
-			->addDocument("@param string \$annotationClassName")
-			->addDocument("@return boolean");
+			->addComment("@param string \$annotationClassName")
+			->addComment("@return boolean");
 		$hasAnnotation
 			->addBody("return count(\$this->getAnnotations(\$annotationClassName)) > 0;");
 
 		$setter = $class->addMethod("setAnnotations");
 		$setter
-			->addDocument("@var \$annotations object[]")
-			->addDocument("@return \$this");
+			->addComment("@var \$annotations object[]")
+			->addComment("@return \$this");
 		$setter
 			->addParameter("annotations");
 		$setter
@@ -406,21 +406,21 @@ foreach ($classes as $className => $discoveryClassName) {
 	if ($className === "ReflectionClass") {
 		$class
 			->addProperty("useStatements", array())
-			->addDocument("@var string[] array of lowercased alias => FQN use statements");
+			->addComment("@var string[] array of lowercased alias => FQN use statements");
 
 		$fromReflection->addBody("\$instance->useStatements = \$phpParser->parseClass(\$reflection);");
 		$fromReflection->addBody("\$instance->useStatements[strtolower(\$reflection->getShortName())] = \$reflection->getName();");
 
 		$getter = $class->addMethod("getUseStatements");
 		$getter
-			->addDocument("@return string[] array of lowercased alias => FQN use statements");
+			->addComment("@return string[] array of lowercased alias => FQN use statements");
 		$getter
 			->addBody("return \$this->useStatements;");
 
 		$setter = $class->addMethod("setUseStatements");
 		$setter
-			->addDocument("@param string[] \$useStatements")
-			->addDocument("@return \$this");
+			->addComment("@param string[] \$useStatements")
+			->addComment("@return \$this");
 		$setter
 			->addParameter("useStatements");
 		$setter
@@ -430,8 +430,8 @@ foreach ($classes as $className => $discoveryClassName) {
 		$getPropertyMethod = $class->addMethod("getProperty");
 		$ns->addUse("Skrz\\Meta\\Reflection\\Property", null, $propertyAlias);
 		$getPropertyMethod
-			->addDocument("@param string \$propertyName")
-			->addDocument("@return {$propertyAlias}");
+			->addComment("@param string \$propertyName")
+			->addComment("@return {$propertyAlias}");
 		$getPropertyMethod
 			->addParameter("propertyName");
 		$getPropertyMethod
@@ -445,8 +445,8 @@ foreach ($classes as $className => $discoveryClassName) {
 		$getMethodMethod = $class->addMethod("getMethod");
 		$ns->addUse("Skrz\\Meta\\Reflection\\Method", null, $methodAlias);
 		$getMethodMethod
-			->addDocument("@param string \$methodName")
-			->addDocument("@return {$methodAlias}");
+			->addComment("@param string \$methodName")
+			->addComment("@return {$methodAlias}");
 		$getMethodMethod
 			->addParameter("methodName");
 		$getMethodMethod
@@ -464,8 +464,8 @@ foreach ($classes as $className => $discoveryClassName) {
 		$ns->addUse("Skrz\\Meta\\Reflection\\Parameter", null, $parameterAlias);
 		$getParameterMethod = $class->addMethod("getParameter");
 		$getParameterMethod
-			->addDocument("@param string|int \$parameterName")
-			->addDocument("@return {$parameterAlias}");
+			->addComment("@param string|int \$parameterName")
+			->addComment("@return {$parameterAlias}");
 		$getParameterMethod
 			->addParameter("parameterName");
 		$getParameterMethod
@@ -481,18 +481,18 @@ foreach ($classes as $className => $discoveryClassName) {
 		$defaultValue = $class->addProperty("defaultValue");
 
 		$defaultValue
-			->addDocument("@var mixed default value");
+			->addComment("@var mixed default value");
 
 		$getDefaultValueMethod = $class->addMethod("getDefaultValue");
 		$getDefaultValueMethod
-			->addDocument("@return mixed");
+			->addComment("@return mixed");
 		$getDefaultValueMethod
 			->addBody("return \$this->defaultValue;");
 
 		$setDefaultValueMethod = $class->addMethod("setDefaultValue");
 		$setDefaultValueMethod
-			->addDocument("@param mixed \$defaultValue")
-			->addDocument("@return \$this");
+			->addComment("@param mixed \$defaultValue")
+			->addComment("@return \$this");
 		$setDefaultValueMethod
 			->addParameter("defaultValue");
 		$setDefaultValueMethod
@@ -511,16 +511,16 @@ foreach ($classes as $className => $discoveryClassName) {
 
 		$class
 			->addProperty("type")
-			->addDocument("@var {$mixedTypeAlias}");
+			->addComment("@var {$mixedTypeAlias}");
 
 		$getter = $class->addMethod("getType");
-		$getter->addDocument("@return {$mixedTypeAlias}");
+		$getter->addComment("@return {$mixedTypeAlias}");
 		$getter->addBody("return \$this->type;");
 
 		$setter = $class->addMethod("setType");
 		$setter
-			->addDocument("@param {$mixedTypeAlias} \$type")
-			->addDocument("@return \$this");
+			->addComment("@param {$mixedTypeAlias} \$type")
+			->addComment("@return \$this");
 		$setter
 			->addParameter("type");
 		$setter

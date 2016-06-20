@@ -147,16 +147,16 @@ class ProtobufModule extends AbstractModule
 		$fromProtobuf->addParameter("start", 0)->setReference(true)->setOptional(true);
 		$fromProtobuf->addParameter("end", null)->setOptional(true);
 		$fromProtobuf
-			->addDocument("Creates \\{$type->getName()} object from serialized Protocol Buffers message.")
-			->addDocument("")
-			->addDocument("@param string \$input")
-			->addDocument("@param {$typeAlias} \$object")
-			->addDocument("@param int \$start")
-			->addDocument("@param int \$end")
-			->addDocument("")
-			->addDocument("@throws \\Exception")
-			->addDocument("")
-			->addDocument("@return {$typeAlias}");
+			->addComment("Creates \\{$type->getName()} object from serialized Protocol Buffers message.")
+			->addComment("")
+			->addComment("@param string \$input")
+			->addComment("@param {$typeAlias} \$object")
+			->addComment("@param int \$start")
+			->addComment("@param int \$end")
+			->addComment("")
+			->addComment("@throws \\Exception")
+			->addComment("")
+			->addComment("@return {$typeAlias}");
 
 		$fromProtobuf
 			->addBody("if (\$object === null) {")
@@ -358,14 +358,14 @@ class ProtobufModule extends AbstractModule
 		$toProtobuf->addParameter("object");
 		$toProtobuf->addParameter("filter", null);
 		$toProtobuf
-			->addDocument("Serialized \\{$type->getName()} to Protocol Buffers message.")
-			->addDocument("")
-			->addDocument("@param {$typeAlias} \$object")
-			->addDocument("@param array \$filter")
-			->addDocument("")
-			->addDocument("@throws \\Exception")
-			->addDocument("")
-			->addDocument("@return string");
+			->addComment("Serialized \\{$type->getName()} to Protocol Buffers message.")
+			->addComment("")
+			->addComment("@param {$typeAlias} \$object")
+			->addComment("@param array \$filter")
+			->addComment("")
+			->addComment("@throws \\Exception")
+			->addComment("")
+			->addComment("@return string");
 
 		$toProtobuf->addBody("\$output = '';")->addBody("");
 

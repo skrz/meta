@@ -145,15 +145,15 @@ class XmlModule extends AbstractModule
 		$fromXml->addParameter("group")->setOptional(true);
 		$fromXml->addParameter("object")->setOptional(true);
 		$fromXml
-			->addDocument("Creates \\{$type->getName()} from XML")
-			->addDocument("")
-			->addDocument("@param \\XMLReader|\\DOMElement \$xml")
-			->addDocument("@param string \$group")
-			->addDocument("@param {$typeAlias} \$object")
-			->addDocument("")
-			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("")
-			->addDocument("@return {$typeAlias}");
+			->addComment("Creates \\{$type->getName()} from XML")
+			->addComment("")
+			->addComment("@param \\XMLReader|\\DOMElement \$xml")
+			->addComment("@param string \$group")
+			->addComment("@param {$typeAlias} \$object")
+			->addComment("")
+			->addComment("@throws \\InvalidArgumentException")
+			->addComment("")
+			->addComment("@return {$typeAlias}");
 
 		$fromXml
 			->addBody("if (!isset(self::\$xmlGroups[\$group])) {")
@@ -622,17 +622,17 @@ class XmlModule extends AbstractModule
 		$toXml->addParameter("xml")->setOptional(true);
 		$toXml->addParameter("el")->setOptional(true);
 		$toXml
-			->addDocument("Serializes \\{$type->getName()} to XML")
-			->addDocument("")
-			->addDocument("@param {$typeAlias} \$object")
-			->addDocument("@param string \$group")
-			->addDocument("@param array|\\XMLWriter|\\DOMDocument \$filterOrXml")
-			->addDocument("@param \\XMLWriter|\\DOMDocument|\\DOMElement \$xml")
-			->addDocument("@param \\DOMElement \$el")
-			->addDocument("")
-			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("")
-			->addDocument("@return \\DOMElement|void");
+			->addComment("Serializes \\{$type->getName()} to XML")
+			->addComment("")
+			->addComment("@param {$typeAlias} \$object")
+			->addComment("@param string \$group")
+			->addComment("@param array|\\XMLWriter|\\DOMDocument \$filterOrXml")
+			->addComment("@param \\XMLWriter|\\DOMDocument|\\DOMElement \$xml")
+			->addComment("@param \\DOMElement \$el")
+			->addComment("")
+			->addComment("@throws \\InvalidArgumentException")
+			->addComment("")
+			->addComment("@return \\DOMElement|void");
 
 		$ns->addUse("Skrz\\Meta\\Stack", null, $stackAlias);
 

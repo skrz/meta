@@ -160,9 +160,9 @@ class PhpModule extends AbstractModule
 		$groupsProperty = $class->addProperty("groups");
 		$groupsProperty->setStatic(true)->setValue($groups)->setVisibility("private");
 		$groupsProperty
-			->addDocument("Mapping from group name to group ID for fromArray() and toArray()")
-			->addDocument("")
-			->addDocument("@var string[]");
+			->addComment("Mapping from group name to group ID for fromArray() and toArray()")
+			->addComment("")
+			->addComment("@var string[]");
 
 		// create input/output type hint
 		$inputOutputTypeHint = array();
@@ -183,15 +183,15 @@ class PhpModule extends AbstractModule
 			$from->addParameter("object")->setOptional(true);
 
 			$from
-				->addDocument("Creates \\{$type->getName()} object from " . strtolower($what))
-				->addDocument("")
-				->addDocument("@param " . strtolower($what) . " \$input")
-				->addDocument("@param string \$group")
-				->addDocument("@param {$inputOutputTypeHint} \$object")
-				->addDocument("")
-				->addDocument("@throws \\Exception")
-				->addDocument("")
-				->addDocument("@return {$inputOutputTypeHint}");
+				->addComment("Creates \\{$type->getName()} object from " . strtolower($what))
+				->addComment("")
+				->addComment("@param " . strtolower($what) . " \$input")
+				->addComment("@param string \$group")
+				->addComment("@param {$inputOutputTypeHint} \$object")
+				->addComment("")
+				->addComment("@throws \\Exception")
+				->addComment("")
+				->addComment("@return {$inputOutputTypeHint}");
 
 			if ($what === "Object") {
 				$from->addBody("\$input = (array)\$input;\n");
@@ -329,15 +329,15 @@ class PhpModule extends AbstractModule
 			$to->addParameter("filter")->setOptional(true);
 
 			$to
-				->addDocument("Serializes \\{$type->getName()} to " . strtolower($what))
-				->addDocument("")
-				->addDocument("@param {$inputOutputTypeHint} \$object")
-				->addDocument("@param string \$group")
-				->addDocument("@param array \$filter")
-				->addDocument("")
-				->addDocument("@throws \\Exception")
-				->addDocument("")
-				->addDocument("@return " . strtolower($what));
+				->addComment("Serializes \\{$type->getName()} to " . strtolower($what))
+				->addComment("")
+				->addComment("@param {$inputOutputTypeHint} \$object")
+				->addComment("@param string \$group")
+				->addComment("@param array \$filter")
+				->addComment("")
+				->addComment("@throws \\Exception")
+				->addComment("")
+				->addComment("@return " . strtolower($what));
 
 			$to
 				->addBody("if (\$object === null) {")

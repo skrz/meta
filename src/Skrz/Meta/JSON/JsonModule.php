@@ -131,15 +131,15 @@ class JsonModule extends AbstractModule
 		$fromJson->addParameter("group")->setOptional(true);
 		$fromJson->addParameter("object")->setOptional(true);
 		$fromJson
-			->addDocument("Creates \\{$type->getName()} from JSON array / JSON serialized string")
-			->addDocument("")
-			->addDocument("@param array|string \$json")
-			->addDocument("@param string \$group")
-			->addDocument("@param {$inputOutputTypeHint} \$object")
-			->addDocument("")
-			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("")
-			->addDocument("@return {$inputOutputTypeHint}");
+			->addComment("Creates \\{$type->getName()} from JSON array / JSON serialized string")
+			->addComment("")
+			->addComment("@param array|string \$json")
+			->addComment("@param string \$group")
+			->addComment("@param {$inputOutputTypeHint} \$object")
+			->addComment("")
+			->addComment("@throws \\InvalidArgumentException")
+			->addComment("")
+			->addComment("@return {$inputOutputTypeHint}");
 
 		$fromJson
 			->addBody("if (is_array(\$json)) {")
@@ -166,16 +166,16 @@ class JsonModule extends AbstractModule
 		$toJson->addParameter("filterOrOptions")->setOptional(true);
 		$toJson->addParameter("options", 0)->setOptional(true);
 		$toJson
-			->addDocument("Serializes \\{$type->getName()} to JSON string")
-			->addDocument("")
-			->addDocument("@param {$inputOutputTypeHint} \$object")
-			->addDocument("@param string \$group")
-			->addDocument("@param array|int \$filterOrOptions")
-			->addDocument("@param int \$options")
-			->addDocument("")
-			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("")
-			->addDocument("@return string");
+			->addComment("Serializes \\{$type->getName()} to JSON string")
+			->addComment("")
+			->addComment("@param {$inputOutputTypeHint} \$object")
+			->addComment("@param string \$group")
+			->addComment("@param array|int \$filterOrOptions")
+			->addComment("@param int \$options")
+			->addComment("")
+			->addComment("@throws \\InvalidArgumentException")
+			->addComment("")
+			->addComment("@return string");
 
 		$toJson
 			->addBody("if (is_int(\$filterOrOptions)) {")
@@ -191,16 +191,16 @@ class JsonModule extends AbstractModule
 		$toJsonString->addParameter("object");
 		$toJsonString->addParameter("group")->setOptional(true);
 		$toJsonString
-			->addDocument("Serializes \\{$type->getName()} to JSON string (only for BC, TO BE REMOVED)")
-			->addDocument("")
-			->addDocument("@param {$inputOutputTypeHint} \$object")
-			->addDocument("@param string \$group")
-			->addDocument("")
-			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("")
-			->addDocument("@deprecated")
-			->addDocument("")
-			->addDocument("@return string");
+			->addComment("Serializes \\{$type->getName()} to JSON string (only for BC, TO BE REMOVED)")
+			->addComment("")
+			->addComment("@param {$inputOutputTypeHint} \$object")
+			->addComment("@param string \$group")
+			->addComment("")
+			->addComment("@throws \\InvalidArgumentException")
+			->addComment("")
+			->addComment("@deprecated")
+			->addComment("")
+			->addComment("@return string");
 
 		$toJsonString->addBody("return self::toJson(\$object, \$group);");
 
@@ -210,16 +210,16 @@ class JsonModule extends AbstractModule
 		$toJsonStringPretty->addParameter("object");
 		$toJsonStringPretty->addParameter("group")->setOptional(true);
 		$toJsonStringPretty
-			->addDocument("Serializes \\{$type->getName()} to JSON pretty string (only for BC, TO BE REMOVED)")
-			->addDocument("")
-			->addDocument("@param {$inputOutputTypeHint} \$object")
-			->addDocument("@param string \$group")
-			->addDocument("")
-			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("")
-			->addDocument("@deprecated")
-			->addDocument("")
-			->addDocument("@return string");
+			->addComment("Serializes \\{$type->getName()} to JSON pretty string (only for BC, TO BE REMOVED)")
+			->addComment("")
+			->addComment("@param {$inputOutputTypeHint} \$object")
+			->addComment("@param string \$group")
+			->addComment("")
+			->addComment("@throws \\InvalidArgumentException")
+			->addComment("")
+			->addComment("@deprecated")
+			->addComment("")
+			->addComment("@return string");
 
 		$toJsonStringPretty->addBody("return self::toJson(\$object, \$group, JSON_PRETTY_PRINT);");
 
@@ -231,13 +231,13 @@ class JsonModule extends AbstractModule
 		$fromArrayOfJson->addParameter("object")->setOptional(true);
 
 		$fromArrayOfJson
-			->addDocument("Creates \\{$type->getName()} from array of JSON-serialized properties")
-			->addDocument("")
-			->addDocument("@param array \$input")
-			->addDocument("@param string \$group")
-			->addDocument("@param {$inputOutputTypeHint} \$object")
-			->addDocument("")
-			->addDocument("@return {$inputOutputTypeHint}");
+			->addComment("Creates \\{$type->getName()} from array of JSON-serialized properties")
+			->addComment("")
+			->addComment("@param array \$input")
+			->addComment("@param string \$group")
+			->addComment("@param {$inputOutputTypeHint} \$object")
+			->addComment("")
+			->addComment("@return {$inputOutputTypeHint}");
 
 		$fromArrayOfJson
 			->addBody("\$group = 'json:' . \$group;")
@@ -256,16 +256,16 @@ class JsonModule extends AbstractModule
 		$toArrayOfJson->addParameter("filterOrOptions", 0)->setOptional(true);
 		$toArrayOfJson->addParameter("options", 0)->setOptional(true);
 		$toArrayOfJson
-			->addDocument("Transforms \\{$type->getName()} into array of JSON-serialized strings")
-			->addDocument("")
-			->addDocument("@param {$inputOutputTypeHint} \$object")
-			->addDocument("@param string \$group")
-			->addDocument("@param array|int \$filterOrOptions")
-			->addDocument("@param int \$options")
-			->addDocument("")
-			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("")
-			->addDocument("@return array");
+			->addComment("Transforms \\{$type->getName()} into array of JSON-serialized strings")
+			->addComment("")
+			->addComment("@param {$inputOutputTypeHint} \$object")
+			->addComment("@param string \$group")
+			->addComment("@param array|int \$filterOrOptions")
+			->addComment("@param int \$options")
+			->addComment("")
+			->addComment("@throws \\InvalidArgumentException")
+			->addComment("")
+			->addComment("@return array");
 
 		$toArrayOfJson
 			->addBody("if (is_int(\$filterOrOptions)) {")

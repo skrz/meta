@@ -30,18 +30,18 @@ class BaseModule extends AbstractModule
 		$class->addExtend($type->getName());
 
 		$class
-			->addDocument("Meta class for \\{$type->getName()}")
-			->addDocument("")
-			->addDocument("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-			->addDocument("!!!                                                     !!!")
-			->addDocument("!!!   THIS CLASS HAS BEEN AUTO-GENERATED, DO NOT EDIT   !!!")
-			->addDocument("!!!                                                     !!!")
-			->addDocument("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			->addComment("Meta class for \\{$type->getName()}")
+			->addComment("")
+			->addComment("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+			->addComment("!!!                                                     !!!")
+			->addComment("!!!   THIS CLASS HAS BEEN AUTO-GENERATED, DO NOT EDIT   !!!")
+			->addComment("!!!                                                     !!!")
+			->addComment("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
 		// constructor
 		$constructor = $class->addMethod("__construct");
 		$constructor
-			->addDocument("Constructor")
+			->addComment("Constructor")
 			->addBody("self::\$instance = \$this; // avoids cyclic dependency stack overflow");
 
 		if ($type->getConstructor()) {
@@ -64,14 +64,14 @@ class BaseModule extends AbstractModule
 		$instance = $class->addProperty("instance");
 		$instance->setStatic(true);
 		$instance->setVisibility("private");
-		$instance->addDocument("@var {$class->getName()}");
+		$instance->addComment("@var {$class->getName()}");
 
 		$getInstance = $class->addMethod("getInstance");
 		$getInstance->setStatic(true);
 		$getInstance
-			->addDocument("Returns instance of this meta class")
-			->addDocument("")
-			->addDocument("@return {$class->getName()}");
+			->addComment("Returns instance of this meta class")
+			->addComment("")
+			->addComment("@return {$class->getName()}");
 
 		$getInstance
 			->addBody("if (self::\$instance === null) {")
@@ -83,11 +83,11 @@ class BaseModule extends AbstractModule
 		$create = $class->addMethod("create");
 		$create->setStatic(true);
 		$create
-			->addDocument("Creates new instance of \\{$type->getName()}")
-			->addDocument("")
-			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("")
-			->addDocument("@return {$typeAlias}");
+			->addComment("Creates new instance of \\{$type->getName()}")
+			->addComment("")
+			->addComment("@throws \\InvalidArgumentException")
+			->addComment("")
+			->addComment("@return {$typeAlias}");
 
 		$create->addBody("switch (func_num_args()) {");
 
@@ -116,13 +116,13 @@ class BaseModule extends AbstractModule
 		$reset = $class->addMethod("reset");
 		$reset->setStatic(true);
 		$reset
-			->addDocument("Resets properties of \\{$type->getName()} to default values\n")
-			->addDocument("")
-			->addDocument("@param {$typeAlias} \$object")
-			->addDocument("")
-			->addDocument("@throws \\InvalidArgumentException")
-			->addDocument("")
-			->addDocument("@return void");
+			->addComment("Resets properties of \\{$type->getName()} to default values\n")
+			->addComment("")
+			->addComment("@param {$typeAlias} \$object")
+			->addComment("")
+			->addComment("@throws \\InvalidArgumentException")
+			->addComment("")
+			->addComment("@return void");
 
 		$reset->addParameter("object");
 
@@ -150,13 +150,13 @@ class BaseModule extends AbstractModule
 		$hash = $class->addMethod("hash");
 		$hash->setStatic(true);
 		$hash
-			->addDocument("Computes hash of \\{$type->getName()}")
-			->addDocument("")
-			->addDocument("@param object \$object")
-			->addDocument("@param string|resource \$algoOrCtx")
-			->addDocument("@param bool \$raw")
-			->addDocument("")
-			->addDocument("@return string|void");
+			->addComment("Computes hash of \\{$type->getName()}")
+			->addComment("")
+			->addComment("@param object \$object")
+			->addComment("@param string|resource \$algoOrCtx")
+			->addComment("@param bool \$raw")
+			->addComment("")
+			->addComment("@return string|void");
 		$hash->addParameter("object");
 		$hash->addParameter("algoOrCtx")->setDefaultValue("md5")->setOptional(true);
 		$hash->addParameter("raw")->setDefaultValue(false)->setOptional(true);
