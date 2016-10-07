@@ -65,4 +65,11 @@ class Product
 	 */
 	public $discount;
 
+	/**
+	 * @var \DateTime
+	 *
+	 * @XmlElement(name="created_at")
+	 */
+	public $createdAt;
+
 }
