@@ -12,12 +12,19 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 	/** @var string */
 	private $format;
 
+	/** @var string */
+	private $dateTimeClass;
+
 	/** @var string[] */
 	private $groups = null;
 
-	public function __construct($format)
+	public function __construct($format, $dateTimeClass = DateTime::class)
 	{
 		$this->format = $format;
+		$this->dateTimeClass = $dateTimeClass;
+		if (!substr($dateTimeClass, 0, 1) != "\\") {
+		    $this->dateTimeClass = "\\" . $this->dateTimeClass;
+        }
 	}
 
 	public function addGroup($group)
@@ -36,8 +43,8 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 
 		return
 			($this->groups === null || in_array($group, $this->groups)) &&
-			$baseType instanceof Type &&
-			strtolower($baseType->getName()) === "datetime";
+			$baseType instanceof Type && $baseType->isDateTime();
+
 	}
 
 	public function matchesSerialize(Property $property, $group)
@@ -55,14 +62,14 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 		return StatementAndExpressionVO::withStatementAndExpression(
 			"if ({$inputExpression} === null) {\n" .
 			"\t\$datetimeStringReturn = null;\n" .
-			"} elseif ({$inputExpression} instanceof \\DateTime) {\n" .
+			"} elseif ({$inputExpression} instanceof \\DateTimeInterface) {\n" .
 			"\t\$datetimeStringReturn = {$inputExpression}->format(" . var_export($this->format, true) . ");\n" .
 			"} elseif (is_numeric({$inputExpression})) {\n" .
-			"\t\$datetimeStringReturn = (new \\DateTime('@' . intval({$inputExpression})))->format(" . var_export($this->format, true) . ");\n" .
+			"\t\$datetimeStringReturn = (new " . $this->dateTimeClass . "('@' . intval({$inputExpression})))->format(" . var_export($this->format, true) . ");\n" .
 			"} elseif (is_string({$inputExpression})) {\n" .
-			"\t\$datetimeStringReturn = (new \\DateTime({$inputExpression}))->format(" . var_export($this->format, true) . ");\n" .
+			"\t\$datetimeStringReturn = (new " . $this->dateTimeClass . "({$inputExpression}))->format(" . var_export($this->format, true) . ");\n" .
 			"} elseif (is_array({$inputExpression}) && isset({$inputExpression}['date'])) {\n" .
-			"\t\$datetimeStringReturn = (new \\DateTime({$inputExpression}['date']))->format(" . var_export($this->format, true) . ");\n" .
+			"\t\$datetimeStringReturn = (new " . $this->dateTimeClass . "({$inputExpression}['date']))->format(" . var_export($this->format, true) . ");\n" .
 			"} else {\n" .
 			"\tthrow new \\InvalidArgumentException('Could not serialize date of format ' . " . var_export($this->format, true) . " . '.');\n" .
 			"}",
@@ -73,10 +80,10 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 	public function deserialize(Property $property, $group, $inputExpression)
 	{
 		return StatementAndExpressionVO::withStatementAndExpression(
-			"if ({$inputExpression} instanceof \\DateTime) {\n" .
+			"if ({$inputExpression} instanceof \\DateTimeInterface) {\n" .
 			"\t\$datetimeInstanceReturn = {$inputExpression};\n" .
 			"} elseif (is_numeric({$inputExpression})) {\n" .
-			"\t\$datetimeInstanceReturn = new \\DateTime('@' . intval({$inputExpression}));\n" .
+			"\t\$datetimeInstanceReturn = new " . $this->dateTimeClass . "('@' . intval({$inputExpression}));\n" .
 			"} elseif (is_string({$inputExpression})) {\n" .
 			"\tif ({$inputExpression} === '0000-00-00 00:00:00') {\n" .
 			"\t\t\$datetimeInstanceReturn = null;\n" .
@@ -84,7 +91,7 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 			"\t\t\$datetimeInstanceReturn = \\DateTime::createFromFormat(" . var_export($this->format, true) . ", {$inputExpression});\n" .
 			"\t}\n" .
 			"} elseif (is_array({$inputExpression}) && isset({$inputExpression}['date'])) {\n" .
-			"\t\$datetimeInstanceReturn = new \\DateTime({$inputExpression}['date']);\n" .
+			"\t\$datetimeInstanceReturn = new " . $this->dateTimeClass . "({$inputExpression}['date']);\n" .
 			"} elseif ({$inputExpression} === null) {\n" .
 			"\t\$datetimeInstanceReturn = null;\n" .
 			"} else {\n" .

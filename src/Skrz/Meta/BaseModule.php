@@ -205,17 +205,8 @@ class BaseModule extends AbstractModule
 				$hash->addBody("{$indent}hash_update(\$ctx, (string){$objectPath});");
 
 			} elseif ($baseType instanceof Type) {
-				$datetimeType = false;
-
-				for ($t = $baseType; $t; $t = $t->getParentClass()) {
-					if ($t->getName() === "DateTime") {
-						$datetimeType = true;
-						break;
-					}
-				}
-
-				if ($datetimeType) {
-					$hash->addBody("{$indent}hash_update(\$ctx, {$objectPath} instanceof \\DateTime ? {$objectPath}->format(\\DateTime::ISO8601) : '');");
+				if ($baseType->isDateTime()) {
+                    $hash->addBody("{$indent}hash_update(\$ctx, {$objectPath} instanceof \\DateTimeInterface ? {$objectPath}->format(\\DateTime::ISO8601) : '');");
 				} else {
 					$propertyTypeMetaClassName = $spec->createMetaClassName($baseType);
 					$namespace->addUse($propertyTypeMetaClassName, null, $propertyTypeMetaClassNameAlias);
