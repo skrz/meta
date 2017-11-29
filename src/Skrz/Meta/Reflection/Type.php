@@ -880,19 +880,19 @@ class Type extends ObjectType
 	}
 
 	public function isDateTime()
-    {
-        if ($this->getName() === \DateTime::class
-            || $this->getName() === \DateTimeImmutable::class
-        ) {
-            return true;
-        }
-        for ($t = $this; $t; $t = $t->getParentClass()) {
-            if (in_array(\DateTimeInterface::class, $t->getInterfaces())) {
-                return true;
-                break;
-            }
-        }
-        return false;
-    }
+	{
+		if ($this->getName() === \DateTime::class
+			|| $this->getName() === \DateTimeImmutable::class
+		) {
+			return true;
+		}
+		for ($t = $this; $t; $t = $t->getParentClass()) {
+			if (in_array(\DateTimeInterface::class, $t->getInterfaces())) {
+				return true;
+				break;
+			}
+		}
+		return false;
+	}
 
 }
