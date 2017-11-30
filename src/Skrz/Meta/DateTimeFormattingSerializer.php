@@ -88,7 +88,7 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 			"\tif ({$inputExpression} === '0000-00-00 00:00:00') {\n" .
 			"\t\t\$datetimeInstanceReturn = null;\n" .
 			"\t} else {\n" .
-			"\t\t\$datetimeInstanceReturn = \\DateTime::createFromFormat(" . var_export($this->format, true) . ", {$inputExpression});\n" .
+			"\t\t\$datetimeInstanceReturn = " . $this->dateTimeClass . "::createFromFormat(" . var_export($this->format, true) . ", {$inputExpression});\n" .
 			"\t}\n" .
 			"} elseif (is_array({$inputExpression}) && isset({$inputExpression}['date'])) {\n" .
 			"\t\$datetimeInstanceReturn = new " . $this->dateTimeClass . "({$inputExpression}['date']);\n" .
