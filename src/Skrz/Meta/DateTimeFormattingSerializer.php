@@ -18,13 +18,16 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 	/** @var string[] */
 	private $groups = null;
 
-	public function __construct($format, $dateTimeClass = DateTime::class)
+	private $emptyValue;
+
+	public function __construct($format, $dateTimeClass = \DateTime::class, $emptyValue = '0000-00-00 00:00:00')
 	{
 		$this->format = $format;
 		$this->dateTimeClass = $dateTimeClass;
 		if (!substr($dateTimeClass, 0, 1) != "\\") {
 		    $this->dateTimeClass = "\\" . $this->dateTimeClass;
         }
+        $this->emptyValue = $emptyValue;
 	}
 
 	public function addGroup($group)
@@ -85,7 +88,7 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 			"} elseif (is_numeric({$inputExpression})) {\n" .
 			"\t\$datetimeInstanceReturn = new " . $this->dateTimeClass . "('@' . intval({$inputExpression}));\n" .
 			"} elseif (is_string({$inputExpression})) {\n" .
-			"\tif ({$inputExpression} === '0000-00-00 00:00:00') {\n" .
+			"\tif ({$inputExpression} === " . var_export($this->emptyValue, true) . ") {\n" .
 			"\t\t\$datetimeInstanceReturn = null;\n" .
 			"\t} else {\n" .
 			"\t\t\$datetimeInstanceReturn = " . $this->dateTimeClass . "::createFromFormat(" . var_export($this->format, true) . ", {$inputExpression});\n" .
