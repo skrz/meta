@@ -25,9 +25,9 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 		$this->format = $format;
 		$this->dateTimeClass = $dateTimeClass;
 		if (!substr($dateTimeClass, 0, 1) != "\\") {
-		    $this->dateTimeClass = "\\" . $this->dateTimeClass;
-        }
-        $this->emptyValue = $emptyValue;
+			$this->dateTimeClass = "\\" . $this->dateTimeClass;
+		}
+		$this->emptyValue = $emptyValue;
 	}
 
 	public function addGroup($group)
