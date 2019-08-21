@@ -46,7 +46,7 @@ class XmlModuleTest extends TestCase
 					return ImageMeta::getInstance();
 				},
 				function (Image $image) {
-					$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\XML\\Image", $image);
+					$this->assertInstanceOf(Image::class, $image);
 					$this->assertEquals("http://example.net/image.jpg", $image->url);
 				},
 			],
@@ -64,7 +64,7 @@ class XmlModuleTest extends TestCase
 					return ParamMeta::getInstance();
 				},
 				function (Param $param) {
-					$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\XML\\Param", $param);
+					$this->assertInstanceOf(Param::class, $param);
 					$this->assertEquals("color", $param->name);
 					$this->assertEquals("red", $param->value);
 				},
@@ -114,7 +114,7 @@ class XmlModuleTest extends TestCase
 					return ProductMeta::getInstance();
 				},
 				function (Product $product) {
-					$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\XML\\Product", $product);
+					$this->assertInstanceOf(Product::class, $product);
 					$this->assertEquals(1, $product->uid);
 					$this->assertEquals("SKU123", $product->remoteItemId);
 					$this->assertEquals(1000, $product->priceOrig);
@@ -129,14 +129,14 @@ class XmlModuleTest extends TestCase
 					$this->assertNotEmpty($product->images);
 					$this->assertCount(5, $product->images);
 					for ($i = 0; $i < count($product->images); ++$i) {
-						$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\XML\\Image", $product->images[$i]);
+						$this->assertInstanceOf(Image::class, $product->images[$i]);
 						$this->assertEquals("http://example.net/{$i}.jpg", $product->images[$i]->url);
 					}
 
 					$this->assertNotEmpty($product->params);
 					$this->assertCount(10, $product->params);
 					for ($i = 0; $i < count($product->params); ++$i) {
-						$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\XML\\Param", $product->params[$i]);
+						$this->assertInstanceOf(Param::class, $product->params[$i]);
 						$this->assertEquals("param{$i}", $product->params[$i]->name);
 						$this->assertEquals("value{$i}", $product->params[$i]->value);
 					}
