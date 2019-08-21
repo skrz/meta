@@ -10,7 +10,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ExtensionRange
+final class ExtensionRange
 {
 	/**
 	 * @var int

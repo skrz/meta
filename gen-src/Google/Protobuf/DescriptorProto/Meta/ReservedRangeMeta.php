@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ReservedRangeMeta extends ReservedRange implements MetaInterface, ProtobufMetaInterface
+final class ReservedRangeMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const START_PROTOBUF_FIELD = 1;
 	const END_PROTOBUF_FIELD = 2;

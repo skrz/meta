@@ -8,7 +8,7 @@
 
 ## Requirements
 
-`Skrz\Meta` requires PHP `>= 5.4.0` and Symfony `>= 2.7.0`.
+`Skrz\Meta` requires PHP `>= 7.1` and Symfony `>= 2.7.0`.
 
 ## Installation
 
@@ -468,10 +468,6 @@ $dog->bark();
 ```
 
 ## Known limitations
-
-- `private` properties cannot be hydrated. Hydration of private properties would require using reflection, or using `unserialize()` hack,
-which is contrary to requirement of being fast. Therefore meta classes compilation will fail if there is a `private`
-property. If you need a `private` property, mark it using `@Transient` annotation and it will be ignored.
 
 - There can be at most 31/63 groups in one meta class. Group name is encoded using bit in integer type. PHP integer
 is platform dependent and always signed, therefore there can be at most 31/63 groups depending on platform the PHP's running on.

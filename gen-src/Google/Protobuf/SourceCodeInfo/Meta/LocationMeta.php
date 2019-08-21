@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class LocationMeta extends Location implements MetaInterface, ProtobufMetaInterface
+final class LocationMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const PATH_PROTOBUF_FIELD = 1;
 	const SPAN_PROTOBUF_FIELD = 2;

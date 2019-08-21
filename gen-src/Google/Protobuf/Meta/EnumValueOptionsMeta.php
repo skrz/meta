@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class EnumValueOptionsMeta extends EnumValueOptions implements MetaInterface, ProtobufMetaInterface
+final class EnumValueOptionsMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const DEPRECATED_PROTOBUF_FIELD = 1;
 	const UNINTERPRETED_OPTION_PROTOBUF_FIELD = 999;

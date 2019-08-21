@@ -19,7 +19,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class DescriptorProtoMeta extends DescriptorProto implements MetaInterface, ProtobufMetaInterface
+final class DescriptorProtoMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const NAME_PROTOBUF_FIELD = 1;
 	const FIELD_PROTOBUF_FIELD = 2;

@@ -237,6 +237,7 @@ class ProtocGenPhp
 		$file = new PhpFile();
 
 		$class = $file->addClass($className);
+		$class->setFinal(true);
 		$ns = $class->getNamespace();
 
 		$ns->addUse(ProtobufField::class, null, $protobufFieldAlias);

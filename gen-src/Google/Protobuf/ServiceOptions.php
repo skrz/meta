@@ -10,7 +10,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ServiceOptions
+final class ServiceOptions
 {
 	/**
 	 * Is this service deprecated?

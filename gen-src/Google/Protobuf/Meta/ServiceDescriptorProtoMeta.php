@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ServiceDescriptorProtoMeta extends ServiceDescriptorProto implements MetaInterface, ProtobufMetaInterface
+final class ServiceDescriptorProtoMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const NAME_PROTOBUF_FIELD = 1;
 	const METHOD_PROTOBUF_FIELD = 2;

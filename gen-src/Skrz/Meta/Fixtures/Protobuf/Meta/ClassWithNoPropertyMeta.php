@@ -19,7 +19,7 @@ use Skrz\Meta\Stack;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
+final class ClassWithNoPropertyMeta implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
 {
 	/** @var ClassWithNoPropertyMeta */
 	private static $instance;

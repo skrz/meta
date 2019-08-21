@@ -10,6 +10,6 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithNoProperty
+final class ClassWithNoProperty
 {
 }

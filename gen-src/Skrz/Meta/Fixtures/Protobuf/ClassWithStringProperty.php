@@ -10,7 +10,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithStringProperty
+final class ClassWithStringProperty
 {
 	/**
 	 * @var string

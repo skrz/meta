@@ -19,7 +19,7 @@ use Skrz\Meta\Stack;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
+final class EmbeddedMeta implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
 {
 	const X_PROTOBUF_FIELD = 1;
 

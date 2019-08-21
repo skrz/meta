@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class EnumDescriptorProtoMeta extends EnumDescriptorProto implements MetaInterface, ProtobufMetaInterface
+final class EnumDescriptorProtoMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const NAME_PROTOBUF_FIELD = 1;
 	const VALUE_PROTOBUF_FIELD = 2;

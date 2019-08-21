@@ -18,7 +18,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class CodeGeneratorResponseMeta extends CodeGeneratorResponse implements MetaInterface, ProtobufMetaInterface
+final class CodeGeneratorResponseMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const ERROR_PROTOBUF_FIELD = 1;
 	const FILE_PROTOBUF_FIELD = 15;

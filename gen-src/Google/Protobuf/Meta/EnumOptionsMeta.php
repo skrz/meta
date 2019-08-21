@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class EnumOptionsMeta extends EnumOptions implements MetaInterface, ProtobufMetaInterface
+final class EnumOptionsMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const ALLOW_ALIAS_PROTOBUF_FIELD = 2;
 	const DEPRECATED_PROTOBUF_FIELD = 3;

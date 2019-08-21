@@ -19,7 +19,7 @@ use Skrz\Meta\Stack;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithStringPropertyMeta extends ClassWithStringProperty implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
+final class ClassWithStringPropertyMeta implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
 {
 	const X_PROTOBUF_FIELD = 1;
 

@@ -12,7 +12,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class OneofDescriptorProto
+final class OneofDescriptorProto
 {
 	/**
 	 * @var string

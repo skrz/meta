@@ -20,7 +20,7 @@ use Skrz\Meta\Stack;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithEmbeddedMessagePropertyMeta extends ClassWithEmbeddedMessageProperty implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
+final class ClassWithEmbeddedMessagePropertyMeta implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
 {
 	const X_PROTOBUF_FIELD = 1;
 

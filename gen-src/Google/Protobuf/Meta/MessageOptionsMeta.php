@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class MessageOptionsMeta extends MessageOptions implements MetaInterface, ProtobufMetaInterface
+final class MessageOptionsMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const MESSAGE_SET_WIRE_FORMAT_PROTOBUF_FIELD = 1;
 	const NO_STANDARD_DESCRIPTOR_ACCESSOR_PROTOBUF_FIELD = 2;

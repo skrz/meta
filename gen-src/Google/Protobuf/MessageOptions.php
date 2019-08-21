@@ -10,7 +10,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class MessageOptions
+final class MessageOptions
 {
 	/**
 	 * Set true to use the old proto1 MessageSet wire format for extensions.

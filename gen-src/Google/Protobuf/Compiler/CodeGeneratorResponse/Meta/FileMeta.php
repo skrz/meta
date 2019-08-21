@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FileMeta extends File implements MetaInterface, ProtobufMetaInterface
+final class FileMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const NAME_PROTOBUF_FIELD = 1;
 	const INSERTION_POINT_PROTOBUF_FIELD = 2;

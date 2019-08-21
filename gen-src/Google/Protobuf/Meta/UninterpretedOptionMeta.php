@@ -18,7 +18,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class UninterpretedOptionMeta extends UninterpretedOption implements MetaInterface, ProtobufMetaInterface
+final class UninterpretedOptionMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const NAME_PROTOBUF_FIELD = 2;
 	const IDENTIFIER_VALUE_PROTOBUF_FIELD = 3;

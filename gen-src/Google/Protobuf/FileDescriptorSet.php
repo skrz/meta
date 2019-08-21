@@ -13,7 +13,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FileDescriptorSet
+final class FileDescriptorSet
 {
 	/**
 	 * @var FileDescriptorProto[]

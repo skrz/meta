@@ -17,18 +17,14 @@ class BaseModule extends AbstractModule
 
 	public function onBeforeGenerate(AbstractMetaSpec $spec, MetaSpecMatcher $matcher, Type $type)
 	{
-		if ($type->isFinal()) {
-			throw new MetaException("Cannot create meta for final class '{$type->getName()}'.");
-		}
 	}
 
 	public function onGenerate(AbstractMetaSpec $spec, MetaSpecMatcher $matcher, Type $type, ClassType $class)
 	{
 		$namespace = $class->getNamespace();
 
-		// extend base class
 		$namespace->addUse($type->getName(), null, $typeAlias);
-		$class->addExtend($type->getName());
+		$class->setFinal(true);
 
 		$class
 			->addComment("Meta class for \\{$type->getName()}")

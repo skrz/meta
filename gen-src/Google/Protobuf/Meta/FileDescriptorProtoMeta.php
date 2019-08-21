@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FileDescriptorProtoMeta extends FileDescriptorProto implements MetaInterface, ProtobufMetaInterface
+final class FileDescriptorProtoMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const NAME_PROTOBUF_FIELD = 1;
 	const PACKAGE_PROTOBUF_FIELD = 2;

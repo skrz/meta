@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FieldOptionsMeta extends FieldOptions implements MetaInterface, ProtobufMetaInterface
+final class FieldOptionsMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const CTYPE_PROTOBUF_FIELD = 1;
 	const PACKED_PROTOBUF_FIELD = 2;

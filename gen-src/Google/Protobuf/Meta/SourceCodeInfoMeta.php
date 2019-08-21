@@ -18,7 +18,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class SourceCodeInfoMeta extends SourceCodeInfo implements MetaInterface, ProtobufMetaInterface
+final class SourceCodeInfoMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const LOCATION_PROTOBUF_FIELD = 1;
 

@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class NamePartMeta extends NamePart implements MetaInterface, ProtobufMetaInterface
+final class NamePartMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const NAME_PART_PROTOBUF_FIELD = 1;
 	const IS_EXTENSION_PROTOBUF_FIELD = 2;

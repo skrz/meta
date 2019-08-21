@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ExtensionRangeMeta extends ExtensionRange implements MetaInterface, ProtobufMetaInterface
+final class ExtensionRangeMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const START_PROTOBUF_FIELD = 1;
 	const END_PROTOBUF_FIELD = 2;

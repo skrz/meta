@@ -19,7 +19,7 @@ use Skrz\Meta\Stack;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithFixed64PropertyMeta extends ClassWithFixed64Property implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
+final class ClassWithFixed64PropertyMeta implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
 {
 	const X_PROTOBUF_FIELD = 1;
 

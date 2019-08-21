@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FileOptionsMeta extends FileOptions implements MetaInterface, ProtobufMetaInterface
+final class FileOptionsMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const JAVA_PACKAGE_PROTOBUF_FIELD = 1;
 	const JAVA_OUTER_CLASSNAME_PROTOBUF_FIELD = 8;

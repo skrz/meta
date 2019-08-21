@@ -14,7 +14,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FieldDescriptorProto
+final class FieldDescriptorProto
 {
 	/**
 	 * @var string

@@ -17,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ServiceOptionsMeta extends ServiceOptions implements MetaInterface, ProtobufMetaInterface
+final class ServiceOptionsMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const DEPRECATED_PROTOBUF_FIELD = 33;
 	const UNINTERPRETED_OPTION_PROTOBUF_FIELD = 999;

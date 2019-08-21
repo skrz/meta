@@ -12,7 +12,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class File
+final class File
 {
 	/**
 	 * The file name, relative to the output directory.  The name must not
