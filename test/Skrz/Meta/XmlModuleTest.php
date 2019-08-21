@@ -80,6 +80,10 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 					$ignoredEl->appendChild($doc->createElement("category", "Ignored category"));
 					$productEl->appendChild($ignoredEl);
 
+					$createdAtEl = $doc->createElement("created_at");
+					$createdAtEl->appendChild($doc->createTextNode((new \DateTime("2016-10-07"))->format(\DateTime::ISO8601)));
+					$productEl->appendChild($createdAtEl);
+
 					$skrzEl = $doc->createElement("skrz");
 					$skrzEl->appendChild($doc->createElement("item_id", "SKRZSKU"));
 					$skrzEl->appendChild($doc->createElement("priceorig", "1000"));
@@ -139,6 +143,8 @@ class XmlModuleTest extends \PHPUnit_Framework_TestCase
 						$this->assertEquals("param{$i}", $product->params[$i]->name);
 						$this->assertEquals("value{$i}", $product->params[$i]->value);
 					}
+
+					$this->assertEquals((new \DateTime("2016-10-07"))->getTimestamp(), $product->createdAt->getTimestamp());
 				},
 			],
 		];

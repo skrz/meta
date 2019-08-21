@@ -13,7 +13,7 @@ class XmlMetaSpec extends AbstractMetaSpec
 		$this->match("Skrz\\Meta\\Fixtures\\XML\\*")
 			->addModule($xmlModule = new XmlModule());
 
-		$xmlModule->addPropertySerializer(new DateTimeFormattingSerializer("Y-m-d H:i:s"));
+		$xmlModule->addPropertySerializer(new DateTimeFormattingSerializer(\DateTime::ISO8601));
 	}
 
 }

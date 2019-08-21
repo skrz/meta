@@ -327,7 +327,16 @@ class XmlModule extends AbstractModule
 				}
 				$elementsByName[$name] .= ") {\n";
 
-				if ($propertyType instanceof Type) {
+
+				$matchingPropertySerializer = null;
+				foreach ($this->propertySerializers as $propertySerializer) {
+					if ($propertySerializer->matchesDeserialize($property, $xmlElement->getGroup())) {
+						$matchingPropertySerializer = $propertySerializer;
+						break;
+					}
+				}
+
+				if ($propertyType instanceof Type && !$matchingPropertySerializer) {
 					$propertyTypeMetaClassName = $spec->createMetaClassName($propertyType);
 					$ns->addUse($propertyTypeMetaClassName, null, $propertyTypeMetaClassNameAlias);
 					$elementsByName[$name] .=
@@ -543,7 +552,15 @@ class XmlModule extends AbstractModule
 				}
 				$elementsByName[$name] .= ") {\n";
 
-				if ($propertyType instanceof Type) {
+				$matchingPropertySerializer = null;
+				foreach ($this->propertySerializers as $propertySerializer) {
+					if ($propertySerializer->matchesDeserialize($property, $xmlElement->getGroup())) {
+						$matchingPropertySerializer = $propertySerializer;
+						break;
+					}
+				}
+
+				if ($propertyType instanceof Type && !$matchingPropertySerializer) {
 					$propertyTypeMetaClassName = $spec->createMetaClassName($propertyType);
 					$ns->addUse($propertyTypeMetaClassName, null, $propertyTypeMetaClassNameAlias);
 					$elementsByName[$name] .=
@@ -1389,7 +1406,7 @@ class XmlModule extends AbstractModule
 	{
 		$matchingPropertySerializer = null;
 		foreach ($this->propertySerializers as $propertySerializer) {
-			if ($propertySerializer->matchesSerialize($property, $xmlAnnotation->getGroup())) {
+			if ($propertySerializer->matchesDeserialize($property, $xmlAnnotation->getGroup())) {
 				$matchingPropertySerializer = $propertySerializer;
 				break;
 			}
