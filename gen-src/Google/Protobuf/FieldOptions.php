@@ -270,5 +270,4 @@ class FieldOptions
 		$this->uninterpretedOption = $uninterpretedOption;
 		return $this;
 	}
-
 }

@@ -74,5 +74,4 @@ class ServiceOptions
 		$this->uninterpretedOption = $uninterpretedOption;
 		return $this;
 	}
-
 }

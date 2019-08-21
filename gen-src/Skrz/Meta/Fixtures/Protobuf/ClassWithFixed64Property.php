@@ -39,5 +39,4 @@ class ClassWithFixed64Property
 		$this->x = $x;
 		return $this;
 	}
-
 }

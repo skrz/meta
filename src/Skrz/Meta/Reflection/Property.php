@@ -38,7 +38,7 @@ class Property
 	private $docComment;
 
 	/** @var object[] */
-	private $annotations = array();
+	private $annotations = [];
 
 	/** @var mixed default value */
 	public $defaultValue;
@@ -53,7 +53,7 @@ class Property
 	}
 
 
-	public static function fromReflection(ReflectionProperty $reflection = NULL)
+	public static function fromReflection(ReflectionProperty $reflection = null)
 	{
 		if (!defined('PHP_VERSION_ID')) {
 			$v = explode('.', PHP_VERSION);
@@ -302,7 +302,7 @@ class Property
 	 * @param string $annotationClassName if supplied, returns only annotations of given class name
 	 * @return object[]
 	 */
-	public function getAnnotations($annotationClassName = NULL)
+	public function getAnnotations($annotationClassName = null)
 	{
 		if ($annotationClassName === null) {
 			return $this->annotations;
@@ -396,5 +396,4 @@ class Property
 		$this->type = $type;
 		return $this;
 	}
-
 }

@@ -149,5 +149,4 @@ class File
 		$this->content = $content;
 		return $this;
 	}
-
 }

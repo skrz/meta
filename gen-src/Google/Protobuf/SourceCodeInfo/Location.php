@@ -229,5 +229,4 @@ class Location
 		$this->leadingDetachedComments = $leadingDetachedComments;
 		return $this;
 	}
-
 }

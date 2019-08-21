@@ -87,5 +87,4 @@ class SourceCodeInfo
 		$this->location = $location;
 		return $this;
 	}
-
 }

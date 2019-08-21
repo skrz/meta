@@ -74,5 +74,4 @@ class MethodOptions
 		$this->uninterpretedOption = $uninterpretedOption;
 		return $this;
 	}
-
 }

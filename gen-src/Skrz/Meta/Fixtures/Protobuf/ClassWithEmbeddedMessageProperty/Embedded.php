@@ -39,5 +39,4 @@ class Embedded
 		$this->x = $x;
 		return $this;
 	}
-
 }

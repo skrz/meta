@@ -97,5 +97,4 @@ class ServiceDescriptorProto
 		$this->options = $options;
 		return $this;
 	}
-
 }

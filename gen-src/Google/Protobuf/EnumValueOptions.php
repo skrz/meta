@@ -74,5 +74,4 @@ class EnumValueOptions
 		$this->uninterpretedOption = $uninterpretedOption;
 		return $this;
 	}
-
 }

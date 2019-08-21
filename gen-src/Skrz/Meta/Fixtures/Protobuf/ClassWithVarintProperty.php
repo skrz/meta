@@ -39,5 +39,4 @@ class ClassWithVarintProperty
 		$this->x = $x;
 		return $this;
 	}
-
 }

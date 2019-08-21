@@ -323,5 +323,4 @@ class FieldDescriptorProto
 		$this->options = $options;
 		return $this;
 	}
-
 }

@@ -188,5 +188,4 @@ class MethodDescriptorProto
 		$this->serverStreaming = $serverStreaming;
 		return $this;
 	}
-
 }

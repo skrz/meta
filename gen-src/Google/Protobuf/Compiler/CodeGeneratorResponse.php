@@ -79,5 +79,4 @@ class CodeGeneratorResponse
 		$this->file = $file;
 		return $this;
 	}
-
 }

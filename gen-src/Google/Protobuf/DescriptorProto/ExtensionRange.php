@@ -67,5 +67,4 @@ class ExtensionRange
 		$this->end = $end;
 		return $this;
 	}
-
 }

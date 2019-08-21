@@ -71,5 +71,4 @@ class ReservedRange
 		$this->end = $end;
 		return $this;
 	}
-
 }

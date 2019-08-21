@@ -73,5 +73,4 @@ class NamePart
 		$this->isExtension = $isExtension;
 		return $this;
 	}
-
 }

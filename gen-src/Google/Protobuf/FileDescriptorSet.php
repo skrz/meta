@@ -42,5 +42,4 @@ class FileDescriptorSet
 		$this->file = $file;
 		return $this;
 	}
-
 }

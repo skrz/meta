@@ -40,5 +40,4 @@ class ClassWithEmbeddedMessageProperty
 		$this->x = $x;
 		return $this;
 	}
-
 }

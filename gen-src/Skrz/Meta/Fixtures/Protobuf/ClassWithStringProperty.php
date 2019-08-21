@@ -39,5 +39,4 @@ class ClassWithStringProperty
 		$this->x = $x;
 		return $this;
 	}
-
 }

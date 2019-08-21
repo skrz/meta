@@ -176,7 +176,7 @@ foreach ($classes as $className => $discoveryClassName) {
 	$ns->addUse("Doctrine\\Common\\Annotations\\PhpParser", null, $phpParserAlias);
 	$fromReflection->addBody("if (func_num_args() > 3) {\n\t\$phpParser = func_get_arg(3);\n} else {\n\t\$phpParser = new {$phpParserAlias}();\n}\n");
 
-	$endOfFromReflection = new \Nette\PhpGenerator\Method();
+	$endOfFromReflection = new \Nette\PhpGenerator\Method("fromReflection");
 
 	foreach ($rc->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
 		$is = false;
@@ -187,6 +187,8 @@ foreach ($classes as $className => $discoveryClassName) {
 			$method->getName() !== "isVariadic" &&
 			$method->getName() !== "getType" && // TODO: PHP 7
 			$method->getName() !== "isAnonymous" && // TODO: PHP 7
+			$method->getName() !== "getReflectionConstants" &&
+			$method->getName() !== "isIterable" &&
 //			$method->getName() !== "getDefaultProperties" &&
 			(strncmp($method->getName(), "get", 3) === 0 || ($is = (strncmp($method->getName(), "is", 2) === 0))) &&
 			($method->getNumberOfParameters() === 0 || $method->getName() === "getProperties" || $method->getName() === "getMethods")
@@ -244,14 +246,14 @@ foreach ($classes as $className => $discoveryClassName) {
 				} else {
 					$propertyInitialized = $class->addProperty($propertyInitializedName)
 						->setVisibility("private")
-						->setDocuments(array("@var boolean"));
+						->setComment("@var boolean");
 				}
 			} else {
 				$propertyInitialized = null;
 			}
 
 			$property
-				->setDocuments(array("@var {$returnType}{$arrayType}"));
+				->setComment("@var {$returnType}{$arrayType}");
 
 			$getter = $class->addMethod(($is ? "is" : "get") . ucfirst($propertyName));
 			$getter
@@ -456,6 +458,10 @@ foreach ($classes as $className => $discoveryClassName) {
 			->addBody("\t}")
 			->addBody("}")
 			->addBody("return null;");
+
+		$isDateTime = $class->addMethod("isDateTime");
+		$isDateTime
+			->addBody("return is_a(\$this->getName(), \\DateTimeInterface::class, true);");
 	}
 
 	$fromReflection->addBody($endOfFromReflection->getBody());

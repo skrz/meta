@@ -97,5 +97,4 @@ class EnumValueDescriptorProto
 		$this->options = $options;
 		return $this;
 	}
-
 }

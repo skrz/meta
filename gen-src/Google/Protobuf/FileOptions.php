@@ -534,5 +534,4 @@ class FileOptions
 		$this->uninterpretedOption = $uninterpretedOption;
 		return $this;
 	}
-
 }

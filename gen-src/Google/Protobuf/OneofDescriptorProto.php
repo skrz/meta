@@ -41,5 +41,4 @@ class OneofDescriptorProto
 		$this->name = $name;
 		return $this;
 	}
-
 }

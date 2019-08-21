@@ -218,5 +218,4 @@ class UninterpretedOption
 		$this->aggregateValue = $aggregateValue;
 		return $this;
 	}
-
 }

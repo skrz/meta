@@ -298,5 +298,4 @@ class DescriptorProto
 		$this->reservedName = $reservedName;
 		return $this;
 	}
-
 }

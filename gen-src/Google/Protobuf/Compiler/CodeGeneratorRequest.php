@@ -116,5 +116,4 @@ class CodeGeneratorRequest
 		$this->protoFile = $protoFile;
 		return $this;
 	}
-
 }

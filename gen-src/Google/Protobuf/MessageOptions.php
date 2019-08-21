@@ -203,5 +203,4 @@ class MessageOptions
 		$this->uninterpretedOption = $uninterpretedOption;
 		return $this;
 	}
-
 }

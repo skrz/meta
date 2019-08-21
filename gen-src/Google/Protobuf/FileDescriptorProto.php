@@ -366,5 +366,4 @@ class FileDescriptorProto
 		$this->syntax = $syntax;
 		return $this;
 	}
-
 }
