@@ -1,7 +1,9 @@
 <?php
 namespace Skrz\Meta\Fields;
 
-class FieldsTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FieldsTest extends TestCase
 {
 
 	public function testFromArrayNoArg()

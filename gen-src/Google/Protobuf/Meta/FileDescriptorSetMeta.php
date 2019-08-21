@@ -1,6 +1,7 @@
 <?php
 namespace Google\Protobuf\Meta;
 
+use Closure;
 use Google\Protobuf\FileDescriptorSet;
 use Skrz\Meta\MetaInterface;
 use Skrz\Meta\Protobuf\Binary;
@@ -16,12 +17,24 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FileDescriptorSetMeta extends FileDescriptorSet implements MetaInterface, ProtobufMetaInterface
+final class FileDescriptorSetMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const FILE_PROTOBUF_FIELD = 1;
 
 	/** @var FileDescriptorSetMeta */
 	private static $instance;
+
+	/** @var callable */
+	private static $reset;
+
+	/** @var callable */
+	private static $hash;
+
+	/** @var callable */
+	private static $fromProtobuf;
+
+	/** @var callable */
+	private static $toProtobuf;
 
 
 	/**
@@ -96,7 +109,14 @@ class FileDescriptorSetMeta extends FileDescriptorSet implements MetaInterface, 
 		if (!($object instanceof FileDescriptorSet)) {
 			throw new \InvalidArgumentException('You have to pass object of class Google\Protobuf\FileDescriptorSet.');
 		}
-		$object->file = NULL;
+
+		if (self::$reset === null) {
+			self::$reset = Closure::bind(static function ($object) {
+				$object->file = null;
+			}, null, FileDescriptorSet::class);
+		}
+
+		return (self::$reset)($object);
 	}
 
 
@@ -109,26 +129,32 @@ class FileDescriptorSetMeta extends FileDescriptorSet implements MetaInterface, 
 	 *
 	 * @return string|void
 	 */
-	public static function hash($object, $algoOrCtx = 'md5', $raw = FALSE)
+	public static function hash($object, $algoOrCtx = 'md5', $raw = false)
 	{
-		if (is_string($algoOrCtx)) {
-			$ctx = hash_init($algoOrCtx);
-		} else {
-			$ctx = $algoOrCtx;
+		if (self::$hash === null) {
+			self::$hash = Closure::bind(static function ($object, $algoOrCtx, $raw) {
+				if (is_string($algoOrCtx)) {
+					$ctx = hash_init($algoOrCtx);
+				} else {
+					$ctx = $algoOrCtx;
+				}
+
+				if (isset($object->file)) {
+					hash_update($ctx, 'file');
+					foreach ($object->file instanceof \Traversable ? $object->file : (array)$object->file as $v0) {
+						FileDescriptorProtoMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (is_string($algoOrCtx)) {
+					return hash_final($ctx, $raw);
+				} else {
+					return null;
+				}
+			}, null, FileDescriptorSet::class);
 		}
 
-		if (isset($object->file)) {
-			hash_update($ctx, 'file');
-			foreach ($object->file instanceof \Traversable ? $object->file : (array)$object->file as $v0) {
-				FileDescriptorProtoMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (is_string($algoOrCtx)) {
-			return hash_final($ctx, $raw);
-		} else {
-			return null;
-		}
+		return (self::$hash)($object, $algoOrCtx, $raw);
 	}
 
 
@@ -144,59 +170,65 @@ class FileDescriptorSetMeta extends FileDescriptorSet implements MetaInterface, 
 	 *
 	 * @return FileDescriptorSet
 	 */
-	public static function fromProtobuf($input, $object = NULL, &$start = 0, $end = NULL)
+	public static function fromProtobuf($input, $object = null, &$start = 0, $end = null)
 	{
-		if ($object === null) {
-			$object = new FileDescriptorSet();
-		}
+		if (self::$fromProtobuf === null) {
+			self::$fromProtobuf = Closure::bind(static function ($input, $object, &$start, $end) {
+				if ($object === null) {
+					$object = new FileDescriptorSet();
+				}
 
-		if ($end === null) {
-			$end = strlen($input);
-		}
+				if ($end === null) {
+					$end = strlen($input);
+				}
 
-		while ($start < $end) {
-			$tag = Binary::decodeVarint($input, $start);
-			$wireType = $tag & 0x7;
-			$number = $tag >> 3;
-			switch ($number) {
-				case 1:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->file) && is_array($object->file))) {
-						$object->file = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->file[] = FileDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				default:
-					switch ($wireType) {
-						case 0:
-							Binary::decodeVarint($input, $start);
-							break;
+				while ($start < $end) {
+					$tag = Binary::decodeVarint($input, $start);
+					$wireType = $tag & 0x7;
+					$number = $tag >> 3;
+					switch ($number) {
 						case 1:
-							$start += 8;
-							break;
-						case 2:
-							$start += Binary::decodeVarint($input, $start);
-							break;
-						case 5:
-							$start += 4;
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->file) && is_array($object->file))) {
+								$object->file = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->file[] = FileDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
 						default:
-							throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							switch ($wireType) {
+								case 0:
+									Binary::decodeVarint($input, $start);
+									break;
+								case 1:
+									$start += 8;
+									break;
+								case 2:
+									$start += Binary::decodeVarint($input, $start);
+									break;
+								case 5:
+									$start += 4;
+									break;
+								default:
+									throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							}
 					}
-			}
+				}
+
+				return $object;
+			}, null, FileDescriptorSet::class);
 		}
 
-		return $object;
+		return (self::$fromProtobuf)($input, $object, $start, $end);
 	}
 
 
@@ -210,20 +242,25 @@ class FileDescriptorSetMeta extends FileDescriptorSet implements MetaInterface, 
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, $filter = NULL)
+	public static function toProtobuf($object, $filter = null)
 	{
-		$output = '';
+		if (self::$toProtobuf === null) {
+			self::$toProtobuf = Closure::bind(static function (FileDescriptorSet $object, $filter) {
+				$output = '';
 
-		if (isset($object->file) && ($filter === null || isset($filter['file']))) {
-			foreach ($object->file instanceof \Traversable ? $object->file : (array)$object->file as $k => $v) {
-				$output .= "\x0a";
-				$buffer = FileDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['file']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
+				if (isset($object->file) && ($filter === null || isset($filter['file']))) {
+					foreach ($object->file instanceof \Traversable ? $object->file : (array)$object->file as $k => $v) {
+						$output .= "\x0a";
+						$buffer = FileDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['file']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				return $output;
+			}, null, FileDescriptorSet::class);
 		}
 
-		return $output;
+		return (self::$toProtobuf)($object, $filter);
 	}
-
 }

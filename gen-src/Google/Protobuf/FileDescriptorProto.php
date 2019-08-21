@@ -12,7 +12,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FileDescriptorProto
+final class FileDescriptorProto
 {
 	/**
 	 * @var string
@@ -366,5 +366,4 @@ class FileDescriptorProto
 		$this->syntax = $syntax;
 		return $this;
 	}
-
 }

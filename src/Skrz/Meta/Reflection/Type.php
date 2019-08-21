@@ -107,10 +107,10 @@ class Type extends ObjectType
 	private $shortName;
 
 	/** @var object[] */
-	private $annotations = array();
+	private $annotations = [];
 
 	/** @var string[] array of lowercased alias => FQN use statements */
-	public $useStatements = array();
+	public $useStatements = [];
 
 
 	public function __construct(ReflectionClass $reflection)
@@ -119,7 +119,7 @@ class Type extends ObjectType
 	}
 
 
-	public static function fromReflection(ReflectionClass $reflection = NULL)
+	public static function fromReflection(ReflectionClass $reflection = null)
 	{
 		if (!defined('PHP_VERSION_ID')) {
 			$v = explode('.', PHP_VERSION);
@@ -768,7 +768,7 @@ class Type extends ObjectType
 	 * @param string $annotationClassName if supplied, returns only annotations of given class name
 	 * @return object[]
 	 */
-	public function getAnnotations($annotationClassName = NULL)
+	public function getAnnotations($annotationClassName = null)
 	{
 		if ($annotationClassName === null) {
 			return $this->annotations;
@@ -874,25 +874,14 @@ class Type extends ObjectType
 	}
 
 
+	public function isDateTime()
+	{
+		return is_a($this->getName(), \DateTimeInterface::class, true);
+	}
+
+
 	public function __toString()
 	{
 		return $this->getName();
 	}
-
-	public function isDateTime()
-	{
-		if ($this->getName() === \DateTime::class
-			|| $this->getName() === \DateTimeImmutable::class
-		) {
-			return true;
-		}
-		for ($t = $this; $t; $t = $t->getParentClass()) {
-			if (in_array(\DateTimeInterface::class, $t->getInterfaces())) {
-				return true;
-				break;
-			}
-		}
-		return false;
-	}
-
 }

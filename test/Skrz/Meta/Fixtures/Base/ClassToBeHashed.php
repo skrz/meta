@@ -26,6 +26,6 @@ class ClassToBeHashed
 	 *
 	 * @Hash
 	 */
-	public $hash;
+	public $h;
 
 }

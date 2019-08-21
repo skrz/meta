@@ -12,7 +12,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class MethodDescriptorProto
+final class MethodDescriptorProto
 {
 	/**
 	 * @var string
@@ -188,5 +188,4 @@ class MethodDescriptorProto
 		$this->serverStreaming = $serverStreaming;
 		return $this;
 	}
-
 }

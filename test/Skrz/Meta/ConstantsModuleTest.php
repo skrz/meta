@@ -1,11 +1,13 @@
 <?php
 namespace Skrz\Meta;
 
+use PHPUnit\Framework\TestCase;
+use Skrz\Meta\Fixtures\Constants\ClassWithProperties;
 use Skrz\Meta\Fixtures\Constants\ConstantsMetaSpec;
 use Skrz\Meta\Fixtures\Constants\Meta\ClassWithPropertiesMeta;
 use Symfony\Component\Finder\Finder;
 
-class ConstantsModuleTest extends \PHPUnit_Framework_TestCase
+class ConstantsModuleTest extends TestCase
 {
 
 	public static function setUpBeforeClass()
@@ -26,7 +28,7 @@ class ConstantsModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassNameConstant()
 	{
-		$this->assertEquals("Skrz\\Meta\\Fixtures\\Constants\\ClassWithProperties", ClassWithPropertiesMeta::CLASS_NAME);
+		$this->assertEquals(ClassWithProperties::class, ClassWithPropertiesMeta::CLASS_NAME);
 	}
 
 	public function testShortNameConstant()

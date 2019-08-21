@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Meta;
 
+use Closure;
 use Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Embedded;
 use Skrz\Meta\MetaInterface;
 use Skrz\Meta\PHP\PhpMetaInterface;
@@ -18,19 +19,39 @@ use Skrz\Meta\Stack;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
+final class EmbeddedMeta implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
 {
 	const X_PROTOBUF_FIELD = 1;
 
 	/** @var EmbeddedMeta */
 	private static $instance;
 
-	/**
-	 * Mapping from group name to group ID for fromArray() and toArray()
-	 *
-	 * @var string[]
-	 */
-	private static $groups = array('' => 1);
+	/** @var callable */
+	private static $reset;
+
+	/** @var callable */
+	private static $hash;
+
+	/** @var string[] */
+	private static $groups = ['' => 1];
+
+	/** @var callable */
+	private static $fromArray;
+
+	/** @var callable */
+	private static $toArray;
+
+	/** @var callable */
+	private static $fromObject;
+
+	/** @var callable */
+	private static $toObject;
+
+	/** @var callable */
+	private static $fromProtobuf;
+
+	/** @var callable */
+	private static $toProtobuf;
 
 
 	/**
@@ -105,7 +126,14 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 		if (!($object instanceof Embedded)) {
 			throw new \InvalidArgumentException('You have to pass object of class Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Embedded.');
 		}
-		$object->x = NULL;
+
+		if (self::$reset === null) {
+			self::$reset = Closure::bind(static function ($object) {
+				$object->x = null;
+			}, null, Embedded::class);
+		}
+
+		return (self::$reset)($object);
 	}
 
 
@@ -118,24 +146,30 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 	 *
 	 * @return string|void
 	 */
-	public static function hash($object, $algoOrCtx = 'md5', $raw = FALSE)
+	public static function hash($object, $algoOrCtx = 'md5', $raw = false)
 	{
-		if (is_string($algoOrCtx)) {
-			$ctx = hash_init($algoOrCtx);
-		} else {
-			$ctx = $algoOrCtx;
+		if (self::$hash === null) {
+			self::$hash = Closure::bind(static function ($object, $algoOrCtx, $raw) {
+				if (is_string($algoOrCtx)) {
+					$ctx = hash_init($algoOrCtx);
+				} else {
+					$ctx = $algoOrCtx;
+				}
+
+				if (isset($object->x)) {
+					hash_update($ctx, 'x');
+					hash_update($ctx, (string)$object->x);
+				}
+
+				if (is_string($algoOrCtx)) {
+					return hash_final($ctx, $raw);
+				} else {
+					return null;
+				}
+			}, null, Embedded::class);
 		}
 
-		if (isset($object->x)) {
-			hash_update($ctx, 'x');
-			hash_update($ctx, (string)$object->x);
-		}
-
-		if (is_string($algoOrCtx)) {
-			return hash_final($ctx, $raw);
-		} else {
-			return null;
-		}
+		return (self::$hash)($object, $algoOrCtx, $raw);
 	}
 
 
@@ -150,10 +184,10 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 	 *
 	 * @return Embedded
 	 */
-	public static function fromArray($input, $group = NULL, $object = NULL)
+	public static function fromArray($input, $group = null, $object = null)
 	{
 		if (!isset(self::$groups[$group])) {
-			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithEmbeddedMessageProperty\\Embedded' . '.');
+			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Embedded' . '.');
 		} else {
 			$id = self::$groups[$group];
 		}
@@ -164,13 +198,19 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 			throw new \InvalidArgumentException('You have to pass object of class Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Embedded.');
 		}
 
-		if (($id & 1) > 0 && isset($input['x'])) {
-			$object->x = $input['x'];
-		} elseif (($id & 1) > 0 && array_key_exists('x', $input) && $input['x'] === null) {
-			$object->x = null;
+		if (self::$fromArray === null) {
+			self::$fromArray = Closure::bind(static function ($input, $group, $object, $id) {
+				if (($id & 1) > 0 && isset($input['x'])) {
+					$object->x = $input['x'];
+				} elseif (($id & 1) > 0 && array_key_exists('x', $input) && $input['x'] === null) {
+					$object->x = null;
+				}
+
+				return $object;
+			}, null, Embedded::class);
 		}
 
-		return $object;
+		return (self::$fromArray)($input, $group, $object, $id);
 	}
 
 
@@ -185,13 +225,13 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 	 *
 	 * @return array
 	 */
-	public static function toArray($object, $group = NULL, $filter = NULL)
+	public static function toArray($object, $group = null, $filter = null)
 	{
 		if ($object === null) {
 			return null;
 		}
 		if (!isset(self::$groups[$group])) {
-			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithEmbeddedMessageProperty\\Embedded' . '.');
+			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Embedded' . '.');
 		} else {
 			$id = self::$groups[$group];
 		}
@@ -200,30 +240,33 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 			throw new \InvalidArgumentException('You have to pass object of class Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Embedded.');
 		}
 
-		if (Stack::$objects === null) {
-			Stack::$objects = new \SplObjectStorage();
+		if (self::$toArray === null) {
+			self::$toArray = Closure::bind(static function ($object, $group, $filter, $id) {
+				if (Stack::$objects === null) {
+					Stack::$objects = new \SplObjectStorage();
+				}
+
+				if (Stack::$objects->contains($object)) {
+					return null;
+				}
+
+				Stack::$objects->attach($object);
+				try {
+					$output = array();
+
+					if (($id & 1) > 0 && ($filter === null || isset($filter['x']))) {
+						$output['x'] = $object->x;
+					}
+
+				} finally {
+					Stack::$objects->detach($object);
+				}
+
+				return $output;
+			}, null, Embedded::class);
 		}
 
-		if (Stack::$objects->contains($object)) {
-			return null;
-		}
-
-		Stack::$objects->attach($object);
-
-		try {
-			$output = array();
-
-			if (($id & 1) > 0 && ($filter === null || isset($filter['x']))) {
-				$output['x'] = $object->x;
-			}
-
-		} catch (\Exception $e) {
-			Stack::$objects->detach($object);
-			throw $e;
-		}
-
-		Stack::$objects->detach($object);
-		return $output;
+		return (self::$toArray)($object, $group, $filter, $id);
 	}
 
 
@@ -238,12 +281,12 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 	 *
 	 * @return Embedded
 	 */
-	public static function fromObject($input, $group = NULL, $object = NULL)
+	public static function fromObject($input, $group = null, $object = null)
 	{
 		$input = (array)$input;
 
 		if (!isset(self::$groups[$group])) {
-			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithEmbeddedMessageProperty\\Embedded' . '.');
+			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Embedded' . '.');
 		} else {
 			$id = self::$groups[$group];
 		}
@@ -254,13 +297,19 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 			throw new \InvalidArgumentException('You have to pass object of class Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Embedded.');
 		}
 
-		if (($id & 1) > 0 && isset($input['x'])) {
-			$object->x = $input['x'];
-		} elseif (($id & 1) > 0 && array_key_exists('x', $input) && $input['x'] === null) {
-			$object->x = null;
+		if (self::$fromObject === null) {
+			self::$fromObject = Closure::bind(static function ($input, $group, $object, $id) {
+				if (($id & 1) > 0 && isset($input['x'])) {
+					$object->x = $input['x'];
+				} elseif (($id & 1) > 0 && array_key_exists('x', $input) && $input['x'] === null) {
+					$object->x = null;
+				}
+
+				return $object;
+			}, null, Embedded::class);
 		}
 
-		return $object;
+		return (self::$fromObject)($input, $group, $object, $id);
 	}
 
 
@@ -275,13 +324,13 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 	 *
 	 * @return object
 	 */
-	public static function toObject($object, $group = NULL, $filter = NULL)
+	public static function toObject($object, $group = null, $filter = null)
 	{
 		if ($object === null) {
 			return null;
 		}
 		if (!isset(self::$groups[$group])) {
-			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithEmbeddedMessageProperty\\Embedded' . '.');
+			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Embedded' . '.');
 		} else {
 			$id = self::$groups[$group];
 		}
@@ -290,30 +339,33 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 			throw new \InvalidArgumentException('You have to pass object of class Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty\Embedded.');
 		}
 
-		if (Stack::$objects === null) {
-			Stack::$objects = new \SplObjectStorage();
+		if (self::$toObject === null) {
+			self::$toObject = Closure::bind(static function ($object, $group, $filter, $id) {
+				if (Stack::$objects === null) {
+					Stack::$objects = new \SplObjectStorage();
+				}
+
+				if (Stack::$objects->contains($object)) {
+					return null;
+				}
+
+				Stack::$objects->attach($object);
+				try {
+					$output = array();
+
+					if (($id & 1) > 0 && ($filter === null || isset($filter['x']))) {
+						$output['x'] = $object->x;
+					}
+
+				} finally {
+					Stack::$objects->detach($object);
+				}
+
+				return (object)$output;
+			}, null, Embedded::class);
 		}
 
-		if (Stack::$objects->contains($object)) {
-			return null;
-		}
-
-		Stack::$objects->attach($object);
-
-		try {
-			$output = array();
-
-			if (($id & 1) > 0 && ($filter === null || isset($filter['x']))) {
-				$output['x'] = $object->x;
-			}
-
-		} catch (\Exception $e) {
-			Stack::$objects->detach($object);
-			throw $e;
-		}
-
-		Stack::$objects->detach($object);
-		return (object)$output;
+		return (self::$toObject)($object, $group, $filter, $id);
 	}
 
 
@@ -329,57 +381,63 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 	 *
 	 * @return Embedded
 	 */
-	public static function fromProtobuf($input, $object = NULL, &$start = 0, $end = NULL)
+	public static function fromProtobuf($input, $object = null, &$start = 0, $end = null)
 	{
-		if ($object === null) {
-			$object = new Embedded();
-		}
+		if (self::$fromProtobuf === null) {
+			self::$fromProtobuf = Closure::bind(static function ($input, $object, &$start, $end) {
+				if ($object === null) {
+					$object = new Embedded();
+				}
 
-		if ($end === null) {
-			$end = strlen($input);
-		}
+				if ($end === null) {
+					$end = strlen($input);
+				}
 
-		while ($start < $end) {
-			$tag = Binary::decodeVarint($input, $start);
-			$wireType = $tag & 0x7;
-			$number = $tag >> 3;
-			switch ($number) {
-				case 1:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->x = substr($input, $start, $length);
-					$start += $length;
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				default:
-					switch ($wireType) {
-						case 0:
-							Binary::decodeVarint($input, $start);
-							break;
+				while ($start < $end) {
+					$tag = Binary::decodeVarint($input, $start);
+					$wireType = $tag & 0x7;
+					$number = $tag >> 3;
+					switch ($number) {
 						case 1:
-							$start += 8;
-							break;
-						case 2:
-							$start += Binary::decodeVarint($input, $start);
-							break;
-						case 5:
-							$start += 4;
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->x = substr($input, $start, $length);
+							$start += $length;
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
 						default:
-							throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							switch ($wireType) {
+								case 0:
+									Binary::decodeVarint($input, $start);
+									break;
+								case 1:
+									$start += 8;
+									break;
+								case 2:
+									$start += Binary::decodeVarint($input, $start);
+									break;
+								case 5:
+									$start += 4;
+									break;
+								default:
+									throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							}
 					}
-			}
+				}
+
+				return $object;
+			}, null, Embedded::class);
 		}
 
-		return $object;
+		return (self::$fromProtobuf)($input, $object, $start, $end);
 	}
 
 
@@ -393,17 +451,22 @@ class EmbeddedMeta extends Embedded implements MetaInterface, PhpMetaInterface, 
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, $filter = NULL)
+	public static function toProtobuf($object, $filter = null)
 	{
-		$output = '';
+		if (self::$toProtobuf === null) {
+			self::$toProtobuf = Closure::bind(static function (Embedded $object, $filter) {
+				$output = '';
 
-		if (isset($object->x) && ($filter === null || isset($filter['x']))) {
-			$output .= "\x0a";
-			$output .= Binary::encodeVarint(strlen($object->x));
-			$output .= $object->x;
+				if (isset($object->x) && ($filter === null || isset($filter['x']))) {
+					$output .= "\x0a";
+					$output .= Binary::encodeVarint(strlen($object->x));
+					$output .= $object->x;
+				}
+
+				return $output;
+			}, null, Embedded::class);
 		}
 
-		return $output;
+		return (self::$toProtobuf)($object, $filter);
 	}
-
 }

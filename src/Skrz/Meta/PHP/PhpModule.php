@@ -2,6 +2,7 @@
 namespace Skrz\Meta\PHP;
 
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Helpers;
 use Nette\Utils\Strings;
 use Skrz\Meta\AbstractMetaSpec;
 use Skrz\Meta\AbstractModule;
@@ -9,9 +10,12 @@ use Skrz\Meta\MetaException;
 use Skrz\Meta\MetaSpecMatcher;
 use Skrz\Meta\PropertySerializerInterface;
 use Skrz\Meta\Reflection\ArrayType;
+use Skrz\Meta\Reflection\MixedType;
 use Skrz\Meta\Reflection\Property;
 use Skrz\Meta\Reflection\ScalarType;
 use Skrz\Meta\Reflection\Type;
+use Skrz\Meta\Stack;
+use Skrz\Meta\Transient;
 
 class PhpModule extends AbstractModule
 {
@@ -45,19 +49,11 @@ class PhpModule extends AbstractModule
 	public function onBeforeGenerate(AbstractMetaSpec $spec, MetaSpecMatcher $matcher, Type $type)
 	{
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
+			if ($property->hasAnnotation(Transient::class)) {
 				continue;
 			}
 
-			if ($property->isPrivate()) {
-				throw new MetaException(
-					"Private property '{$type->getName()}::\${$property->getName()}'. " .
-					"Either make the property protected/public if you need to process it, " .
-					"or mark it using @Transient annotation."
-				);
-			}
-
-			if (get_class($property->getType()) === "Skrz\\Meta\\Reflection\\MixedType") {
+			if (get_class($property->getType()) === MixedType::class) {
 				throw new MetaException(
 					"Property {$type->getName()}::\${$property->getName()} of type mixed. " .
 					"Either add @var annotation with non-mixed type, " .
@@ -66,7 +62,7 @@ class PhpModule extends AbstractModule
 			}
 
 			$hasDefaultGroup = false;
-			foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $annotation) {
+			foreach ($property->getAnnotations(PhpArrayOffset::class) as $annotation) {
 				/** @var PhpArrayOffset $annotation */
 				if ($annotation->group === PhpArrayOffset::DEFAULT_GROUP) {
 					$hasDefaultGroup = true;
@@ -101,14 +97,14 @@ class PhpModule extends AbstractModule
 
 		$ns = $class->getNamespace();
 
-		$ns->addUse("Skrz\\Meta\\PHP\\PhpMetaInterface");
+		$ns->addUse(PhpMetaInterface::class);
 		$ns->addUse($type->getName(), null, $typeAlias);
-		$ns->addUse("Skrz\\Meta\\Stack", null, $stackAlias);
-		$class->addImplement("Skrz\\Meta\\PHP\\PhpMetaInterface");
+		$ns->addUse(Stack::class, null, $stackAlias);
+		$class->addImplement(PhpMetaInterface::class);
 
 		// get groups
 		foreach ($type->getProperties() as $property) {
-			foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
+			foreach ($property->getAnnotations(PhpArrayOffset::class) as $arrayOffset) {
 				/** @var PhpArrayOffset $arrayOffset */
 				if (!isset($groups[$arrayOffset->group])) {
 					$groups[$arrayOffset->group] = 1 << $i++;
@@ -121,7 +117,7 @@ class PhpModule extends AbstractModule
 		$discriminatorClassMap = array();
 		$discriminatorMetaMap = array();
 
-		foreach ($type->getAnnotations("Skrz\\Meta\\PHP\\PhpDiscriminatorOffset") as $discriminatorOffset) {
+		foreach ($type->getAnnotations(PhpDiscriminatorOffset::class) as $discriminatorOffset) {
 			/** @var PhpDiscriminatorOffset $discriminatorOffset */
 
 			if (!isset($groups[$discriminatorOffset->group])) {
@@ -131,7 +127,7 @@ class PhpModule extends AbstractModule
 			$discriminatorOffsetMap[$groups[$discriminatorOffset->group]] = $discriminatorOffset->offset;
 		}
 
-		foreach ($type->getAnnotations("Skrz\\Meta\\PHP\\PhpDiscriminatorMap") as $discriminatorMap) {
+		foreach ($type->getAnnotations(PhpDiscriminatorMap::class) as $discriminatorMap) {
 			/** @var PhpDiscriminatorMap $discriminatorMap */
 
 			if (!isset($groups[$discriminatorMap->group])) {
@@ -158,10 +154,9 @@ class PhpModule extends AbstractModule
 
 		// add groups property
 		$groupsProperty = $class->addProperty("groups");
-		$groupsProperty->setStatic(true)->setValue($groups)->setVisibility("private");
-		$groupsProperty
-			->addComment("Mapping from group name to group ID for fromArray() and toArray()")
-			->addComment("")
+		$groupsProperty->setStatic(true)
+			->setValue($groups)
+			->setVisibility("private")
 			->addComment("@var string[]");
 
 		// create input/output type hint
@@ -193,6 +188,11 @@ class PhpModule extends AbstractModule
 				->addComment("")
 				->addComment("@return {$inputOutputTypeHint}");
 
+			$fromProperty = $class->addProperty($from->getName());
+			$fromProperty->setStatic(true)
+				->setVisibility("private")
+				->addComment("@var callable");
+
 			if ($what === "Object") {
 				$from->addBody("\$input = (array)\$input;\n");
 			}
@@ -200,7 +200,7 @@ class PhpModule extends AbstractModule
 			// TODO: more groups - include/exclude
 			$from
 				->addBody("if (!isset(self::\$groups[\$group])) {")
-				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
+				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . Helpers::dump($type->getName()) . " . '.');")
 				->addBody("} else {")
 				->addBody("\t\$id = self::\$groups[\$group];")
 				->addBody("}")
@@ -216,8 +216,8 @@ class PhpModule extends AbstractModule
 							$from
 								->addBody(
 									"if ((\$id & {$groupId}) > 0 && " .
-									"isset(\$input[" . var_export($groupDiscriminatorOffset, true) . "]) && " .
-									"\$input[" . var_export($groupDiscriminatorOffset, true) . "] === " . var_export($value, true) . ") {"
+									"isset(\$input[" . Helpers::dump($groupDiscriminatorOffset) . "]) && " .
+									"\$input[" . Helpers::dump($groupDiscriminatorOffset) . "] === " . var_export($value, true) . ") {"
 								)
 								->addBody("\treturn {$alias}::from{$what}(\$input, \$group, \$object);")
 								->addBody("}")
@@ -229,9 +229,9 @@ class PhpModule extends AbstractModule
 							$from
 								->addBody(
 									"if ((\$id & {$groupId}) > 0 && " .
-									"isset(\$input[" . var_export($value, true) . "])) {"
+									"isset(\$input[" . Helpers::dump($value) . "])) {"
 								)
-								->addBody("\treturn {$alias}::from{$what}(\$input[" . var_export($value, true) . "], \$group, \$object);")
+								->addBody("\treturn {$alias}::from{$what}(\$input[" . Helpers::dump($value) . "], \$group, \$object);")
 								->addBody("}")
 								->addBody("");
 						}
@@ -239,25 +239,29 @@ class PhpModule extends AbstractModule
 				}
 			}
 
+			$class->getNamespace()->addUse(\Closure::class, null, $closureAlias);
+
 			$from
 				->addBody("if (\$object === null) {")
 				->addBody("\t\$object = new {$typeAlias}();")
 				->addBody("} elseif (!(\$object instanceof {$typeAlias})) {")
 				->addBody("\tthrow new \\InvalidArgumentException('You have to pass object of class {$type->getName()}.');")
 				->addBody("}")
-				->addBody("");
+				->addBody("")
+				->addBody("if (self::\${$fromProperty->getName()} === null) {")
+				->addBody("\tself::\${$fromProperty->getName()} = {$closureAlias}::bind(static function (\$input, \$group, \$object, \$id) {");
 
 			foreach ($type->getProperties() as $property) {
-				foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
+				foreach ($property->getAnnotations(PhpArrayOffset::class) as $arrayOffset) {
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
-					$arrayKey = var_export($arrayOffset->offset, true);
+					$arrayKey = Helpers::dump($arrayOffset->offset);
 					$baseArrayPath = $arrayPath = "\$input[{$arrayKey}]";
 					$baseObjectPath = $objectPath = "\$object->{$property->getName()}";
-					$from->addBody("if ((\$id & {$groupId}) > 0 && isset({$arrayPath})) {"); // FIXME: group group IDs by offset
+					$from->addBody("\t\tif ((\$id & {$groupId}) > 0 && isset({$arrayPath})) {"); // FIXME: group group IDs by offset
 
 					$baseType = $property->getType();
-					$indent = "\t";
+					$indent = "\t\t\t";
 					$before = "";
 					$after = "";
 					for ($i = 0; $baseType instanceof ArrayType; ++$i) {
@@ -311,15 +315,20 @@ class PhpModule extends AbstractModule
 					}
 
 					$from
-						->addBody("} elseif ((\$id & {$groupId}) > 0 && array_key_exists({$arrayKey}, \$input) && {$baseArrayPath} === null) {")
-						->addBody("\t{$baseObjectPath} = null;")
-						->addBody("}");
+						->addBody("\t\t} elseif ((\$id & {$groupId}) > 0 && array_key_exists({$arrayKey}, \$input) && {$baseArrayPath} === null) {")
+						->addBody("\t\t\t{$baseObjectPath} = null;")
+						->addBody("\t\t}");
 				}
 
 				$from->addBody("");
 			}
 
-			$from->addBody("return \$object;");
+			$from
+				->addBody("\t\treturn \$object;")
+				->addBody("\t}, null, {$typeAlias}::class);")
+				->addBody("}")
+				->addBody("")
+				->addBody("return (self::\${$fromProperty->getName()})(\$input, \$group, \$object, \$id);");
 
 			// to*() method
 			$to = $class->addMethod("to{$what}");
@@ -339,6 +348,11 @@ class PhpModule extends AbstractModule
 				->addComment("")
 				->addComment("@return " . strtolower($what));
 
+			$toProperty = $class->addProperty($to->getName());
+			$toProperty->setStatic(true)
+				->setVisibility("private")
+				->addComment("@var callable");
+
 			$to
 				->addBody("if (\$object === null) {")
 				->addBody("\treturn null;")
@@ -347,7 +361,7 @@ class PhpModule extends AbstractModule
 			// TODO: more groups - include/exclude
 			$to
 				->addBody("if (!isset(self::\$groups[\$group])) {")
-				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
+				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . Helpers::dump($type->getName()) . " . '.');")
 				->addBody("} else {")
 				->addBody("\t\$id = self::\$groups[\$group];")
 				->addBody("}")
@@ -370,12 +384,12 @@ class PhpModule extends AbstractModule
 							->addBody("\t\$output = {$metaAlias}::to{$what}(\$object, \$group);");
 
 						if ($groupDiscriminatorOffset === null) {
-							$to->addBody("\t\$output = " . ($what === "Object" ? "(object)" : "") . "array(" . var_export($value, true) . " => " . ($what === "Object" ? "(object)" : "") . "\$output);");
+							$to->addBody("\t\$output = " . ($what === "Object" ? "(object)" : "") . "array(" . Helpers::dump($value) . " => " . ($what === "Object" ? "(object)" : "") . "\$output);");
 						} else {
 							if ($what === "Object") {
-								$to->addBody("\t\$output->{$groupDiscriminatorOffset} = " . var_export($value, true) . ";"); // FIXME: might compile to incorrect PHP code
+								$to->addBody("\t\$output->{$groupDiscriminatorOffset} = " . Helpers::dump($value) . ";"); // FIXME: might compile to incorrect PHP code
 							} else {
-								$to->addBody("\t\$output[" . var_export($groupDiscriminatorOffset, true) . "] = " . var_export($value, true) . ";");
+								$to->addBody("\t\$output[" . Helpers::dump($groupDiscriminatorOffset) . "] = " . Helpers::dump($value) . ";");
 							}
 						}
 
@@ -394,26 +408,25 @@ class PhpModule extends AbstractModule
 				->addBody("");
 
 			$to
-				->addBody("if ({$stackAlias}::\$objects === null) {")
-				->addBody("\t{$stackAlias}::\$objects = new \\SplObjectStorage();")
-				->addBody("}")
+				->addBody("if (self::\${$toProperty->getName()} === null) {")
+				->addBody("\tself::\${$toProperty->getName()} = {$closureAlias}::bind(static function (\$object, \$group, \$filter, \$id) {")
+				->addBody("\t\tif ({$stackAlias}::\$objects === null) {")
+				->addBody("\t\t\t{$stackAlias}::\$objects = new \\SplObjectStorage();")
+				->addBody("\t\t}")
 				->addBody("")
-				->addBody("if ({$stackAlias}::\$objects->contains(\$object)) {")
-				->addBody("\treturn null;")
-				->addBody("}")
+				->addBody("\t\tif ({$stackAlias}::\$objects->contains(\$object)) {")
+				->addBody("\t\t\treturn null;")
+				->addBody("\t\t}")
 				->addBody("")
-				->addBody("{$stackAlias}::\$objects->attach(\$object);")
-				->addBody("");
-
-			$to
-				->addBody("try {")
-				->addBody("\t\$output = array();")
+				->addBody("\t\t{$stackAlias}::\$objects->attach(\$object);")
+				->addBody("\t\ttry {")
+				->addBody("\t\t\t\$output = array();")
 				->addBody("");
 
 			foreach ($type->getProperties() as $property) {
 				$propertyGroups = [];
 
-				foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
+				foreach ($property->getAnnotations(PhpArrayOffset::class) as $arrayOffset) {
 					if (isset($propertyGroups[$arrayOffset->group])) {
 						continue;
 					}
@@ -422,19 +435,19 @@ class PhpModule extends AbstractModule
 
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
-					$if = "\tif ((\$id & {$groupId}) > 0";
+					$if = "\t\t\tif ((\$id & {$groupId}) > 0";
 					if ($arrayOffset->ignoreNull) {
 						$if .= " && ((isset(\$object->{$property->getName()}) && \$filter === null)";
 					} else {
 						$if .= " && (\$filter === null";
 					}
-					$if .= " || isset(\$filter[" . var_export($arrayOffset->offset, true) . "]))) {"; // FIXME: group group IDs by offset
+					$if .= " || isset(\$filter[" . Helpers::dump($arrayOffset->offset) . "]))) {"; // FIXME: group group IDs by offset
 					$to->addBody($if);
 
 					$objectPath = "\$object->{$property->getName()}";
-					$arrayPath = "\$output[" . var_export($arrayOffset->offset, true) . "]";
+					$arrayPath = "\$output[" . Helpers::dump($arrayOffset->offset) . "]";
 					$baseType = $property->getType();
-					$indent = "\t\t";
+					$indent = "\t\t\t\t";
 					$before = "";
 					$after = "";
 					for ($i = 0; $baseType instanceof ArrayType; ++$i) {
@@ -474,7 +487,7 @@ class PhpModule extends AbstractModule
 							"{$indent}{$arrayPath} = {$propertyTypeMetaClassNameAlias}::to{$what}(" .
 							"{$objectPath}, " .
 							"\$group, " .
-							"\$filter === null ? null : \$filter[" . var_export($arrayOffset->offset, true) . "]" .
+							"\$filter === null ? null : \$filter[" . Helpers::dump($arrayOffset->offset) . "]" .
 							");"
 						);
 
@@ -486,22 +499,22 @@ class PhpModule extends AbstractModule
 						$to->addBody(rtrim($after));
 					}
 
-					$to->addBody("\t}");
+					$to->addBody("\t\t\t}");
 				}
 
 				$to->addBody("");
 			}
 
 			$to
-				->addBody("} catch (\\Exception \$e) {")
-				->addBody("\t{$stackAlias}::\$objects->detach(\$object);")
-				->addBody("\tthrow \$e;")
+				->addBody("\t\t} finally {")
+				->addBody("\t\t\t{$stackAlias}::\$objects->detach(\$object);")
+				->addBody("\t\t}")
+				->addBody("")
+				->addBody("\t\treturn " . ($what === "Object" ? "(object)" : "") . "\$output;")
+				->addBody("\t}, null, {$typeAlias}::class);")
 				->addBody("}")
-				->addBody("");
-
-			$to
-				->addBody("{$stackAlias}::\$objects->detach(\$object);")
-				->addBody("return " . ($what === "Object" ? "(object)" : "") . "\$output;");
+				->addBody("")
+				->addBody("return (self::\${$toProperty->getName()})(\$object, \$group, \$filter, \$id);");
 		}
 	}
 

@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta;
 
+use PHPUnit\Framework\TestCase;
 use Skrz\Meta\Fields\Fields;
 use Skrz\Meta\Fixtures\JSON\ClassWithArrayOfJsonRoot;
 use Skrz\Meta\Fixtures\JSON\ClassWithCustomNameProperty;
@@ -18,7 +19,7 @@ use Skrz\Meta\Fixtures\JSON\Meta\ClassWithNoPropertyMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithPublicPropertyMeta;
 use Symfony\Component\Finder\Finder;
 
-class JsonModuleTest extends \PHPUnit_Framework_TestCase
+class JsonModuleTest extends TestCase
 {
 
 	public static function setUpBeforeClass()
@@ -39,13 +40,13 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithNoPropertyFromJson()
 	{
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\Meta\\ClassWithNoPropertyMeta", ClassWithNoPropertyMeta::getInstance());
+		$this->assertInstanceOf(ClassWithNoPropertyMeta::class, ClassWithNoPropertyMeta::getInstance());
 
 		$instance = ClassWithNoPropertyMeta::fromJson(array());
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithNoProperty", $instance);
+		$this->assertInstanceOf(ClassWithNoProperty::class, $instance);
 
 		$instance = ClassWithNoPropertyMeta::fromJson("{}");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithNoProperty", $instance);
+		$this->assertInstanceOf(ClassWithNoProperty::class, $instance);
 	}
 
 	public function testClassWithNoPropertyToJson()
@@ -64,22 +65,22 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithPublicPropertyFromJson()
 	{
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\Meta\\ClassWithPublicPropertyMeta", ClassWithPublicPropertyMeta::getInstance());
+		$this->assertInstanceOf(ClassWithPublicPropertyMeta::class, ClassWithPublicPropertyMeta::getInstance());
 
 		$instance = ClassWithPublicPropertyMeta::fromJson(array());
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithPublicProperty", $instance);
+		$this->assertInstanceOf(ClassWithPublicProperty::class, $instance);
 		$this->assertEquals(null, $instance->property);
 
 		$instance = ClassWithPublicPropertyMeta::fromJson(array("property" => "value"));
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithPublicProperty", $instance);
+		$this->assertInstanceOf(ClassWithPublicProperty::class, $instance);
 		$this->assertEquals("value", $instance->property);
 
 		$instance = ClassWithPublicPropertyMeta::fromJson("{}");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithPublicProperty", $instance);
+		$this->assertInstanceOf(ClassWithPublicProperty::class, $instance);
 		$this->assertEquals(null, $instance->property);
 
 		$instance = ClassWithPublicPropertyMeta::fromJson('{"property":"value"}');
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithPublicProperty", $instance);
+		$this->assertInstanceOf(ClassWithPublicProperty::class, $instance);
 		$this->assertEquals("value", $instance->property);
 	}
 
@@ -107,22 +108,22 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithCustomNamePropertyFromJson()
 	{
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\Meta\\ClassWithCustomNamePropertyMeta", ClassWithCustomNamePropertyMeta::getInstance());
+		$this->assertInstanceOf(ClassWithCustomNamePropertyMeta::class, ClassWithCustomNamePropertyMeta::getInstance());
 
 		$instance = ClassWithCustomNamePropertyMeta::fromJson(array());
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithCustomNameProperty", $instance);
+		$this->assertInstanceOf(ClassWithCustomNameProperty::class, $instance);
 		$this->assertEquals(null, $instance->getSomeProperty());
 
 		$instance = ClassWithCustomNamePropertyMeta::fromJson(array("some_property" => "some value"));
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithCustomNameProperty", $instance);
+		$this->assertInstanceOf(ClassWithCustomNameProperty::class, $instance);
 		$this->assertEquals("some value", $instance->getSomeProperty());
 
 		$instance = ClassWithCustomNamePropertyMeta::fromJson('{}');
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithCustomNameProperty", $instance);
+		$this->assertInstanceOf(ClassWithCustomNameProperty::class, $instance);
 		$this->assertEquals(null, $instance->getSomeProperty());
 
 		$instance = ClassWithCustomNamePropertyMeta::fromJson('{"some_property":"some value"}');
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Json\\ClassWithCustomNameProperty", $instance);
+		$this->assertInstanceOf(ClassWithCustomNameProperty::class, $instance);
 		$this->assertEquals("some value", $instance->getSomeProperty());
 	}
 
@@ -150,53 +151,53 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithDiscriminatorMapFromJson()
 	{
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\Meta\\ClassWithDiscriminatorMapMeta", ClassWithDiscriminatorMapMeta::getInstance());
+		$this->assertInstanceOf(ClassWithDiscriminatorMapMeta::class, ClassWithDiscriminatorMapMeta::getInstance());
 
 		/** @var ClassWithDiscriminatorValueA $aInstance */
 		$aInstance = ClassWithDiscriminatorMapMeta::fromJson(array("value" => "a", "a" => 21, "b" => 42));
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueA", $aInstance);
+		$this->assertInstanceOf(ClassWithDiscriminatorValueA::class, $aInstance);
 		$this->assertEquals("a", $aInstance->value);
 		$this->assertEquals(21, $aInstance->a);
 
 		/** @var ClassWithDiscriminatorValueA $aInstance */
 		$aInstance = ClassWithDiscriminatorMapMeta::fromJson('{"value":"a","a":1,"b":2}');
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueA", $aInstance);
+		$this->assertInstanceOf(ClassWithDiscriminatorValueA::class, $aInstance);
 		$this->assertEquals("a", $aInstance->value);
 		$this->assertEquals(1, $aInstance->a);
 
 		/** @var ClassWithDiscriminatorValueA $aInstance */
 		$aInstance = ClassWithDiscriminatorMapMeta::fromJson(array("a" => array("a" => 21)), "top");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueA", $aInstance);
+		$this->assertInstanceOf(ClassWithDiscriminatorValueA::class, $aInstance);
 		$this->assertNull($aInstance->value);
 		$this->assertEquals(21, $aInstance->a);
 
 		/** @var ClassWithDiscriminatorValueA $aInstance */
 		$aInstance = ClassWithDiscriminatorMapMeta::fromJson('{"a":{"a":1}}', "top");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueA", $aInstance);
+		$this->assertInstanceOf(ClassWithDiscriminatorValueA::class, $aInstance);
 		$this->assertNull($aInstance->value);
 		$this->assertEquals(1, $aInstance->a);
 
 		/** @var ClassWithDiscriminatorValueB $bInstance */
 		$bInstance = ClassWithDiscriminatorMapMeta::fromJson(array("value" => "b", "a" => 21, "b" => 42));
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueB", $bInstance);
+		$this->assertInstanceOf(ClassWithDiscriminatorValueB::class, $bInstance);
 		$this->assertEquals("b", $bInstance->value);
 		$this->assertEquals(42, $bInstance->b);
 
 		/** @var ClassWithDiscriminatorValueB $bInstance */
 		$bInstance = ClassWithDiscriminatorMapMeta::fromJson('{"value":"b","a":1,"b":2}');
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueB", $bInstance);
+		$this->assertInstanceOf(ClassWithDiscriminatorValueB::class, $bInstance);
 		$this->assertEquals("b", $bInstance->value);
 		$this->assertEquals(2, $bInstance->b);
 
 		/** @var ClassWithDiscriminatorValueB $bInstance */
 		$bInstance = ClassWithDiscriminatorMapMeta::fromJson(array("b" => array("b" => 42)), "top");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueB", $bInstance);
+		$this->assertInstanceOf(ClassWithDiscriminatorValueB::class, $bInstance);
 		$this->assertNull($bInstance->value);
 		$this->assertEquals(42, $bInstance->b);
 
 		/** @var ClassWithDiscriminatorValueB $bInstance */
 		$bInstance = ClassWithDiscriminatorMapMeta::fromJson('{"b":{"b":2}}', "top");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithDiscriminatorValueB", $bInstance);
+		$this->assertInstanceOf(ClassWithDiscriminatorValueB::class, $bInstance);
 		$this->assertNull($bInstance->value);
 		$this->assertEquals(2, $bInstance->b);
 	}
@@ -217,35 +218,35 @@ class JsonModuleTest extends \PHPUnit_Framework_TestCase
 
 	public function testClassWithArrayOfJsonRootFromArrayOfJson()
 	{
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\Meta\\ClassWithArrayOfJsonRootMeta", ClassWithArrayOfJsonRootMeta::getInstance());
+		$this->assertInstanceOf(ClassWithArrayOfJsonRootMeta::class, ClassWithArrayOfJsonRootMeta::getInstance());
 
 		$instance = ClassWithArrayOfJsonRootMeta::fromArrayOfJson(array("direct" => "foo", "nested" => '{"property":"bar"}'));
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithArrayOfJsonRoot", $instance);
+		$this->assertInstanceOf(ClassWithArrayOfJsonRoot::class, $instance);
 		$this->assertEquals("foo", $instance->direct);
 		$this->assertNotNull($instance->nested);
 		$this->assertEquals("bar", $instance->nested->property);
 
 		ClassWithArrayOfJsonRootMeta::fromArrayOfJson(array("direct" => "qux"), null, $instance);
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithArrayOfJsonRoot", $instance);
+		$this->assertInstanceOf(ClassWithArrayOfJsonRoot::class, $instance);
 		$this->assertEquals("qux", $instance->direct);
 		$this->assertNotNull($instance->nested);
 		$this->assertEquals("bar", $instance->nested->property);
 
 		ClassWithArrayOfJsonRootMeta::fromArrayOfJson(array("nested" => '{"property":"baz"}'), null, $instance);
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithArrayOfJsonRoot", $instance);
+		$this->assertInstanceOf(ClassWithArrayOfJsonRoot::class, $instance);
 		$this->assertEquals("qux", $instance->direct);
 		$this->assertNotNull($instance->nested);
 		$this->assertEquals("baz", $instance->nested->property);
 
 		ClassWithArrayOfJsonRootMeta::fromArrayOfJson(array("arrayOfStrings" => '[]'), null, $instance);
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithArrayOfJsonRoot", $instance);
+		$this->assertInstanceOf(ClassWithArrayOfJsonRoot::class, $instance);
 		$this->assertEquals("qux", $instance->direct);
 		$this->assertNotNull($instance->nested);
 		$this->assertEquals("baz", $instance->nested->property);
 		$this->assertEquals(array(), $instance->arrayOfStrings);
 
 		ClassWithArrayOfJsonRootMeta::fromArrayOfJson(array("arrayOfStrings" => '["zzz"]'), null, $instance);
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\JSON\\ClassWithArrayOfJsonRoot", $instance);
+		$this->assertInstanceOf(ClassWithArrayOfJsonRoot::class, $instance);
 		$this->assertEquals("qux", $instance->direct);
 		$this->assertNotNull($instance->nested);
 		$this->assertEquals("baz", $instance->nested->property);

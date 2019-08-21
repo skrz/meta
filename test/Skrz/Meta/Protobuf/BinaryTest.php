@@ -1,7 +1,9 @@
 <?php
 namespace Skrz\Meta\Protobuf;
 
-class BinaryTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class BinaryTest extends TestCase
 {
 
 	/**

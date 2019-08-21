@@ -1,6 +1,7 @@
 <?php
 namespace Google\Protobuf\Meta;
 
+use Closure;
 use Google\Protobuf\FieldOptions;
 use Skrz\Meta\MetaInterface;
 use Skrz\Meta\Protobuf\Binary;
@@ -16,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FieldOptionsMeta extends FieldOptions implements MetaInterface, ProtobufMetaInterface
+final class FieldOptionsMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const CTYPE_PROTOBUF_FIELD = 1;
 	const PACKED_PROTOBUF_FIELD = 2;
@@ -28,6 +29,18 @@ class FieldOptionsMeta extends FieldOptions implements MetaInterface, ProtobufMe
 
 	/** @var FieldOptionsMeta */
 	private static $instance;
+
+	/** @var callable */
+	private static $reset;
+
+	/** @var callable */
+	private static $hash;
+
+	/** @var callable */
+	private static $fromProtobuf;
+
+	/** @var callable */
+	private static $toProtobuf;
 
 
 	/**
@@ -102,13 +115,20 @@ class FieldOptionsMeta extends FieldOptions implements MetaInterface, ProtobufMe
 		if (!($object instanceof FieldOptions)) {
 			throw new \InvalidArgumentException('You have to pass object of class Google\Protobuf\FieldOptions.');
 		}
-		$object->ctype = NULL;
-		$object->packed = NULL;
-		$object->jstype = NULL;
-		$object->lazy = NULL;
-		$object->deprecated = NULL;
-		$object->weak = NULL;
-		$object->uninterpretedOption = NULL;
+
+		if (self::$reset === null) {
+			self::$reset = Closure::bind(static function ($object) {
+				$object->ctype = null;
+				$object->packed = null;
+				$object->jstype = null;
+				$object->lazy = null;
+				$object->deprecated = null;
+				$object->weak = null;
+				$object->uninterpretedOption = null;
+			}, null, FieldOptions::class);
+		}
+
+		return (self::$reset)($object);
 	}
 
 
@@ -121,56 +141,62 @@ class FieldOptionsMeta extends FieldOptions implements MetaInterface, ProtobufMe
 	 *
 	 * @return string|void
 	 */
-	public static function hash($object, $algoOrCtx = 'md5', $raw = FALSE)
+	public static function hash($object, $algoOrCtx = 'md5', $raw = false)
 	{
-		if (is_string($algoOrCtx)) {
-			$ctx = hash_init($algoOrCtx);
-		} else {
-			$ctx = $algoOrCtx;
+		if (self::$hash === null) {
+			self::$hash = Closure::bind(static function ($object, $algoOrCtx, $raw) {
+				if (is_string($algoOrCtx)) {
+					$ctx = hash_init($algoOrCtx);
+				} else {
+					$ctx = $algoOrCtx;
+				}
+
+				if (isset($object->ctype)) {
+					hash_update($ctx, 'ctype');
+					hash_update($ctx, (string)$object->ctype);
+				}
+
+				if (isset($object->packed)) {
+					hash_update($ctx, 'packed');
+					hash_update($ctx, (string)$object->packed);
+				}
+
+				if (isset($object->jstype)) {
+					hash_update($ctx, 'jstype');
+					hash_update($ctx, (string)$object->jstype);
+				}
+
+				if (isset($object->lazy)) {
+					hash_update($ctx, 'lazy');
+					hash_update($ctx, (string)$object->lazy);
+				}
+
+				if (isset($object->deprecated)) {
+					hash_update($ctx, 'deprecated');
+					hash_update($ctx, (string)$object->deprecated);
+				}
+
+				if (isset($object->weak)) {
+					hash_update($ctx, 'weak');
+					hash_update($ctx, (string)$object->weak);
+				}
+
+				if (isset($object->uninterpretedOption)) {
+					hash_update($ctx, 'uninterpretedOption');
+					foreach ($object->uninterpretedOption instanceof \Traversable ? $object->uninterpretedOption : (array)$object->uninterpretedOption as $v0) {
+						UninterpretedOptionMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (is_string($algoOrCtx)) {
+					return hash_final($ctx, $raw);
+				} else {
+					return null;
+				}
+			}, null, FieldOptions::class);
 		}
 
-		if (isset($object->ctype)) {
-			hash_update($ctx, 'ctype');
-			hash_update($ctx, (string)$object->ctype);
-		}
-
-		if (isset($object->packed)) {
-			hash_update($ctx, 'packed');
-			hash_update($ctx, (string)$object->packed);
-		}
-
-		if (isset($object->jstype)) {
-			hash_update($ctx, 'jstype');
-			hash_update($ctx, (string)$object->jstype);
-		}
-
-		if (isset($object->lazy)) {
-			hash_update($ctx, 'lazy');
-			hash_update($ctx, (string)$object->lazy);
-		}
-
-		if (isset($object->deprecated)) {
-			hash_update($ctx, 'deprecated');
-			hash_update($ctx, (string)$object->deprecated);
-		}
-
-		if (isset($object->weak)) {
-			hash_update($ctx, 'weak');
-			hash_update($ctx, (string)$object->weak);
-		}
-
-		if (isset($object->uninterpretedOption)) {
-			hash_update($ctx, 'uninterpretedOption');
-			foreach ($object->uninterpretedOption instanceof \Traversable ? $object->uninterpretedOption : (array)$object->uninterpretedOption as $v0) {
-				UninterpretedOptionMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (is_string($algoOrCtx)) {
-			return hash_final($ctx, $raw);
-		} else {
-			return null;
-		}
+		return (self::$hash)($object, $algoOrCtx, $raw);
 	}
 
 
@@ -186,95 +212,101 @@ class FieldOptionsMeta extends FieldOptions implements MetaInterface, ProtobufMe
 	 *
 	 * @return FieldOptions
 	 */
-	public static function fromProtobuf($input, $object = NULL, &$start = 0, $end = NULL)
+	public static function fromProtobuf($input, $object = null, &$start = 0, $end = null)
 	{
-		if ($object === null) {
-			$object = new FieldOptions();
-		}
+		if (self::$fromProtobuf === null) {
+			self::$fromProtobuf = Closure::bind(static function ($input, $object, &$start, $end) {
+				if ($object === null) {
+					$object = new FieldOptions();
+				}
 
-		if ($end === null) {
-			$end = strlen($input);
-		}
+				if ($end === null) {
+					$end = strlen($input);
+				}
 
-		while ($start < $end) {
-			$tag = Binary::decodeVarint($input, $start);
-			$wireType = $tag & 0x7;
-			$number = $tag >> 3;
-			switch ($number) {
-				case 1:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->ctype = Binary::decodeVarint($input, $start);
-					break;
-				case 2:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->packed = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 6:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->jstype = Binary::decodeVarint($input, $start);
-					break;
-				case 5:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->lazy = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 3:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->deprecated = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 10:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->weak = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 999:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->uninterpretedOption) && is_array($object->uninterpretedOption))) {
-						$object->uninterpretedOption = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->uninterpretedOption[] = UninterpretedOptionMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				default:
-					switch ($wireType) {
-						case 0:
-							Binary::decodeVarint($input, $start);
-							break;
+				while ($start < $end) {
+					$tag = Binary::decodeVarint($input, $start);
+					$wireType = $tag & 0x7;
+					$number = $tag >> 3;
+					switch ($number) {
 						case 1:
-							$start += 8;
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->ctype = Binary::decodeVarint($input, $start);
 							break;
 						case 2:
-							$start += Binary::decodeVarint($input, $start);
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->packed = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 6:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->jstype = Binary::decodeVarint($input, $start);
 							break;
 						case 5:
-							$start += 4;
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->lazy = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 3:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->deprecated = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 10:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->weak = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 999:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->uninterpretedOption) && is_array($object->uninterpretedOption))) {
+								$object->uninterpretedOption = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->uninterpretedOption[] = UninterpretedOptionMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
 						default:
-							throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							switch ($wireType) {
+								case 0:
+									Binary::decodeVarint($input, $start);
+									break;
+								case 1:
+									$start += 8;
+									break;
+								case 2:
+									$start += Binary::decodeVarint($input, $start);
+									break;
+								case 5:
+									$start += 4;
+									break;
+								default:
+									throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							}
 					}
-			}
+				}
+
+				return $object;
+			}, null, FieldOptions::class);
 		}
 
-		return $object;
+		return (self::$fromProtobuf)($input, $object, $start, $end);
 	}
 
 
@@ -288,50 +320,55 @@ class FieldOptionsMeta extends FieldOptions implements MetaInterface, ProtobufMe
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, $filter = NULL)
+	public static function toProtobuf($object, $filter = null)
 	{
-		$output = '';
+		if (self::$toProtobuf === null) {
+			self::$toProtobuf = Closure::bind(static function (FieldOptions $object, $filter) {
+				$output = '';
 
-		if (isset($object->ctype) && ($filter === null || isset($filter['ctype']))) {
-			$output .= "\x08";
-			$output .= Binary::encodeVarint($object->ctype);
+				if (isset($object->ctype) && ($filter === null || isset($filter['ctype']))) {
+					$output .= "\x08";
+					$output .= Binary::encodeVarint($object->ctype);
+				}
+
+				if (isset($object->packed) && ($filter === null || isset($filter['packed']))) {
+					$output .= "\x10";
+					$output .= Binary::encodeVarint((int)$object->packed);
+				}
+
+				if (isset($object->jstype) && ($filter === null || isset($filter['jstype']))) {
+					$output .= "\x30";
+					$output .= Binary::encodeVarint($object->jstype);
+				}
+
+				if (isset($object->lazy) && ($filter === null || isset($filter['lazy']))) {
+					$output .= "\x28";
+					$output .= Binary::encodeVarint((int)$object->lazy);
+				}
+
+				if (isset($object->deprecated) && ($filter === null || isset($filter['deprecated']))) {
+					$output .= "\x18";
+					$output .= Binary::encodeVarint((int)$object->deprecated);
+				}
+
+				if (isset($object->weak) && ($filter === null || isset($filter['weak']))) {
+					$output .= "\x50";
+					$output .= Binary::encodeVarint((int)$object->weak);
+				}
+
+				if (isset($object->uninterpretedOption) && ($filter === null || isset($filter['uninterpretedOption']))) {
+					foreach ($object->uninterpretedOption instanceof \Traversable ? $object->uninterpretedOption : (array)$object->uninterpretedOption as $k => $v) {
+						$output .= "\xba\x3e";
+						$buffer = UninterpretedOptionMeta::toProtobuf($v, $filter === null ? null : $filter['uninterpretedOption']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				return $output;
+			}, null, FieldOptions::class);
 		}
 
-		if (isset($object->packed) && ($filter === null || isset($filter['packed']))) {
-			$output .= "\x10";
-			$output .= Binary::encodeVarint((int)$object->packed);
-		}
-
-		if (isset($object->jstype) && ($filter === null || isset($filter['jstype']))) {
-			$output .= "\x30";
-			$output .= Binary::encodeVarint($object->jstype);
-		}
-
-		if (isset($object->lazy) && ($filter === null || isset($filter['lazy']))) {
-			$output .= "\x28";
-			$output .= Binary::encodeVarint((int)$object->lazy);
-		}
-
-		if (isset($object->deprecated) && ($filter === null || isset($filter['deprecated']))) {
-			$output .= "\x18";
-			$output .= Binary::encodeVarint((int)$object->deprecated);
-		}
-
-		if (isset($object->weak) && ($filter === null || isset($filter['weak']))) {
-			$output .= "\x50";
-			$output .= Binary::encodeVarint((int)$object->weak);
-		}
-
-		if (isset($object->uninterpretedOption) && ($filter === null || isset($filter['uninterpretedOption']))) {
-			foreach ($object->uninterpretedOption instanceof \Traversable ? $object->uninterpretedOption : (array)$object->uninterpretedOption as $k => $v) {
-				$output .= "\xba\x3e";
-				$buffer = UninterpretedOptionMeta::toProtobuf($v, $filter === null ? null : $filter['uninterpretedOption']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
-		}
-
-		return $output;
+		return (self::$toProtobuf)($object, $filter);
 	}
-
 }

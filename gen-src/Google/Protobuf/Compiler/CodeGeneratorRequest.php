@@ -13,7 +13,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class CodeGeneratorRequest
+final class CodeGeneratorRequest
 {
 	/**
 	 * The .proto files that were explicitly listed on the command-line.  The
@@ -116,5 +116,4 @@ class CodeGeneratorRequest
 		$this->protoFile = $protoFile;
 		return $this;
 	}
-
 }

@@ -10,7 +10,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class Location
+final class Location
 {
 	/**
 	 * Identifies which part of the FileDescriptorProto was defined at this
@@ -229,5 +229,4 @@ class Location
 		$this->leadingDetachedComments = $leadingDetachedComments;
 		return $this;
 	}
-
 }

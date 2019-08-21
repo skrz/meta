@@ -13,7 +13,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FileDescriptorSet
+final class FileDescriptorSet
 {
 	/**
 	 * @var FileDescriptorProto[]
@@ -42,5 +42,4 @@ class FileDescriptorSet
 		$this->file = $file;
 		return $this;
 	}
-
 }

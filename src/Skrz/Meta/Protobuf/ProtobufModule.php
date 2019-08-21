@@ -2,6 +2,7 @@
 namespace Skrz\Meta\Protobuf;
 
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Helpers;
 use Skrz\Meta\AbstractMetaSpec;
 use Skrz\Meta\AbstractModule;
 use Skrz\Meta\MetaException;
@@ -10,11 +11,13 @@ use Skrz\Meta\Reflection\ArrayType;
 use Skrz\Meta\Reflection\BoolType;
 use Skrz\Meta\Reflection\FloatType;
 use Skrz\Meta\Reflection\IntType;
+use Skrz\Meta\Reflection\MixedType;
 use Skrz\Meta\Reflection\NumericType;
 use Skrz\Meta\Reflection\ObjectType;
 use Skrz\Meta\Reflection\ScalarType;
 use Skrz\Meta\Reflection\StringType;
 use Skrz\Meta\Reflection\Type;
+use Skrz\Meta\Transient;
 
 class ProtobufModule extends AbstractModule
 {
@@ -30,21 +33,13 @@ class ProtobufModule extends AbstractModule
 		$seenNumbers = [];
 
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
+			if ($property->hasAnnotation(Transient::class)) {
 				continue;
-			}
-
-			if ($property->isPrivate()) {
-				throw new MetaException(
-					"Private property '{$type->getName()}::\${$property->getName()}'. " .
-					"Either make the property protected/public if you need to process it, " .
-					"or mark it using @Transient annotation."
-				);
 			}
 
 			$propertyType = $property->getType();
 
-			if (get_class($propertyType) === "Skrz\\Meta\\Reflection\\MixedType") {
+			if (get_class($propertyType) === MixedType::class) {
 				throw new MetaException(
 					"Property {$type->getName()}::\${$property->getName()} of type mixed. " .
 					"Either add @var annotation with non-mixed type, " .
@@ -53,7 +48,7 @@ class ProtobufModule extends AbstractModule
 			}
 
 			/** @var ProtobufField $field */
-			$field = $property->getAnnotation("Skrz\\Meta\\Protobuf\\ProtobufField");
+			$field = $property->getAnnotation(ProtobufField::class);
 
 			if ($field) {
 				if (!$field->number) {
@@ -119,22 +114,22 @@ class ProtobufModule extends AbstractModule
 	{
 		$ns = $class->getNamespace();
 
-		$ns->addUse("Skrz\\Meta\\Protobuf\\ProtobufMetaInterface");
+		$ns->addUse(ProtobufMetaInterface::class);
 		$ns->addUse($type->getName(), null, $typeAlias);
-		$ns->addUse("Skrz\\Meta\\Protobuf\\Binary", null, $binary);
-		$ns->addUse("Skrz\\Meta\\Protobuf\\ProtobufException", null, $protobufExceptionAlias);
+		$ns->addUse(Binary::class, null, $binary);
+		$ns->addUse(ProtobufException::class, null, $protobufExceptionAlias);
 
-		$class->addImplement("Skrz\\Meta\\Protobuf\\ProtobufMetaInterface");
+		$class->addImplement(ProtobufMetaInterface::class);
 
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
+			if ($property->hasAnnotation(Transient::class)) {
 				continue;
 			}
 
 			/** @var ProtobufField $field */
-			$field = $property->getAnnotation("Skrz\\Meta\\Protobuf\\ProtobufField");
+			$field = $property->getAnnotation(ProtobufField::class);
 
-			$class->addConst(
+			$class->addConstant(
 				strtoupper(trim(preg_replace("/([A-Z])/", "_\$1", $property->getName() . "ProtobufField"), "_")),
 				$field->number
 			);
@@ -158,26 +153,35 @@ class ProtobufModule extends AbstractModule
 			->addComment("")
 			->addComment("@return {$typeAlias}");
 
+		$fromProtobufProperty = $class->addProperty($fromProtobuf->getName());
+		$fromProtobufProperty->setStatic(true)
+			->setVisibility("private")
+			->addComment("@var callable");
+
+		$ns->addUse(\Closure::class, null, $closureAlias);
+
 		$fromProtobuf
-			->addBody("if (\$object === null) {")
-			->addBody("\t\$object = new {$typeAlias}();")
-			->addBody("}")
+			->addBody("if (self::\${$fromProtobufProperty->getName()} === null) {")
+			->addBody("\tself::\${$fromProtobufProperty->getName()} = {$closureAlias}::bind(static function (\$input, \$object, &\$start, \$end) {")
+			->addBody("\t\tif (\$object === null) {")
+			->addBody("\t\t\t\$object = new {$typeAlias}();")
+			->addBody("\t\t}")
 			->addBody("")
-			->addBody("if (\$end === null) {")
-			->addBody("\t\$end = strlen(\$input);")
-			->addBody("}")
+			->addBody("\t\tif (\$end === null) {")
+			->addBody("\t\t\t\$end = strlen(\$input);")
+			->addBody("\t\t}")
 			->addBody("");
 
-		$fromProtobuf->addBody("while (\$start < \$end) {");
+		$fromProtobuf->addBody("\t\twhile (\$start < \$end) {");
 
-		$fromProtobuf->addBody("\t\$tag = {$binary}::decodeVarint(\$input, \$start);");
-		$fromProtobuf->addBody("\t\$wireType = \$tag & 0x7;");
-		$fromProtobuf->addBody("\t\$number = \$tag >> 3;");
+		$fromProtobuf->addBody("\t\t\t\$tag = {$binary}::decodeVarint(\$input, \$start);");
+		$fromProtobuf->addBody("\t\t\t\$wireType = \$tag & 0x7;");
+		$fromProtobuf->addBody("\t\t\t\$number = \$tag >> 3;");
 
-		$fromProtobuf->addBody("\tswitch (\$number) {");
+		$fromProtobuf->addBody("\t\t\tswitch (\$number) {");
 
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
+			if ($property->hasAnnotation(Transient::class)) {
 				continue;
 			}
 
@@ -188,9 +192,9 @@ class ProtobufModule extends AbstractModule
 			}
 
 			/** @var ProtobufField $field */
-			$field = $property->getAnnotation("Skrz\\Meta\\Protobuf\\ProtobufField");
+			$field = $property->getAnnotation(ProtobufField::class);
 
-			$fromProtobuf->addBody("\t\tcase {$field->number}:");
+			$fromProtobuf->addBody("\t\t\t\tcase {$field->number}:");
 
 			if ($field->packed) {
 				$binaryWireType = WireTypeEnum::toBinaryWireType(WireTypeEnum::STRING);
@@ -198,29 +202,29 @@ class ProtobufModule extends AbstractModule
 				$binaryWireType = WireTypeEnum::toBinaryWireType($field->wireType);
 			}
 
-			$fromProtobuf->addBody("\t\t\tif (\$wireType !== {$binaryWireType}) {");
-			$fromProtobuf->addBody("\t\t\t\tthrow new {$protobufExceptionAlias}('Unexpected wire type ' . \$wireType . ', expected {$binaryWireType}.', \$number);");
-			$fromProtobuf->addBody("\t\t\t}");
+			$fromProtobuf->addBody("\t\t\t\t\tif (\$wireType !== {$binaryWireType}) {");
+			$fromProtobuf->addBody("\t\t\t\t\t\tthrow new {$protobufExceptionAlias}('Unexpected wire type ' . \$wireType . ', expected {$binaryWireType}.', \$number);");
+			$fromProtobuf->addBody("\t\t\t\t\t}");
 
 			$propertyLhs = "\$object->{$property->getName()}";
 			if ($propertyType->isArray()) {
-				$fromProtobuf->addBody("\t\t\tif (!(isset({$propertyLhs}) && is_array({$propertyLhs}))) {");
-				$fromProtobuf->addBody("\t\t\t\t{$propertyLhs} = array();");
-				$fromProtobuf->addBody("\t\t\t}");
+				$fromProtobuf->addBody("\t\t\t\t\tif (!(isset({$propertyLhs}) && is_array({$propertyLhs}))) {");
+				$fromProtobuf->addBody("\t\t\t\t\t\t{$propertyLhs} = array();");
+				$fromProtobuf->addBody("\t\t\t\t\t}");
 				$propertyLhs .= "[]";
 			}
 
 			if ($field->packed) {
 				$fromProtobuf
-					->addBody("\t\t\t\$packedLength = {$binary}::decodeVarint(\$input, \$start);")
-					->addBody("\t\t\t\$expectedPacked = \$start + \$packedLength;")
-					->addBody("\t\t\tif (\$expectedPacked > \$end) {")
-					->addBody("\t\t\t\tthrow new {$protobufExceptionAlias}('Not enough data.');")
-					->addBody("\t\t\t}")
-					->addBody("\t\t\twhile (\$start < \$expectedPacked) {");
-				$indent = "\t\t\t\t";
+					->addBody("\t\t\t\t\t\$packedLength = {$binary}::decodeVarint(\$input, \$start);")
+					->addBody("\t\t\t\t\t\$expectedPacked = \$start + \$packedLength;")
+					->addBody("\t\t\t\t\tif (\$expectedPacked > \$end) {")
+					->addBody("\t\t\t\t\t\tthrow new {$protobufExceptionAlias}('Not enough data.');")
+					->addBody("\t\t\t\t\t}")
+					->addBody("\t\t\t\t\twhile (\$start < \$expectedPacked) {");
+				$indent = "\t\t\t\t\t\t";
 			} else {
-				$indent = "\t\t\t";
+				$indent = "\t\t\t\t\t";
 			}
 
 			switch ($field->wireType) {
@@ -320,38 +324,41 @@ class ProtobufModule extends AbstractModule
 
 			if ($field->packed) {
 				$fromProtobuf
-					->addBody("\t\t\t}")
-					->addBody("\t\t\tif (\$start !== \$expectedPacked) {")
-					->addBody("\t\t\t\tthrow new {$protobufExceptionAlias}('Unexpected start. Expected ' . \$expectedPacked . ', got ' . \$start . '.', \$number);")
-					->addBody("\t\t\t}");
+					->addBody("\t\t\t\t\t}")
+					->addBody("\t\t\t\t\tif (\$start !== \$expectedPacked) {")
+					->addBody("\t\t\t\t\t\tthrow new {$protobufExceptionAlias}('Unexpected start. Expected ' . \$expectedPacked . ', got ' . \$start . '.', \$number);")
+					->addBody("\t\t\t\t\t}");
 			}
 
-			$fromProtobuf->addBody("\t\t\tbreak;");
+			$fromProtobuf->addBody("\t\t\t\t\tbreak;");
 		}
 
 		$fromProtobuf
-			->addBody("\t\tdefault:")
-			->addBody("\t\t\tswitch (\$wireType) {")
-			->addBody("\t\t\t\tcase " . WireTypeEnum::toBinaryWireType(WireTypeEnum::VARINT) . ":")
-			->addBody("\t\t\t\t\t{$binary}::decodeVarint(\$input, \$start);")
-			->addBody("\t\t\t\t\tbreak;")
-			->addBody("\t\t\t\tcase " . WireTypeEnum::toBinaryWireType(WireTypeEnum::FIXED64) . ":")
-			->addBody("\t\t\t\t\t\$start += 8;")
-			->addBody("\t\t\t\t\tbreak;")
-			->addBody("\t\t\t\tcase " . WireTypeEnum::toBinaryWireType(WireTypeEnum::STRING) . ":")
-			->addBody("\t\t\t\t\t\$start += {$binary}::decodeVarint(\$input, \$start);")
-			->addBody("\t\t\t\t\tbreak;")
-			->addBody("\t\t\t\tcase " . WireTypeEnum::toBinaryWireType(WireTypeEnum::FIXED32) . ":")
-			->addBody("\t\t\t\t\t\$start += 4;")
-			->addBody("\t\t\t\t\tbreak;")
 			->addBody("\t\t\t\tdefault:")
-			->addBody("\t\t\t\t\tthrow new {$protobufExceptionAlias}('Unexpected wire type ' . \$wireType . '.', \$number);")
-			->addBody("\t\t\t}");
-
-		$fromProtobuf->addBody("\t}");
-
-		$fromProtobuf->addBody("}");
-		$fromProtobuf->addBody("")->addBody("return \$object;");
+			->addBody("\t\t\t\t\tswitch (\$wireType) {")
+			->addBody("\t\t\t\t\t\tcase " . WireTypeEnum::toBinaryWireType(WireTypeEnum::VARINT) . ":")
+			->addBody("\t\t\t\t\t\t\t{$binary}::decodeVarint(\$input, \$start);")
+			->addBody("\t\t\t\t\t\t\tbreak;")
+			->addBody("\t\t\t\t\t\tcase " . WireTypeEnum::toBinaryWireType(WireTypeEnum::FIXED64) . ":")
+			->addBody("\t\t\t\t\t\t\t\$start += 8;")
+			->addBody("\t\t\t\t\t\t\tbreak;")
+			->addBody("\t\t\t\t\t\tcase " . WireTypeEnum::toBinaryWireType(WireTypeEnum::STRING) . ":")
+			->addBody("\t\t\t\t\t\t\t\$start += {$binary}::decodeVarint(\$input, \$start);")
+			->addBody("\t\t\t\t\t\t\tbreak;")
+			->addBody("\t\t\t\t\t\tcase " . WireTypeEnum::toBinaryWireType(WireTypeEnum::FIXED32) . ":")
+			->addBody("\t\t\t\t\t\t\t\$start += 4;")
+			->addBody("\t\t\t\t\t\t\tbreak;")
+			->addBody("\t\t\t\t\t\tdefault:")
+			->addBody("\t\t\t\t\t\t\tthrow new {$protobufExceptionAlias}('Unexpected wire type ' . \$wireType . '.', \$number);")
+			->addBody("\t\t\t\t\t}")
+			->addBody("\t\t\t}")
+			->addBody("\t\t}")
+			->addBody("")
+			->addBody("\t\treturn \$object;")
+			->addBody("\t}, null, {$typeAlias}::class);")
+			->addBody("}")
+			->addBody("")
+			->addBody("return (self::\${$fromProtobufProperty->getName()})(\$input, \$object, \$start, \$end);");
 
 		$toProtobuf = $class->addMethod("toProtobuf");
 		$toProtobuf->setStatic(true);
@@ -367,11 +374,19 @@ class ProtobufModule extends AbstractModule
 			->addComment("")
 			->addComment("@return string");
 
-		$toProtobuf->addBody("\$output = '';")->addBody("");
+		$toProtobufProperty = $class->addProperty($toProtobuf->getName());
+		$toProtobufProperty->setStatic(true)
+			->setVisibility("private")
+			->addComment("@var callable");
 
+		$toProtobuf
+			->addBody("if (self::\${$toProtobufProperty->getName()} === null) {")
+			->addBody("\tself::\${$toProtobufProperty->getName()} = {$closureAlias}::bind(static function ({$typeAlias} \$object, \$filter) {")
+			->addBody("\t\t\$output = '';")
+			->addBody("");
 
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
+			if ($property->hasAnnotation(Transient::class)) {
 				continue;
 			}
 
@@ -382,19 +397,19 @@ class ProtobufModule extends AbstractModule
 			}
 
 			/** @var ProtobufField $field */
-			$field = $property->getAnnotation("Skrz\\Meta\\Protobuf\\ProtobufField");
+			$field = $property->getAnnotation(ProtobufField::class);
 
-			$toProtobuf->addBody("if (isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[" . var_export($property->getName(), true) . "]))) {");
+			$toProtobuf->addBody("\t\tif (isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[" . Helpers::dump($property->getName()) . "]))) {");
 
 			$var = "\$object->{$property->getName()}";
 			$output = "\$output";
-			$indent = "\t";
+			$indent = "\t\t\t";
 
 			if ($field->packed) {
 				$toProtobuf
-					->addBody("\t\$packedBuffer = '';")
+					->addBody("\t\t\t\$packedBuffer = '';")
 					->addBody(
-						"\t\$output .= \"" .
+						"\t\t\t\$output .= \"" .
 						implode("", array_map(function ($s) {
 							return "\\x" . $s;
 						}, str_split(bin2hex(Binary::encodeVarint($field->number << 3 | WireTypeEnum::toBinaryWireType(WireTypeEnum::STRING))), 2))) .
@@ -404,7 +419,7 @@ class ProtobufModule extends AbstractModule
 			}
 
 			if ($propertyType->isArray()) {
-				$toProtobuf->addBody("\tforeach ({$var} instanceof \\Traversable ? {$var} : (array){$var} as \$k => \$v) {");
+				$toProtobuf->addBody("\t\t\tforeach ({$var} instanceof \\Traversable ? {$var} : (array){$var} as \$k => \$v) {");
 				$var = "\$v";
 				$indent .= "\t";
 			}
@@ -447,7 +462,7 @@ class ProtobufModule extends AbstractModule
 					} elseif ($baseType instanceof Type) {
 						$propertyTypeMetaClassName = $spec->createMetaClassName($baseType);
 						$ns->addUse($propertyTypeMetaClassName, null, $propertyTypeMetaClassNameAlias);
-						$toProtobuf->addBody("{$indent}\$buffer = {$propertyTypeMetaClassNameAlias}::toProtobuf({$var}, \$filter === null ? null : \$filter[" . var_export($property->getName(), true) . "]);");
+						$toProtobuf->addBody("{$indent}\$buffer = {$propertyTypeMetaClassNameAlias}::toProtobuf({$var}, \$filter === null ? null : \$filter[" . Helpers::dump($property->getName()) . "]);");
 						$toProtobuf->addBody("{$indent}{$output} .= {$binary}::encodeVarint(strlen(\$buffer));");
 						$toProtobuf->addBody("{$indent}{$output} .= \$buffer;");
 
@@ -475,18 +490,23 @@ class ProtobufModule extends AbstractModule
 			}
 
 			if ($propertyType->isArray()) {
-				$toProtobuf->addBody("\t}");
+				$toProtobuf->addBody("\t\t\t}");
 			}
 
 			if ($field->packed) {
-				$toProtobuf->addBody("\t\$output .= {$binary}::encodeVarint(strlen(\$packedBuffer));");
-				$toProtobuf->addBody("\t\$output .= \$packedBuffer;");
+				$toProtobuf->addBody("\t\t\t\$output .= {$binary}::encodeVarint(strlen(\$packedBuffer));");
+				$toProtobuf->addBody("\t\t\t\$output .= \$packedBuffer;");
 			}
 
-			$toProtobuf->addBody("}")->addBody("");
+			$toProtobuf->addBody("\t\t}")->addBody("");
 		}
 
-		$toProtobuf->addBody("return \$output;");
+		$toProtobuf
+			->addBody("\t\treturn \$output;")
+			->addBody("\t}, null, {$typeAlias}::class);")
+			->addBody("}")
+			->addBody("")
+			->addBody("return (self::\${$toProtobufProperty->getName()})(\$object, \$filter);");
 	}
 
 }

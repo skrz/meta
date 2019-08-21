@@ -18,7 +18,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class UninterpretedOption
+final class UninterpretedOption
 {
 	/**
 	 * @var NamePart[]
@@ -218,5 +218,4 @@ class UninterpretedOption
 		$this->aggregateValue = $aggregateValue;
 		return $this;
 	}
-
 }

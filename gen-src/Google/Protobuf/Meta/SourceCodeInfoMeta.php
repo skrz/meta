@@ -1,6 +1,7 @@
 <?php
 namespace Google\Protobuf\Meta;
 
+use Closure;
 use Google\Protobuf\SourceCodeInfo;
 use Google\Protobuf\SourceCodeInfo\Meta\LocationMeta;
 use Skrz\Meta\MetaInterface;
@@ -17,12 +18,24 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class SourceCodeInfoMeta extends SourceCodeInfo implements MetaInterface, ProtobufMetaInterface
+final class SourceCodeInfoMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const LOCATION_PROTOBUF_FIELD = 1;
 
 	/** @var SourceCodeInfoMeta */
 	private static $instance;
+
+	/** @var callable */
+	private static $reset;
+
+	/** @var callable */
+	private static $hash;
+
+	/** @var callable */
+	private static $fromProtobuf;
+
+	/** @var callable */
+	private static $toProtobuf;
 
 
 	/**
@@ -97,7 +110,14 @@ class SourceCodeInfoMeta extends SourceCodeInfo implements MetaInterface, Protob
 		if (!($object instanceof SourceCodeInfo)) {
 			throw new \InvalidArgumentException('You have to pass object of class Google\Protobuf\SourceCodeInfo.');
 		}
-		$object->location = NULL;
+
+		if (self::$reset === null) {
+			self::$reset = Closure::bind(static function ($object) {
+				$object->location = null;
+			}, null, SourceCodeInfo::class);
+		}
+
+		return (self::$reset)($object);
 	}
 
 
@@ -110,26 +130,32 @@ class SourceCodeInfoMeta extends SourceCodeInfo implements MetaInterface, Protob
 	 *
 	 * @return string|void
 	 */
-	public static function hash($object, $algoOrCtx = 'md5', $raw = FALSE)
+	public static function hash($object, $algoOrCtx = 'md5', $raw = false)
 	{
-		if (is_string($algoOrCtx)) {
-			$ctx = hash_init($algoOrCtx);
-		} else {
-			$ctx = $algoOrCtx;
+		if (self::$hash === null) {
+			self::$hash = Closure::bind(static function ($object, $algoOrCtx, $raw) {
+				if (is_string($algoOrCtx)) {
+					$ctx = hash_init($algoOrCtx);
+				} else {
+					$ctx = $algoOrCtx;
+				}
+
+				if (isset($object->location)) {
+					hash_update($ctx, 'location');
+					foreach ($object->location instanceof \Traversable ? $object->location : (array)$object->location as $v0) {
+						LocationMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (is_string($algoOrCtx)) {
+					return hash_final($ctx, $raw);
+				} else {
+					return null;
+				}
+			}, null, SourceCodeInfo::class);
 		}
 
-		if (isset($object->location)) {
-			hash_update($ctx, 'location');
-			foreach ($object->location instanceof \Traversable ? $object->location : (array)$object->location as $v0) {
-				LocationMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (is_string($algoOrCtx)) {
-			return hash_final($ctx, $raw);
-		} else {
-			return null;
-		}
+		return (self::$hash)($object, $algoOrCtx, $raw);
 	}
 
 
@@ -145,59 +171,65 @@ class SourceCodeInfoMeta extends SourceCodeInfo implements MetaInterface, Protob
 	 *
 	 * @return SourceCodeInfo
 	 */
-	public static function fromProtobuf($input, $object = NULL, &$start = 0, $end = NULL)
+	public static function fromProtobuf($input, $object = null, &$start = 0, $end = null)
 	{
-		if ($object === null) {
-			$object = new SourceCodeInfo();
-		}
+		if (self::$fromProtobuf === null) {
+			self::$fromProtobuf = Closure::bind(static function ($input, $object, &$start, $end) {
+				if ($object === null) {
+					$object = new SourceCodeInfo();
+				}
 
-		if ($end === null) {
-			$end = strlen($input);
-		}
+				if ($end === null) {
+					$end = strlen($input);
+				}
 
-		while ($start < $end) {
-			$tag = Binary::decodeVarint($input, $start);
-			$wireType = $tag & 0x7;
-			$number = $tag >> 3;
-			switch ($number) {
-				case 1:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->location) && is_array($object->location))) {
-						$object->location = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->location[] = LocationMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				default:
-					switch ($wireType) {
-						case 0:
-							Binary::decodeVarint($input, $start);
-							break;
+				while ($start < $end) {
+					$tag = Binary::decodeVarint($input, $start);
+					$wireType = $tag & 0x7;
+					$number = $tag >> 3;
+					switch ($number) {
 						case 1:
-							$start += 8;
-							break;
-						case 2:
-							$start += Binary::decodeVarint($input, $start);
-							break;
-						case 5:
-							$start += 4;
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->location) && is_array($object->location))) {
+								$object->location = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->location[] = LocationMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
 						default:
-							throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							switch ($wireType) {
+								case 0:
+									Binary::decodeVarint($input, $start);
+									break;
+								case 1:
+									$start += 8;
+									break;
+								case 2:
+									$start += Binary::decodeVarint($input, $start);
+									break;
+								case 5:
+									$start += 4;
+									break;
+								default:
+									throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							}
 					}
-			}
+				}
+
+				return $object;
+			}, null, SourceCodeInfo::class);
 		}
 
-		return $object;
+		return (self::$fromProtobuf)($input, $object, $start, $end);
 	}
 
 
@@ -211,20 +243,25 @@ class SourceCodeInfoMeta extends SourceCodeInfo implements MetaInterface, Protob
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, $filter = NULL)
+	public static function toProtobuf($object, $filter = null)
 	{
-		$output = '';
+		if (self::$toProtobuf === null) {
+			self::$toProtobuf = Closure::bind(static function (SourceCodeInfo $object, $filter) {
+				$output = '';
 
-		if (isset($object->location) && ($filter === null || isset($filter['location']))) {
-			foreach ($object->location instanceof \Traversable ? $object->location : (array)$object->location as $k => $v) {
-				$output .= "\x0a";
-				$buffer = LocationMeta::toProtobuf($v, $filter === null ? null : $filter['location']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
+				if (isset($object->location) && ($filter === null || isset($filter['location']))) {
+					foreach ($object->location instanceof \Traversable ? $object->location : (array)$object->location as $k => $v) {
+						$output .= "\x0a";
+						$buffer = LocationMeta::toProtobuf($v, $filter === null ? null : $filter['location']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				return $output;
+			}, null, SourceCodeInfo::class);
 		}
 
-		return $output;
+		return (self::$toProtobuf)($object, $filter);
 	}
-
 }

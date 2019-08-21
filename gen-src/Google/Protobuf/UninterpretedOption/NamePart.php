@@ -16,7 +16,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class NamePart
+final class NamePart
 {
 	/**
 	 * @var string
@@ -73,5 +73,4 @@ class NamePart
 		$this->isExtension = $isExtension;
 		return $this;
 	}
-
 }

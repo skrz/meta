@@ -10,7 +10,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithVarintProperty
+final class ClassWithVarintProperty
 {
 	/**
 	 * @var int
@@ -39,5 +39,4 @@ class ClassWithVarintProperty
 		$this->x = $x;
 		return $this;
 	}
-
 }

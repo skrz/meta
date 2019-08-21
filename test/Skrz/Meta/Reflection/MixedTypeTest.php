@@ -1,7 +1,14 @@
 <?php
 namespace Skrz\Meta\Reflection;
 
-class MixedTypeTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+use Skrz\Meta\Reflection\Fixtures\Class_With_Underscores;
+use Skrz\Meta\Reflection\Fixtures\ClassWithMethodWithParameters;
+use Skrz\Meta\Reflection\Fixtures\SimpleClass;
+use Skrz\Meta\Reflection\Fixtures\SimpleInterface;
+use Skrz\Meta\Reflection\Fixtures\SimpleTrait;
+
+class MixedTypeTest extends TestCase
 {
 
 	public function testFromStringWithMixed()
@@ -53,7 +60,7 @@ class MixedTypeTest extends \PHPUnit_Framework_TestCase
 	public function testFromStringWithMixedArray()
 	{
 		$arrayType = MixedType::fromString("array");
-		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\ArrayType", $arrayType);
+		$this->assertInstanceOf(ArrayType::class, $arrayType);
 		$this->assertSame(MixedType::getInstance(), $arrayType->getBaseType());
 		$this->assertSame($arrayType, MixedType::fromString("array"));
 	}
@@ -61,7 +68,7 @@ class MixedTypeTest extends \PHPUnit_Framework_TestCase
 	public function testFromStringWithStringArray()
 	{
 		$arrayType = MixedType::fromString("string[]");
-		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\ArrayType", $arrayType);
+		$this->assertInstanceOf(ArrayType::class, $arrayType);
 		$this->assertSame(StringType::getInstance(), $arrayType->getBaseType());
 		$this->assertSame($arrayType, MixedType::fromString("string[]"));
 	}
@@ -69,8 +76,8 @@ class MixedTypeTest extends \PHPUnit_Framework_TestCase
 	public function testFromStringWithStringArrayArray()
 	{
 		$arrayType = MixedType::fromString("string[][]");
-		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\ArrayType", $arrayType);
-		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\ArrayType", $arrayType->getBaseType());
+		$this->assertInstanceOf(ArrayType::class, $arrayType);
+		$this->assertInstanceOf(ArrayType::class, $arrayType->getBaseType());
 		/** @var ArrayType $baseType */
 		$baseType = $arrayType->getBaseType();
 		$this->assertSame(StringType::getInstance(), $baseType->getBaseType());
@@ -79,42 +86,42 @@ class MixedTypeTest extends \PHPUnit_Framework_TestCase
 
 	public function testFromStringWithClassType()
 	{
-		$simpleClassType = MixedType::fromString("Skrz\\Meta\\Reflection\\Fixtures\\SimpleClass");
-		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\Type", $simpleClassType);
-		$this->assertEquals("Skrz\\Meta\\Reflection\\Fixtures\\SimpleClass", $simpleClassType->getName());
+		$simpleClassType = MixedType::fromString(SimpleClass::class);
+		$this->assertInstanceOf(Type::class, $simpleClassType);
+		$this->assertEquals(SimpleClass::class, $simpleClassType->getName());
 	}
 
 	public function testFromStringWithInterfaceType()
 	{
-		$simpleClassType = MixedType::fromString("Skrz\\Meta\\Reflection\\Fixtures\\SimpleInterface");
-		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\Type", $simpleClassType);
-		$this->assertEquals("Skrz\\Meta\\Reflection\\Fixtures\\SimpleInterface", $simpleClassType->getName());
+		$simpleClassType = MixedType::fromString(SimpleInterface::class);
+		$this->assertInstanceOf(Type::class, $simpleClassType);
+		$this->assertEquals(SimpleInterface::class, $simpleClassType->getName());
 	}
 
 	public function testFromStringWithTraitType()
 	{
-		$simpleClassType = MixedType::fromString("Skrz\\Meta\\Reflection\\Fixtures\\SimpleTrait");
-		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\Type", $simpleClassType);
-		$this->assertEquals("Skrz\\Meta\\Reflection\\Fixtures\\SimpleTrait", $simpleClassType->getName());
+		$simpleClassType = MixedType::fromString(SimpleTrait::class);
+		$this->assertInstanceOf(Type::class, $simpleClassType);
+		$this->assertEquals(SimpleTrait::class, $simpleClassType->getName());
 	}
 
 	public function testFromStringWithClassWithUnderscores()
 	{
-		$classType = MixedType::fromString("Skrz\\Meta\\Reflection\\Fixtures\\Class_With_Underscores");
-		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\Type", $classType);
-		$this->assertEquals("Skrz\\Meta\\Reflection\\Fixtures\\Class_With_Underscores", $classType->getName());
+		$classType = MixedType::fromString(Class_With_Underscores::class);
+		$this->assertInstanceOf(Type::class, $classType);
+		$this->assertEquals(Class_With_Underscores::class, $classType->getName());
 
 		$instanceProperty = $classType->getProperty("instance");
 	}
 
 	public function testFromStringWithClassWithMethodWithParameters()
 	{
-		$classType = MixedType::fromString("Skrz\\Meta\\Reflection\\Fixtures\\ClassWithMethodWithParameters");
-		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\Type", $classType);
-		$this->assertEquals("Skrz\\Meta\\Reflection\\Fixtures\\ClassWithMethodWithParameters", $classType->getName());
+		$classType = MixedType::fromString(ClassWithMethodWithParameters::class);
+		$this->assertInstanceOf(Type::class, $classType);
+		$this->assertEquals(ClassWithMethodWithParameters::class, $classType->getName());
 
 		$method = $classType->getMethod("method");
-		$this->assertInstanceOf("Skrz\\Meta\\Reflection\\Method", $method);
+		$this->assertInstanceOf(Method::class, $method);
 		$parameters = $method->getParameters();
 	}
 

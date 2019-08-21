@@ -89,9 +89,9 @@ class ConstantsModule extends AbstractModule
 
 	public function onGenerate(AbstractMetaSpec $spec, MetaSpecMatcher $matcher, Type $type, ClassType $class)
 	{
-		$class->addConst("CLASS_NAME", $type->getName());
-		$class->addConst("SHORT_NAME", $type->getShortName());
-		$class->addConst("ENTITY_NAME", lcfirst($type->getShortName()));
+		$class->addConstant("CLASS_NAME", $type->getName());
+		$class->addConstant("SHORT_NAME", $type->getShortName());
+		$class->addConstant("ENTITY_NAME", lcfirst($type->getShortName()));
 
 		foreach ($type->getProperties() as $property) {
 			$const = strtoupper(trim(preg_replace("/([A-Z])/", "_\$1", $property->getName()), "_"));
@@ -100,7 +100,7 @@ class ConstantsModule extends AbstractModule
 				throw new MetaException("Property name constant for {$type->getName()}::\${$property->getName()} would result in reserved word.");
 			}
 
-			$class->addConst($const, $property->getName());
+			$class->addConstant($const, $property->getName());
 		}
 	}
 

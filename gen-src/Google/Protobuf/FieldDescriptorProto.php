@@ -14,7 +14,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FieldDescriptorProto
+final class FieldDescriptorProto
 {
 	/**
 	 * @var string
@@ -323,5 +323,4 @@ class FieldDescriptorProto
 		$this->options = $options;
 		return $this;
 	}
-
 }

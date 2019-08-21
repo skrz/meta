@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta;
 
+use PHPUnit\Framework\TestCase;
 use Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty;
 use Skrz\Meta\Fixtures\Protobuf\ClassWithFixed64Property;
 use Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty;
@@ -11,49 +12,75 @@ use Skrz\Meta\Fixtures\Protobuf\Meta\ClassWithFixed64PropertyMeta;
 use Skrz\Meta\Fixtures\Protobuf\Meta\ClassWithNoPropertyMeta;
 use Skrz\Meta\Fixtures\Protobuf\Meta\ClassWithStringPropertyMeta;
 use Skrz\Meta\Fixtures\Protobuf\Meta\ClassWithVarintPropertyMeta;
+use Skrz\Meta\Fixtures\Protobuf\ProtobufMetaSpec;
+use Skrz\Meta\PHP\PhpMetaInterface;
 use Skrz\Meta\Protobuf\Binary;
+use Skrz\Meta\Protobuf\ProtobufMetaInterface;
 use Skrz\Meta\Protobuf\WireTypeEnum;
+use Symfony\Component\Finder\Finder;
+use function array_map;
+use function array_values;
+use function iterator_to_array;
 
-class ProtobufModuleTest extends \PHPUnit_Framework_TestCase
+class ProtobufModuleTest extends TestCase
 {
+
+	public static function setUpBeforeClass()
+	{
+		$files = array_values(
+			array_map(function (\SplFileInfo $file) {
+				return $file->getRealPath();
+			}, iterator_to_array(
+				(new Finder())
+					->in(__DIR__ . "/../../../gen-src/Skrz/Meta/Fixtures/Protobuf")
+					->name("ClassWith*.php")
+					->name("Embedded.php")
+					->notName("*Meta.php")
+					->files()
+			))
+		);
+
+		$spec = new ProtobufMetaSpec();
+		$spec->processFiles($files);
+	}
 
 	public function testSpecAnnotation()
 	{
-		$this->assertInstanceOf("Skrz\\Meta\\Protobuf\\ProtobufMetaInterface", ClassWithNoPropertyMeta::getInstance());
-		$this->assertInstanceOf("Skrz\\Meta\\PHP\\PhpMetaInterface", ClassWithNoPropertyMeta::getInstance());
+		$this->assertInstanceOf(ProtobufMetaInterface::class, ClassWithNoPropertyMeta::getInstance());
+		$this->assertInstanceOf(PhpMetaInterface::class, ClassWithNoPropertyMeta::getInstance());
 	}
 
 	public function testClassWithNoPropertyFromEmptyProtobuf()
 	{
 		$instance = ClassWithNoPropertyMeta::fromProtobuf("");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithNoProperty", $instance);
+		$this->assertInstanceOf(ClassWithNoProperty::class, $instance);
 	}
 
 	public function testClassWithVarintPropertyFromEmptyProtobuf()
 	{
 		$instance = ClassWithVarintPropertyMeta::fromProtobuf("");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithVarintProperty", $instance);
+		$this->assertInstanceOf(ClassWithVarintProperty::class, $instance);
 		$this->assertNull($instance->getX());
 	}
 
 	public function testClassWithFixed64PropertyFromEmptyProtobuf()
 	{
 		$instance = ClassWithFixed64PropertyMeta::fromProtobuf("");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithFixed64Property", $instance);
+		$this->assertInstanceOf(ClassWithFixed64Property::class, $instance);
 		$this->assertNull($instance->getX());
 	}
 
 	public function testClassWithStringPropertyFromEmptyProtobuf()
 	{
 		$instance = ClassWithStringPropertyMeta::fromProtobuf("");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithStringProperty", $instance);
+		$this->assertInstanceOf(ClassWithStringProperty::class, $instance);
 		$this->assertNull($instance->getX());
 	}
 
 	public function testClassWithEmbeddedMessagePropertyFromEmptyProtobuf()
 	{
 		$instance = ClassWithEmbeddedMessagePropertyMeta::fromProtobuf("");
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithEmbeddedMessageProperty", $instance);
+		$this->assertInstanceOf(ClassWithEmbeddedMessageProperty::class, $instance);
 		$this->assertNull($instance->getX());
 	}
 
@@ -63,7 +90,7 @@ class ProtobufModuleTest extends \PHPUnit_Framework_TestCase
 			chr(1 << 3 | WireTypeEnum::toBinaryWireType(WireTypeEnum::VARINT)) .
 			chr(6)
 		);
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithVarintProperty", $instance);
+		$this->assertInstanceOf(ClassWithVarintProperty::class, $instance);
 		$this->assertEquals(6, $instance->getX());
 	}
 
@@ -73,7 +100,7 @@ class ProtobufModuleTest extends \PHPUnit_Framework_TestCase
 			chr(1 << 3 | WireTypeEnum::toBinaryWireType(WireTypeEnum::FIXED64)) .
 			Binary::encodeUint64(5)
 		);
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithFixed64Property", $instance);
+		$this->assertInstanceOf(ClassWithFixed64Property::class, $instance);
 		$this->assertEquals(5, $instance->getX());
 	}
 
@@ -86,7 +113,7 @@ class ProtobufModuleTest extends \PHPUnit_Framework_TestCase
 			chr(strlen($s)) .
 			$s
 		);
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithStringProperty", $instance);
+		$this->assertInstanceOf(ClassWithStringProperty::class, $instance);
 		$this->assertEquals($s, $instance->getX());
 	}
 
@@ -103,7 +130,7 @@ class ProtobufModuleTest extends \PHPUnit_Framework_TestCase
 			$embedded
 
 		);
-		$this->assertInstanceOf("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithEmbeddedMessageProperty", $instance);
+		$this->assertInstanceOf(ClassWithEmbeddedMessageProperty::class, $instance);
 		$this->assertNotNull($instance->getX());
 		$this->assertEquals($s, $instance->getX()->getX());
 	}
@@ -179,6 +206,5 @@ class ProtobufModuleTest extends \PHPUnit_Framework_TestCase
 			)
 		);
 	}
-
 
 }

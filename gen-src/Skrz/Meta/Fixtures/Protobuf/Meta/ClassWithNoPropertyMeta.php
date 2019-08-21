@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta\Fixtures\Protobuf\Meta;
 
+use Closure;
 use Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty;
 use Skrz\Meta\MetaInterface;
 use Skrz\Meta\PHP\PhpMetaInterface;
@@ -18,17 +19,37 @@ use Skrz\Meta\Stack;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
+final class ClassWithNoPropertyMeta implements MetaInterface, PhpMetaInterface, ProtobufMetaInterface
 {
 	/** @var ClassWithNoPropertyMeta */
 	private static $instance;
 
-	/**
-	 * Mapping from group name to group ID for fromArray() and toArray()
-	 *
-	 * @var string[]
-	 */
-	private static $groups = array('' => 1);
+	/** @var callable */
+	private static $reset;
+
+	/** @var callable */
+	private static $hash;
+
+	/** @var string[] */
+	private static $groups = ['' => 1];
+
+	/** @var callable */
+	private static $fromArray;
+
+	/** @var callable */
+	private static $toArray;
+
+	/** @var callable */
+	private static $fromObject;
+
+	/** @var callable */
+	private static $toObject;
+
+	/** @var callable */
+	private static $fromProtobuf;
+
+	/** @var callable */
+	private static $toProtobuf;
 
 
 	/**
@@ -103,6 +124,13 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 		if (!($object instanceof ClassWithNoProperty)) {
 			throw new \InvalidArgumentException('You have to pass object of class Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty.');
 		}
+
+		if (self::$reset === null) {
+			self::$reset = Closure::bind(static function ($object) {
+			}, null, ClassWithNoProperty::class);
+		}
+
+		return (self::$reset)($object);
 	}
 
 
@@ -115,19 +143,25 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 	 *
 	 * @return string|void
 	 */
-	public static function hash($object, $algoOrCtx = 'md5', $raw = FALSE)
+	public static function hash($object, $algoOrCtx = 'md5', $raw = false)
 	{
-		if (is_string($algoOrCtx)) {
-			$ctx = hash_init($algoOrCtx);
-		} else {
-			$ctx = $algoOrCtx;
+		if (self::$hash === null) {
+			self::$hash = Closure::bind(static function ($object, $algoOrCtx, $raw) {
+				if (is_string($algoOrCtx)) {
+					$ctx = hash_init($algoOrCtx);
+				} else {
+					$ctx = $algoOrCtx;
+				}
+
+				if (is_string($algoOrCtx)) {
+					return hash_final($ctx, $raw);
+				} else {
+					return null;
+				}
+			}, null, ClassWithNoProperty::class);
 		}
 
-		if (is_string($algoOrCtx)) {
-			return hash_final($ctx, $raw);
-		} else {
-			return null;
-		}
+		return (self::$hash)($object, $algoOrCtx, $raw);
 	}
 
 
@@ -142,10 +176,10 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 	 *
 	 * @return ClassWithNoProperty
 	 */
-	public static function fromArray($input, $group = NULL, $object = NULL)
+	public static function fromArray($input, $group = null, $object = null)
 	{
 		if (!isset(self::$groups[$group])) {
-			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithNoProperty' . '.');
+			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty' . '.');
 		} else {
 			$id = self::$groups[$group];
 		}
@@ -156,7 +190,13 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 			throw new \InvalidArgumentException('You have to pass object of class Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty.');
 		}
 
-		return $object;
+		if (self::$fromArray === null) {
+			self::$fromArray = Closure::bind(static function ($input, $group, $object, $id) {
+				return $object;
+			}, null, ClassWithNoProperty::class);
+		}
+
+		return (self::$fromArray)($input, $group, $object, $id);
 	}
 
 
@@ -171,13 +211,13 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 	 *
 	 * @return array
 	 */
-	public static function toArray($object, $group = NULL, $filter = NULL)
+	public static function toArray($object, $group = null, $filter = null)
 	{
 		if ($object === null) {
 			return null;
 		}
 		if (!isset(self::$groups[$group])) {
-			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithNoProperty' . '.');
+			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty' . '.');
 		} else {
 			$id = self::$groups[$group];
 		}
@@ -186,26 +226,29 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 			throw new \InvalidArgumentException('You have to pass object of class Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty.');
 		}
 
-		if (Stack::$objects === null) {
-			Stack::$objects = new \SplObjectStorage();
+		if (self::$toArray === null) {
+			self::$toArray = Closure::bind(static function ($object, $group, $filter, $id) {
+				if (Stack::$objects === null) {
+					Stack::$objects = new \SplObjectStorage();
+				}
+
+				if (Stack::$objects->contains($object)) {
+					return null;
+				}
+
+				Stack::$objects->attach($object);
+				try {
+					$output = array();
+
+				} finally {
+					Stack::$objects->detach($object);
+				}
+
+				return $output;
+			}, null, ClassWithNoProperty::class);
 		}
 
-		if (Stack::$objects->contains($object)) {
-			return null;
-		}
-
-		Stack::$objects->attach($object);
-
-		try {
-			$output = array();
-
-		} catch (\Exception $e) {
-			Stack::$objects->detach($object);
-			throw $e;
-		}
-
-		Stack::$objects->detach($object);
-		return $output;
+		return (self::$toArray)($object, $group, $filter, $id);
 	}
 
 
@@ -220,12 +263,12 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 	 *
 	 * @return ClassWithNoProperty
 	 */
-	public static function fromObject($input, $group = NULL, $object = NULL)
+	public static function fromObject($input, $group = null, $object = null)
 	{
 		$input = (array)$input;
 
 		if (!isset(self::$groups[$group])) {
-			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithNoProperty' . '.');
+			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty' . '.');
 		} else {
 			$id = self::$groups[$group];
 		}
@@ -236,7 +279,13 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 			throw new \InvalidArgumentException('You have to pass object of class Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty.');
 		}
 
-		return $object;
+		if (self::$fromObject === null) {
+			self::$fromObject = Closure::bind(static function ($input, $group, $object, $id) {
+				return $object;
+			}, null, ClassWithNoProperty::class);
+		}
+
+		return (self::$fromObject)($input, $group, $object, $id);
 	}
 
 
@@ -251,13 +300,13 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 	 *
 	 * @return object
 	 */
-	public static function toObject($object, $group = NULL, $filter = NULL)
+	public static function toObject($object, $group = null, $filter = null)
 	{
 		if ($object === null) {
 			return null;
 		}
 		if (!isset(self::$groups[$group])) {
-			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithNoProperty' . '.');
+			throw new \InvalidArgumentException('Group \'' . $group . '\' not supported for ' . 'Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty' . '.');
 		} else {
 			$id = self::$groups[$group];
 		}
@@ -266,26 +315,29 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 			throw new \InvalidArgumentException('You have to pass object of class Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty.');
 		}
 
-		if (Stack::$objects === null) {
-			Stack::$objects = new \SplObjectStorage();
+		if (self::$toObject === null) {
+			self::$toObject = Closure::bind(static function ($object, $group, $filter, $id) {
+				if (Stack::$objects === null) {
+					Stack::$objects = new \SplObjectStorage();
+				}
+
+				if (Stack::$objects->contains($object)) {
+					return null;
+				}
+
+				Stack::$objects->attach($object);
+				try {
+					$output = array();
+
+				} finally {
+					Stack::$objects->detach($object);
+				}
+
+				return (object)$output;
+			}, null, ClassWithNoProperty::class);
 		}
 
-		if (Stack::$objects->contains($object)) {
-			return null;
-		}
-
-		Stack::$objects->attach($object);
-
-		try {
-			$output = array();
-
-		} catch (\Exception $e) {
-			Stack::$objects->detach($object);
-			throw $e;
-		}
-
-		Stack::$objects->detach($object);
-		return (object)$output;
+		return (self::$toObject)($object, $group, $filter, $id);
 	}
 
 
@@ -301,42 +353,48 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 	 *
 	 * @return ClassWithNoProperty
 	 */
-	public static function fromProtobuf($input, $object = NULL, &$start = 0, $end = NULL)
+	public static function fromProtobuf($input, $object = null, &$start = 0, $end = null)
 	{
-		if ($object === null) {
-			$object = new ClassWithNoProperty();
-		}
+		if (self::$fromProtobuf === null) {
+			self::$fromProtobuf = Closure::bind(static function ($input, $object, &$start, $end) {
+				if ($object === null) {
+					$object = new ClassWithNoProperty();
+				}
 
-		if ($end === null) {
-			$end = strlen($input);
-		}
+				if ($end === null) {
+					$end = strlen($input);
+				}
 
-		while ($start < $end) {
-			$tag = Binary::decodeVarint($input, $start);
-			$wireType = $tag & 0x7;
-			$number = $tag >> 3;
-			switch ($number) {
-				default:
-					switch ($wireType) {
-						case 0:
-							Binary::decodeVarint($input, $start);
-							break;
-						case 1:
-							$start += 8;
-							break;
-						case 2:
-							$start += Binary::decodeVarint($input, $start);
-							break;
-						case 5:
-							$start += 4;
-							break;
+				while ($start < $end) {
+					$tag = Binary::decodeVarint($input, $start);
+					$wireType = $tag & 0x7;
+					$number = $tag >> 3;
+					switch ($number) {
 						default:
-							throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							switch ($wireType) {
+								case 0:
+									Binary::decodeVarint($input, $start);
+									break;
+								case 1:
+									$start += 8;
+									break;
+								case 2:
+									$start += Binary::decodeVarint($input, $start);
+									break;
+								case 5:
+									$start += 4;
+									break;
+								default:
+									throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							}
 					}
-			}
+				}
+
+				return $object;
+			}, null, ClassWithNoProperty::class);
 		}
 
-		return $object;
+		return (self::$fromProtobuf)($input, $object, $start, $end);
 	}
 
 
@@ -350,11 +408,16 @@ class ClassWithNoPropertyMeta extends ClassWithNoProperty implements MetaInterfa
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, $filter = NULL)
+	public static function toProtobuf($object, $filter = null)
 	{
-		$output = '';
+		if (self::$toProtobuf === null) {
+			self::$toProtobuf = Closure::bind(static function (ClassWithNoProperty $object, $filter) {
+				$output = '';
 
-		return $output;
+				return $output;
+			}, null, ClassWithNoProperty::class);
+		}
+
+		return (self::$toProtobuf)($object, $filter);
 	}
-
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Google\Protobuf\Compiler\Meta;
 
+use Closure;
 use Google\Protobuf\Compiler\CodeGeneratorRequest;
 use Google\Protobuf\Meta\FileDescriptorProtoMeta;
 use Skrz\Meta\MetaInterface;
@@ -17,7 +18,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class CodeGeneratorRequestMeta extends CodeGeneratorRequest implements MetaInterface, ProtobufMetaInterface
+final class CodeGeneratorRequestMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const FILE_TO_GENERATE_PROTOBUF_FIELD = 1;
 	const PARAMETER_PROTOBUF_FIELD = 2;
@@ -25,6 +26,18 @@ class CodeGeneratorRequestMeta extends CodeGeneratorRequest implements MetaInter
 
 	/** @var CodeGeneratorRequestMeta */
 	private static $instance;
+
+	/** @var callable */
+	private static $reset;
+
+	/** @var callable */
+	private static $hash;
+
+	/** @var callable */
+	private static $fromProtobuf;
+
+	/** @var callable */
+	private static $toProtobuf;
 
 
 	/**
@@ -99,9 +112,16 @@ class CodeGeneratorRequestMeta extends CodeGeneratorRequest implements MetaInter
 		if (!($object instanceof CodeGeneratorRequest)) {
 			throw new \InvalidArgumentException('You have to pass object of class Google\Protobuf\Compiler\CodeGeneratorRequest.');
 		}
-		$object->fileToGenerate = NULL;
-		$object->parameter = NULL;
-		$object->protoFile = NULL;
+
+		if (self::$reset === null) {
+			self::$reset = Closure::bind(static function ($object) {
+				$object->fileToGenerate = null;
+				$object->parameter = null;
+				$object->protoFile = null;
+			}, null, CodeGeneratorRequest::class);
+		}
+
+		return (self::$reset)($object);
 	}
 
 
@@ -114,38 +134,44 @@ class CodeGeneratorRequestMeta extends CodeGeneratorRequest implements MetaInter
 	 *
 	 * @return string|void
 	 */
-	public static function hash($object, $algoOrCtx = 'md5', $raw = FALSE)
+	public static function hash($object, $algoOrCtx = 'md5', $raw = false)
 	{
-		if (is_string($algoOrCtx)) {
-			$ctx = hash_init($algoOrCtx);
-		} else {
-			$ctx = $algoOrCtx;
+		if (self::$hash === null) {
+			self::$hash = Closure::bind(static function ($object, $algoOrCtx, $raw) {
+				if (is_string($algoOrCtx)) {
+					$ctx = hash_init($algoOrCtx);
+				} else {
+					$ctx = $algoOrCtx;
+				}
+
+				if (isset($object->fileToGenerate)) {
+					hash_update($ctx, 'fileToGenerate');
+					foreach ($object->fileToGenerate instanceof \Traversable ? $object->fileToGenerate : (array)$object->fileToGenerate as $v0) {
+						hash_update($ctx, (string)$v0);
+					}
+				}
+
+				if (isset($object->parameter)) {
+					hash_update($ctx, 'parameter');
+					hash_update($ctx, (string)$object->parameter);
+				}
+
+				if (isset($object->protoFile)) {
+					hash_update($ctx, 'protoFile');
+					foreach ($object->protoFile instanceof \Traversable ? $object->protoFile : (array)$object->protoFile as $v0) {
+						FileDescriptorProtoMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (is_string($algoOrCtx)) {
+					return hash_final($ctx, $raw);
+				} else {
+					return null;
+				}
+			}, null, CodeGeneratorRequest::class);
 		}
 
-		if (isset($object->fileToGenerate)) {
-			hash_update($ctx, 'fileToGenerate');
-			foreach ($object->fileToGenerate instanceof \Traversable ? $object->fileToGenerate : (array)$object->fileToGenerate as $v0) {
-				hash_update($ctx, (string)$v0);
-			}
-		}
-
-		if (isset($object->parameter)) {
-			hash_update($ctx, 'parameter');
-			hash_update($ctx, (string)$object->parameter);
-		}
-
-		if (isset($object->protoFile)) {
-			hash_update($ctx, 'protoFile');
-			foreach ($object->protoFile instanceof \Traversable ? $object->protoFile : (array)$object->protoFile as $v0) {
-				FileDescriptorProtoMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (is_string($algoOrCtx)) {
-			return hash_final($ctx, $raw);
-		} else {
-			return null;
-		}
+		return (self::$hash)($object, $algoOrCtx, $raw);
 	}
 
 
@@ -161,92 +187,98 @@ class CodeGeneratorRequestMeta extends CodeGeneratorRequest implements MetaInter
 	 *
 	 * @return CodeGeneratorRequest
 	 */
-	public static function fromProtobuf($input, $object = NULL, &$start = 0, $end = NULL)
+	public static function fromProtobuf($input, $object = null, &$start = 0, $end = null)
 	{
-		if ($object === null) {
-			$object = new CodeGeneratorRequest();
-		}
+		if (self::$fromProtobuf === null) {
+			self::$fromProtobuf = Closure::bind(static function ($input, $object, &$start, $end) {
+				if ($object === null) {
+					$object = new CodeGeneratorRequest();
+				}
 
-		if ($end === null) {
-			$end = strlen($input);
-		}
+				if ($end === null) {
+					$end = strlen($input);
+				}
 
-		while ($start < $end) {
-			$tag = Binary::decodeVarint($input, $start);
-			$wireType = $tag & 0x7;
-			$number = $tag >> 3;
-			switch ($number) {
-				case 1:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->fileToGenerate) && is_array($object->fileToGenerate))) {
-						$object->fileToGenerate = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->fileToGenerate[] = substr($input, $start, $length);
-					$start += $length;
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 2:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->parameter = substr($input, $start, $length);
-					$start += $length;
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 15:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->protoFile) && is_array($object->protoFile))) {
-						$object->protoFile = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->protoFile[] = FileDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				default:
-					switch ($wireType) {
-						case 0:
-							Binary::decodeVarint($input, $start);
-							break;
+				while ($start < $end) {
+					$tag = Binary::decodeVarint($input, $start);
+					$wireType = $tag & 0x7;
+					$number = $tag >> 3;
+					switch ($number) {
 						case 1:
-							$start += 8;
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->fileToGenerate) && is_array($object->fileToGenerate))) {
+								$object->fileToGenerate = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->fileToGenerate[] = substr($input, $start, $length);
+							$start += $length;
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
 						case 2:
-							$start += Binary::decodeVarint($input, $start);
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->parameter = substr($input, $start, $length);
+							$start += $length;
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
-						case 5:
-							$start += 4;
+						case 15:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->protoFile) && is_array($object->protoFile))) {
+								$object->protoFile = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->protoFile[] = FileDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
 						default:
-							throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							switch ($wireType) {
+								case 0:
+									Binary::decodeVarint($input, $start);
+									break;
+								case 1:
+									$start += 8;
+									break;
+								case 2:
+									$start += Binary::decodeVarint($input, $start);
+									break;
+								case 5:
+									$start += 4;
+									break;
+								default:
+									throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							}
 					}
-			}
+				}
+
+				return $object;
+			}, null, CodeGeneratorRequest::class);
 		}
 
-		return $object;
+		return (self::$fromProtobuf)($input, $object, $start, $end);
 	}
 
 
@@ -260,34 +292,39 @@ class CodeGeneratorRequestMeta extends CodeGeneratorRequest implements MetaInter
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, $filter = NULL)
+	public static function toProtobuf($object, $filter = null)
 	{
-		$output = '';
+		if (self::$toProtobuf === null) {
+			self::$toProtobuf = Closure::bind(static function (CodeGeneratorRequest $object, $filter) {
+				$output = '';
 
-		if (isset($object->fileToGenerate) && ($filter === null || isset($filter['fileToGenerate']))) {
-			foreach ($object->fileToGenerate instanceof \Traversable ? $object->fileToGenerate : (array)$object->fileToGenerate as $k => $v) {
-				$output .= "\x0a";
-				$output .= Binary::encodeVarint(strlen($v));
-				$output .= $v;
-			}
+				if (isset($object->fileToGenerate) && ($filter === null || isset($filter['fileToGenerate']))) {
+					foreach ($object->fileToGenerate instanceof \Traversable ? $object->fileToGenerate : (array)$object->fileToGenerate as $k => $v) {
+						$output .= "\x0a";
+						$output .= Binary::encodeVarint(strlen($v));
+						$output .= $v;
+					}
+				}
+
+				if (isset($object->parameter) && ($filter === null || isset($filter['parameter']))) {
+					$output .= "\x12";
+					$output .= Binary::encodeVarint(strlen($object->parameter));
+					$output .= $object->parameter;
+				}
+
+				if (isset($object->protoFile) && ($filter === null || isset($filter['protoFile']))) {
+					foreach ($object->protoFile instanceof \Traversable ? $object->protoFile : (array)$object->protoFile as $k => $v) {
+						$output .= "\x7a";
+						$buffer = FileDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['protoFile']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				return $output;
+			}, null, CodeGeneratorRequest::class);
 		}
 
-		if (isset($object->parameter) && ($filter === null || isset($filter['parameter']))) {
-			$output .= "\x12";
-			$output .= Binary::encodeVarint(strlen($object->parameter));
-			$output .= $object->parameter;
-		}
-
-		if (isset($object->protoFile) && ($filter === null || isset($filter['protoFile']))) {
-			foreach ($object->protoFile instanceof \Traversable ? $object->protoFile : (array)$object->protoFile as $k => $v) {
-				$output .= "\x7a";
-				$buffer = FileDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['protoFile']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
-		}
-
-		return $output;
+		return (self::$toProtobuf)($object, $filter);
 	}
-
 }

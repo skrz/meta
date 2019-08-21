@@ -12,7 +12,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class OneofDescriptorProto
+final class OneofDescriptorProto
 {
 	/**
 	 * @var string
@@ -41,5 +41,4 @@ class OneofDescriptorProto
 		$this->name = $name;
 		return $this;
 	}
-
 }

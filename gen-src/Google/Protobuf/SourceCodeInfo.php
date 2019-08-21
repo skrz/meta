@@ -14,7 +14,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class SourceCodeInfo
+final class SourceCodeInfo
 {
 	/**
 	 * A Location identifies a piece of source code in a .proto file which
@@ -87,5 +87,4 @@ class SourceCodeInfo
 		$this->location = $location;
 		return $this;
 	}
-
 }

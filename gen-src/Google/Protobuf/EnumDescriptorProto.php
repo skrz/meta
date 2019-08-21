@@ -12,7 +12,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class EnumDescriptorProto
+final class EnumDescriptorProto
 {
 	/**
 	 * @var string
@@ -97,5 +97,4 @@ class EnumDescriptorProto
 		$this->options = $options;
 		return $this;
 	}
-
 }

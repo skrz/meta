@@ -12,7 +12,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ServiceDescriptorProto
+final class ServiceDescriptorProto
 {
 	/**
 	 * @var string
@@ -97,5 +97,4 @@ class ServiceDescriptorProto
 		$this->options = $options;
 		return $this;
 	}
-
 }

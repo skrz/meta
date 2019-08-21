@@ -13,7 +13,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class CodeGeneratorResponse
+final class CodeGeneratorResponse
 {
 	/**
 	 * Error message.  If non-empty, code generation failed.  The plugin process
@@ -79,5 +79,4 @@ class CodeGeneratorResponse
 		$this->file = $file;
 		return $this;
 	}
-
 }

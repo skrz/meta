@@ -1,6 +1,7 @@
 <?php
 namespace Google\Protobuf\Meta;
 
+use Closure;
 use Google\Protobuf\FileOptions;
 use Skrz\Meta\MetaInterface;
 use Skrz\Meta\Protobuf\Binary;
@@ -16,7 +17,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FileOptionsMeta extends FileOptions implements MetaInterface, ProtobufMetaInterface
+final class FileOptionsMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const JAVA_PACKAGE_PROTOBUF_FIELD = 1;
 	const JAVA_OUTER_CLASSNAME_PROTOBUF_FIELD = 8;
@@ -37,6 +38,18 @@ class FileOptionsMeta extends FileOptions implements MetaInterface, ProtobufMeta
 
 	/** @var FileOptionsMeta */
 	private static $instance;
+
+	/** @var callable */
+	private static $reset;
+
+	/** @var callable */
+	private static $hash;
+
+	/** @var callable */
+	private static $fromProtobuf;
+
+	/** @var callable */
+	private static $toProtobuf;
 
 
 	/**
@@ -111,22 +124,29 @@ class FileOptionsMeta extends FileOptions implements MetaInterface, ProtobufMeta
 		if (!($object instanceof FileOptions)) {
 			throw new \InvalidArgumentException('You have to pass object of class Google\Protobuf\FileOptions.');
 		}
-		$object->javaPackage = NULL;
-		$object->javaOuterClassname = NULL;
-		$object->javaMultipleFiles = NULL;
-		$object->javaGenerateEqualsAndHash = NULL;
-		$object->javaStringCheckUtf8 = NULL;
-		$object->optimizeFor = NULL;
-		$object->goPackage = NULL;
-		$object->ccGenericServices = NULL;
-		$object->javaGenericServices = NULL;
-		$object->pyGenericServices = NULL;
-		$object->deprecated = NULL;
-		$object->ccEnableArenas = NULL;
-		$object->objcClassPrefix = NULL;
-		$object->csharpNamespace = NULL;
-		$object->javananoUseDeprecatedPackage = NULL;
-		$object->uninterpretedOption = NULL;
+
+		if (self::$reset === null) {
+			self::$reset = Closure::bind(static function ($object) {
+				$object->javaPackage = null;
+				$object->javaOuterClassname = null;
+				$object->javaMultipleFiles = null;
+				$object->javaGenerateEqualsAndHash = null;
+				$object->javaStringCheckUtf8 = null;
+				$object->optimizeFor = null;
+				$object->goPackage = null;
+				$object->ccGenericServices = null;
+				$object->javaGenericServices = null;
+				$object->pyGenericServices = null;
+				$object->deprecated = null;
+				$object->ccEnableArenas = null;
+				$object->objcClassPrefix = null;
+				$object->csharpNamespace = null;
+				$object->javananoUseDeprecatedPackage = null;
+				$object->uninterpretedOption = null;
+			}, null, FileOptions::class);
+		}
+
+		return (self::$reset)($object);
 	}
 
 
@@ -139,101 +159,107 @@ class FileOptionsMeta extends FileOptions implements MetaInterface, ProtobufMeta
 	 *
 	 * @return string|void
 	 */
-	public static function hash($object, $algoOrCtx = 'md5', $raw = FALSE)
+	public static function hash($object, $algoOrCtx = 'md5', $raw = false)
 	{
-		if (is_string($algoOrCtx)) {
-			$ctx = hash_init($algoOrCtx);
-		} else {
-			$ctx = $algoOrCtx;
+		if (self::$hash === null) {
+			self::$hash = Closure::bind(static function ($object, $algoOrCtx, $raw) {
+				if (is_string($algoOrCtx)) {
+					$ctx = hash_init($algoOrCtx);
+				} else {
+					$ctx = $algoOrCtx;
+				}
+
+				if (isset($object->javaPackage)) {
+					hash_update($ctx, 'javaPackage');
+					hash_update($ctx, (string)$object->javaPackage);
+				}
+
+				if (isset($object->javaOuterClassname)) {
+					hash_update($ctx, 'javaOuterClassname');
+					hash_update($ctx, (string)$object->javaOuterClassname);
+				}
+
+				if (isset($object->javaMultipleFiles)) {
+					hash_update($ctx, 'javaMultipleFiles');
+					hash_update($ctx, (string)$object->javaMultipleFiles);
+				}
+
+				if (isset($object->javaGenerateEqualsAndHash)) {
+					hash_update($ctx, 'javaGenerateEqualsAndHash');
+					hash_update($ctx, (string)$object->javaGenerateEqualsAndHash);
+				}
+
+				if (isset($object->javaStringCheckUtf8)) {
+					hash_update($ctx, 'javaStringCheckUtf8');
+					hash_update($ctx, (string)$object->javaStringCheckUtf8);
+				}
+
+				if (isset($object->optimizeFor)) {
+					hash_update($ctx, 'optimizeFor');
+					hash_update($ctx, (string)$object->optimizeFor);
+				}
+
+				if (isset($object->goPackage)) {
+					hash_update($ctx, 'goPackage');
+					hash_update($ctx, (string)$object->goPackage);
+				}
+
+				if (isset($object->ccGenericServices)) {
+					hash_update($ctx, 'ccGenericServices');
+					hash_update($ctx, (string)$object->ccGenericServices);
+				}
+
+				if (isset($object->javaGenericServices)) {
+					hash_update($ctx, 'javaGenericServices');
+					hash_update($ctx, (string)$object->javaGenericServices);
+				}
+
+				if (isset($object->pyGenericServices)) {
+					hash_update($ctx, 'pyGenericServices');
+					hash_update($ctx, (string)$object->pyGenericServices);
+				}
+
+				if (isset($object->deprecated)) {
+					hash_update($ctx, 'deprecated');
+					hash_update($ctx, (string)$object->deprecated);
+				}
+
+				if (isset($object->ccEnableArenas)) {
+					hash_update($ctx, 'ccEnableArenas');
+					hash_update($ctx, (string)$object->ccEnableArenas);
+				}
+
+				if (isset($object->objcClassPrefix)) {
+					hash_update($ctx, 'objcClassPrefix');
+					hash_update($ctx, (string)$object->objcClassPrefix);
+				}
+
+				if (isset($object->csharpNamespace)) {
+					hash_update($ctx, 'csharpNamespace');
+					hash_update($ctx, (string)$object->csharpNamespace);
+				}
+
+				if (isset($object->javananoUseDeprecatedPackage)) {
+					hash_update($ctx, 'javananoUseDeprecatedPackage');
+					hash_update($ctx, (string)$object->javananoUseDeprecatedPackage);
+				}
+
+				if (isset($object->uninterpretedOption)) {
+					hash_update($ctx, 'uninterpretedOption');
+					foreach ($object->uninterpretedOption instanceof \Traversable ? $object->uninterpretedOption : (array)$object->uninterpretedOption as $v0) {
+						UninterpretedOptionMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (is_string($algoOrCtx)) {
+					return hash_final($ctx, $raw);
+				} else {
+					return null;
+				}
+			}, null, FileOptions::class);
 		}
 
-		if (isset($object->javaPackage)) {
-			hash_update($ctx, 'javaPackage');
-			hash_update($ctx, (string)$object->javaPackage);
-		}
-
-		if (isset($object->javaOuterClassname)) {
-			hash_update($ctx, 'javaOuterClassname');
-			hash_update($ctx, (string)$object->javaOuterClassname);
-		}
-
-		if (isset($object->javaMultipleFiles)) {
-			hash_update($ctx, 'javaMultipleFiles');
-			hash_update($ctx, (string)$object->javaMultipleFiles);
-		}
-
-		if (isset($object->javaGenerateEqualsAndHash)) {
-			hash_update($ctx, 'javaGenerateEqualsAndHash');
-			hash_update($ctx, (string)$object->javaGenerateEqualsAndHash);
-		}
-
-		if (isset($object->javaStringCheckUtf8)) {
-			hash_update($ctx, 'javaStringCheckUtf8');
-			hash_update($ctx, (string)$object->javaStringCheckUtf8);
-		}
-
-		if (isset($object->optimizeFor)) {
-			hash_update($ctx, 'optimizeFor');
-			hash_update($ctx, (string)$object->optimizeFor);
-		}
-
-		if (isset($object->goPackage)) {
-			hash_update($ctx, 'goPackage');
-			hash_update($ctx, (string)$object->goPackage);
-		}
-
-		if (isset($object->ccGenericServices)) {
-			hash_update($ctx, 'ccGenericServices');
-			hash_update($ctx, (string)$object->ccGenericServices);
-		}
-
-		if (isset($object->javaGenericServices)) {
-			hash_update($ctx, 'javaGenericServices');
-			hash_update($ctx, (string)$object->javaGenericServices);
-		}
-
-		if (isset($object->pyGenericServices)) {
-			hash_update($ctx, 'pyGenericServices');
-			hash_update($ctx, (string)$object->pyGenericServices);
-		}
-
-		if (isset($object->deprecated)) {
-			hash_update($ctx, 'deprecated');
-			hash_update($ctx, (string)$object->deprecated);
-		}
-
-		if (isset($object->ccEnableArenas)) {
-			hash_update($ctx, 'ccEnableArenas');
-			hash_update($ctx, (string)$object->ccEnableArenas);
-		}
-
-		if (isset($object->objcClassPrefix)) {
-			hash_update($ctx, 'objcClassPrefix');
-			hash_update($ctx, (string)$object->objcClassPrefix);
-		}
-
-		if (isset($object->csharpNamespace)) {
-			hash_update($ctx, 'csharpNamespace');
-			hash_update($ctx, (string)$object->csharpNamespace);
-		}
-
-		if (isset($object->javananoUseDeprecatedPackage)) {
-			hash_update($ctx, 'javananoUseDeprecatedPackage');
-			hash_update($ctx, (string)$object->javananoUseDeprecatedPackage);
-		}
-
-		if (isset($object->uninterpretedOption)) {
-			hash_update($ctx, 'uninterpretedOption');
-			foreach ($object->uninterpretedOption instanceof \Traversable ? $object->uninterpretedOption : (array)$object->uninterpretedOption as $v0) {
-				UninterpretedOptionMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (is_string($algoOrCtx)) {
-			return hash_final($ctx, $raw);
-		} else {
-			return null;
-		}
+		return (self::$hash)($object, $algoOrCtx, $raw);
 	}
 
 
@@ -249,194 +275,200 @@ class FileOptionsMeta extends FileOptions implements MetaInterface, ProtobufMeta
 	 *
 	 * @return FileOptions
 	 */
-	public static function fromProtobuf($input, $object = NULL, &$start = 0, $end = NULL)
+	public static function fromProtobuf($input, $object = null, &$start = 0, $end = null)
 	{
-		if ($object === null) {
-			$object = new FileOptions();
-		}
+		if (self::$fromProtobuf === null) {
+			self::$fromProtobuf = Closure::bind(static function ($input, $object, &$start, $end) {
+				if ($object === null) {
+					$object = new FileOptions();
+				}
 
-		if ($end === null) {
-			$end = strlen($input);
-		}
+				if ($end === null) {
+					$end = strlen($input);
+				}
 
-		while ($start < $end) {
-			$tag = Binary::decodeVarint($input, $start);
-			$wireType = $tag & 0x7;
-			$number = $tag >> 3;
-			switch ($number) {
-				case 1:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->javaPackage = substr($input, $start, $length);
-					$start += $length;
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 8:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->javaOuterClassname = substr($input, $start, $length);
-					$start += $length;
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 10:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->javaMultipleFiles = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 20:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->javaGenerateEqualsAndHash = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 27:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->javaStringCheckUtf8 = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 9:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->optimizeFor = Binary::decodeVarint($input, $start);
-					break;
-				case 11:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->goPackage = substr($input, $start, $length);
-					$start += $length;
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 16:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->ccGenericServices = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 17:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->javaGenericServices = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 18:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->pyGenericServices = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 23:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->deprecated = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 31:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->ccEnableArenas = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 36:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->objcClassPrefix = substr($input, $start, $length);
-					$start += $length;
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 37:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->csharpNamespace = substr($input, $start, $length);
-					$start += $length;
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 38:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->javananoUseDeprecatedPackage = (bool)Binary::decodeVarint($input, $start);
-					break;
-				case 999:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->uninterpretedOption) && is_array($object->uninterpretedOption))) {
-						$object->uninterpretedOption = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->uninterpretedOption[] = UninterpretedOptionMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				default:
-					switch ($wireType) {
-						case 0:
-							Binary::decodeVarint($input, $start);
-							break;
+				while ($start < $end) {
+					$tag = Binary::decodeVarint($input, $start);
+					$wireType = $tag & 0x7;
+					$number = $tag >> 3;
+					switch ($number) {
 						case 1:
-							$start += 8;
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->javaPackage = substr($input, $start, $length);
+							$start += $length;
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
-						case 2:
-							$start += Binary::decodeVarint($input, $start);
+						case 8:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->javaOuterClassname = substr($input, $start, $length);
+							$start += $length;
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
-						case 5:
-							$start += 4;
+						case 10:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->javaMultipleFiles = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 20:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->javaGenerateEqualsAndHash = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 27:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->javaStringCheckUtf8 = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 9:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->optimizeFor = Binary::decodeVarint($input, $start);
+							break;
+						case 11:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->goPackage = substr($input, $start, $length);
+							$start += $length;
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
+							break;
+						case 16:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->ccGenericServices = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 17:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->javaGenericServices = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 18:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->pyGenericServices = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 23:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->deprecated = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 31:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->ccEnableArenas = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 36:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->objcClassPrefix = substr($input, $start, $length);
+							$start += $length;
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
+							break;
+						case 37:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->csharpNamespace = substr($input, $start, $length);
+							$start += $length;
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
+							break;
+						case 38:
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->javananoUseDeprecatedPackage = (bool)Binary::decodeVarint($input, $start);
+							break;
+						case 999:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->uninterpretedOption) && is_array($object->uninterpretedOption))) {
+								$object->uninterpretedOption = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->uninterpretedOption[] = UninterpretedOptionMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
 						default:
-							throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							switch ($wireType) {
+								case 0:
+									Binary::decodeVarint($input, $start);
+									break;
+								case 1:
+									$start += 8;
+									break;
+								case 2:
+									$start += Binary::decodeVarint($input, $start);
+									break;
+								case 5:
+									$start += 4;
+									break;
+								default:
+									throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							}
 					}
-			}
+				}
+
+				return $object;
+			}, null, FileOptions::class);
 		}
 
-		return $object;
+		return (self::$fromProtobuf)($input, $object, $start, $end);
 	}
 
 
@@ -450,100 +482,105 @@ class FileOptionsMeta extends FileOptions implements MetaInterface, ProtobufMeta
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, $filter = NULL)
+	public static function toProtobuf($object, $filter = null)
 	{
-		$output = '';
+		if (self::$toProtobuf === null) {
+			self::$toProtobuf = Closure::bind(static function (FileOptions $object, $filter) {
+				$output = '';
 
-		if (isset($object->javaPackage) && ($filter === null || isset($filter['javaPackage']))) {
-			$output .= "\x0a";
-			$output .= Binary::encodeVarint(strlen($object->javaPackage));
-			$output .= $object->javaPackage;
+				if (isset($object->javaPackage) && ($filter === null || isset($filter['javaPackage']))) {
+					$output .= "\x0a";
+					$output .= Binary::encodeVarint(strlen($object->javaPackage));
+					$output .= $object->javaPackage;
+				}
+
+				if (isset($object->javaOuterClassname) && ($filter === null || isset($filter['javaOuterClassname']))) {
+					$output .= "\x42";
+					$output .= Binary::encodeVarint(strlen($object->javaOuterClassname));
+					$output .= $object->javaOuterClassname;
+				}
+
+				if (isset($object->javaMultipleFiles) && ($filter === null || isset($filter['javaMultipleFiles']))) {
+					$output .= "\x50";
+					$output .= Binary::encodeVarint((int)$object->javaMultipleFiles);
+				}
+
+				if (isset($object->javaGenerateEqualsAndHash) && ($filter === null || isset($filter['javaGenerateEqualsAndHash']))) {
+					$output .= "\xa0\x01";
+					$output .= Binary::encodeVarint((int)$object->javaGenerateEqualsAndHash);
+				}
+
+				if (isset($object->javaStringCheckUtf8) && ($filter === null || isset($filter['javaStringCheckUtf8']))) {
+					$output .= "\xd8\x01";
+					$output .= Binary::encodeVarint((int)$object->javaStringCheckUtf8);
+				}
+
+				if (isset($object->optimizeFor) && ($filter === null || isset($filter['optimizeFor']))) {
+					$output .= "\x48";
+					$output .= Binary::encodeVarint($object->optimizeFor);
+				}
+
+				if (isset($object->goPackage) && ($filter === null || isset($filter['goPackage']))) {
+					$output .= "\x5a";
+					$output .= Binary::encodeVarint(strlen($object->goPackage));
+					$output .= $object->goPackage;
+				}
+
+				if (isset($object->ccGenericServices) && ($filter === null || isset($filter['ccGenericServices']))) {
+					$output .= "\x80\x01";
+					$output .= Binary::encodeVarint((int)$object->ccGenericServices);
+				}
+
+				if (isset($object->javaGenericServices) && ($filter === null || isset($filter['javaGenericServices']))) {
+					$output .= "\x88\x01";
+					$output .= Binary::encodeVarint((int)$object->javaGenericServices);
+				}
+
+				if (isset($object->pyGenericServices) && ($filter === null || isset($filter['pyGenericServices']))) {
+					$output .= "\x90\x01";
+					$output .= Binary::encodeVarint((int)$object->pyGenericServices);
+				}
+
+				if (isset($object->deprecated) && ($filter === null || isset($filter['deprecated']))) {
+					$output .= "\xb8\x01";
+					$output .= Binary::encodeVarint((int)$object->deprecated);
+				}
+
+				if (isset($object->ccEnableArenas) && ($filter === null || isset($filter['ccEnableArenas']))) {
+					$output .= "\xf8\x01";
+					$output .= Binary::encodeVarint((int)$object->ccEnableArenas);
+				}
+
+				if (isset($object->objcClassPrefix) && ($filter === null || isset($filter['objcClassPrefix']))) {
+					$output .= "\xa2\x02";
+					$output .= Binary::encodeVarint(strlen($object->objcClassPrefix));
+					$output .= $object->objcClassPrefix;
+				}
+
+				if (isset($object->csharpNamespace) && ($filter === null || isset($filter['csharpNamespace']))) {
+					$output .= "\xaa\x02";
+					$output .= Binary::encodeVarint(strlen($object->csharpNamespace));
+					$output .= $object->csharpNamespace;
+				}
+
+				if (isset($object->javananoUseDeprecatedPackage) && ($filter === null || isset($filter['javananoUseDeprecatedPackage']))) {
+					$output .= "\xb0\x02";
+					$output .= Binary::encodeVarint((int)$object->javananoUseDeprecatedPackage);
+				}
+
+				if (isset($object->uninterpretedOption) && ($filter === null || isset($filter['uninterpretedOption']))) {
+					foreach ($object->uninterpretedOption instanceof \Traversable ? $object->uninterpretedOption : (array)$object->uninterpretedOption as $k => $v) {
+						$output .= "\xba\x3e";
+						$buffer = UninterpretedOptionMeta::toProtobuf($v, $filter === null ? null : $filter['uninterpretedOption']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				return $output;
+			}, null, FileOptions::class);
 		}
 
-		if (isset($object->javaOuterClassname) && ($filter === null || isset($filter['javaOuterClassname']))) {
-			$output .= "\x42";
-			$output .= Binary::encodeVarint(strlen($object->javaOuterClassname));
-			$output .= $object->javaOuterClassname;
-		}
-
-		if (isset($object->javaMultipleFiles) && ($filter === null || isset($filter['javaMultipleFiles']))) {
-			$output .= "\x50";
-			$output .= Binary::encodeVarint((int)$object->javaMultipleFiles);
-		}
-
-		if (isset($object->javaGenerateEqualsAndHash) && ($filter === null || isset($filter['javaGenerateEqualsAndHash']))) {
-			$output .= "\xa0\x01";
-			$output .= Binary::encodeVarint((int)$object->javaGenerateEqualsAndHash);
-		}
-
-		if (isset($object->javaStringCheckUtf8) && ($filter === null || isset($filter['javaStringCheckUtf8']))) {
-			$output .= "\xd8\x01";
-			$output .= Binary::encodeVarint((int)$object->javaStringCheckUtf8);
-		}
-
-		if (isset($object->optimizeFor) && ($filter === null || isset($filter['optimizeFor']))) {
-			$output .= "\x48";
-			$output .= Binary::encodeVarint($object->optimizeFor);
-		}
-
-		if (isset($object->goPackage) && ($filter === null || isset($filter['goPackage']))) {
-			$output .= "\x5a";
-			$output .= Binary::encodeVarint(strlen($object->goPackage));
-			$output .= $object->goPackage;
-		}
-
-		if (isset($object->ccGenericServices) && ($filter === null || isset($filter['ccGenericServices']))) {
-			$output .= "\x80\x01";
-			$output .= Binary::encodeVarint((int)$object->ccGenericServices);
-		}
-
-		if (isset($object->javaGenericServices) && ($filter === null || isset($filter['javaGenericServices']))) {
-			$output .= "\x88\x01";
-			$output .= Binary::encodeVarint((int)$object->javaGenericServices);
-		}
-
-		if (isset($object->pyGenericServices) && ($filter === null || isset($filter['pyGenericServices']))) {
-			$output .= "\x90\x01";
-			$output .= Binary::encodeVarint((int)$object->pyGenericServices);
-		}
-
-		if (isset($object->deprecated) && ($filter === null || isset($filter['deprecated']))) {
-			$output .= "\xb8\x01";
-			$output .= Binary::encodeVarint((int)$object->deprecated);
-		}
-
-		if (isset($object->ccEnableArenas) && ($filter === null || isset($filter['ccEnableArenas']))) {
-			$output .= "\xf8\x01";
-			$output .= Binary::encodeVarint((int)$object->ccEnableArenas);
-		}
-
-		if (isset($object->objcClassPrefix) && ($filter === null || isset($filter['objcClassPrefix']))) {
-			$output .= "\xa2\x02";
-			$output .= Binary::encodeVarint(strlen($object->objcClassPrefix));
-			$output .= $object->objcClassPrefix;
-		}
-
-		if (isset($object->csharpNamespace) && ($filter === null || isset($filter['csharpNamespace']))) {
-			$output .= "\xaa\x02";
-			$output .= Binary::encodeVarint(strlen($object->csharpNamespace));
-			$output .= $object->csharpNamespace;
-		}
-
-		if (isset($object->javananoUseDeprecatedPackage) && ($filter === null || isset($filter['javananoUseDeprecatedPackage']))) {
-			$output .= "\xb0\x02";
-			$output .= Binary::encodeVarint((int)$object->javananoUseDeprecatedPackage);
-		}
-
-		if (isset($object->uninterpretedOption) && ($filter === null || isset($filter['uninterpretedOption']))) {
-			foreach ($object->uninterpretedOption instanceof \Traversable ? $object->uninterpretedOption : (array)$object->uninterpretedOption as $k => $v) {
-				$output .= "\xba\x3e";
-				$buffer = UninterpretedOptionMeta::toProtobuf($v, $filter === null ? null : $filter['uninterpretedOption']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
-		}
-
-		return $output;
+		return (self::$toProtobuf)($object, $filter);
 	}
-
 }

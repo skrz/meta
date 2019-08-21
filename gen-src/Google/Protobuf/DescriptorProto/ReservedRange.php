@@ -14,7 +14,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ReservedRange
+final class ReservedRange
 {
 	/**
 	 * @var int
@@ -71,5 +71,4 @@ class ReservedRange
 		$this->end = $end;
 		return $this;
 	}
-
 }

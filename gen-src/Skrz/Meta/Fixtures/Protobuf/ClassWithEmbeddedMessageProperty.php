@@ -11,7 +11,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithEmbeddedMessageProperty
+final class ClassWithEmbeddedMessageProperty
 {
 	/**
 	 * @var Embedded
@@ -40,5 +40,4 @@ class ClassWithEmbeddedMessageProperty
 		$this->x = $x;
 		return $this;
 	}
-
 }

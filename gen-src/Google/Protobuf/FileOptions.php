@@ -11,7 +11,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class FileOptions
+final class FileOptions
 {
 	/**
 	 * Sets the Java package where classes generated from this .proto will be
@@ -534,5 +534,4 @@ class FileOptions
 		$this->uninterpretedOption = $uninterpretedOption;
 		return $this;
 	}
-
 }

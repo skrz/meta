@@ -1,6 +1,7 @@
 <?php
 namespace Google\Protobuf\Meta;
 
+use Closure;
 use Google\Protobuf\DescriptorProto;
 use Google\Protobuf\DescriptorProto\Meta\ExtensionRangeMeta;
 use Google\Protobuf\DescriptorProto\Meta\ReservedRangeMeta;
@@ -18,7 +19,7 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class DescriptorProtoMeta extends DescriptorProto implements MetaInterface, ProtobufMetaInterface
+final class DescriptorProtoMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const NAME_PROTOBUF_FIELD = 1;
 	const FIELD_PROTOBUF_FIELD = 2;
@@ -33,6 +34,18 @@ class DescriptorProtoMeta extends DescriptorProto implements MetaInterface, Prot
 
 	/** @var DescriptorProtoMeta */
 	private static $instance;
+
+	/** @var callable */
+	private static $reset;
+
+	/** @var callable */
+	private static $hash;
+
+	/** @var callable */
+	private static $fromProtobuf;
+
+	/** @var callable */
+	private static $toProtobuf;
 
 
 	/**
@@ -107,16 +120,23 @@ class DescriptorProtoMeta extends DescriptorProto implements MetaInterface, Prot
 		if (!($object instanceof DescriptorProto)) {
 			throw new \InvalidArgumentException('You have to pass object of class Google\Protobuf\DescriptorProto.');
 		}
-		$object->name = NULL;
-		$object->field = NULL;
-		$object->extension = NULL;
-		$object->nestedType = NULL;
-		$object->enumType = NULL;
-		$object->extensionRange = NULL;
-		$object->oneofDecl = NULL;
-		$object->options = NULL;
-		$object->reservedRange = NULL;
-		$object->reservedName = NULL;
+
+		if (self::$reset === null) {
+			self::$reset = Closure::bind(static function ($object) {
+				$object->name = null;
+				$object->field = null;
+				$object->extension = null;
+				$object->nestedType = null;
+				$object->enumType = null;
+				$object->extensionRange = null;
+				$object->oneofDecl = null;
+				$object->options = null;
+				$object->reservedRange = null;
+				$object->reservedName = null;
+			}, null, DescriptorProto::class);
+		}
+
+		return (self::$reset)($object);
 	}
 
 
@@ -129,85 +149,91 @@ class DescriptorProtoMeta extends DescriptorProto implements MetaInterface, Prot
 	 *
 	 * @return string|void
 	 */
-	public static function hash($object, $algoOrCtx = 'md5', $raw = FALSE)
+	public static function hash($object, $algoOrCtx = 'md5', $raw = false)
 	{
-		if (is_string($algoOrCtx)) {
-			$ctx = hash_init($algoOrCtx);
-		} else {
-			$ctx = $algoOrCtx;
+		if (self::$hash === null) {
+			self::$hash = Closure::bind(static function ($object, $algoOrCtx, $raw) {
+				if (is_string($algoOrCtx)) {
+					$ctx = hash_init($algoOrCtx);
+				} else {
+					$ctx = $algoOrCtx;
+				}
+
+				if (isset($object->name)) {
+					hash_update($ctx, 'name');
+					hash_update($ctx, (string)$object->name);
+				}
+
+				if (isset($object->field)) {
+					hash_update($ctx, 'field');
+					foreach ($object->field instanceof \Traversable ? $object->field : (array)$object->field as $v0) {
+						FieldDescriptorProtoMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (isset($object->extension)) {
+					hash_update($ctx, 'extension');
+					foreach ($object->extension instanceof \Traversable ? $object->extension : (array)$object->extension as $v0) {
+						FieldDescriptorProtoMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (isset($object->nestedType)) {
+					hash_update($ctx, 'nestedType');
+					foreach ($object->nestedType instanceof \Traversable ? $object->nestedType : (array)$object->nestedType as $v0) {
+						DescriptorProtoMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (isset($object->enumType)) {
+					hash_update($ctx, 'enumType');
+					foreach ($object->enumType instanceof \Traversable ? $object->enumType : (array)$object->enumType as $v0) {
+						EnumDescriptorProtoMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (isset($object->extensionRange)) {
+					hash_update($ctx, 'extensionRange');
+					foreach ($object->extensionRange instanceof \Traversable ? $object->extensionRange : (array)$object->extensionRange as $v0) {
+						ExtensionRangeMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (isset($object->oneofDecl)) {
+					hash_update($ctx, 'oneofDecl');
+					foreach ($object->oneofDecl instanceof \Traversable ? $object->oneofDecl : (array)$object->oneofDecl as $v0) {
+						OneofDescriptorProtoMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (isset($object->options)) {
+					hash_update($ctx, 'options');
+					MessageOptionsMeta::hash($object->options, $ctx);
+				}
+
+				if (isset($object->reservedRange)) {
+					hash_update($ctx, 'reservedRange');
+					foreach ($object->reservedRange instanceof \Traversable ? $object->reservedRange : (array)$object->reservedRange as $v0) {
+						ReservedRangeMeta::hash($v0, $ctx);
+					}
+				}
+
+				if (isset($object->reservedName)) {
+					hash_update($ctx, 'reservedName');
+					foreach ($object->reservedName instanceof \Traversable ? $object->reservedName : (array)$object->reservedName as $v0) {
+						hash_update($ctx, (string)$v0);
+					}
+				}
+
+				if (is_string($algoOrCtx)) {
+					return hash_final($ctx, $raw);
+				} else {
+					return null;
+				}
+			}, null, DescriptorProto::class);
 		}
 
-		if (isset($object->name)) {
-			hash_update($ctx, 'name');
-			hash_update($ctx, (string)$object->name);
-		}
-
-		if (isset($object->field)) {
-			hash_update($ctx, 'field');
-			foreach ($object->field instanceof \Traversable ? $object->field : (array)$object->field as $v0) {
-				FieldDescriptorProtoMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (isset($object->extension)) {
-			hash_update($ctx, 'extension');
-			foreach ($object->extension instanceof \Traversable ? $object->extension : (array)$object->extension as $v0) {
-				FieldDescriptorProtoMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (isset($object->nestedType)) {
-			hash_update($ctx, 'nestedType');
-			foreach ($object->nestedType instanceof \Traversable ? $object->nestedType : (array)$object->nestedType as $v0) {
-				DescriptorProtoMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (isset($object->enumType)) {
-			hash_update($ctx, 'enumType');
-			foreach ($object->enumType instanceof \Traversable ? $object->enumType : (array)$object->enumType as $v0) {
-				EnumDescriptorProtoMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (isset($object->extensionRange)) {
-			hash_update($ctx, 'extensionRange');
-			foreach ($object->extensionRange instanceof \Traversable ? $object->extensionRange : (array)$object->extensionRange as $v0) {
-				ExtensionRangeMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (isset($object->oneofDecl)) {
-			hash_update($ctx, 'oneofDecl');
-			foreach ($object->oneofDecl instanceof \Traversable ? $object->oneofDecl : (array)$object->oneofDecl as $v0) {
-				OneofDescriptorProtoMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (isset($object->options)) {
-			hash_update($ctx, 'options');
-			MessageOptionsMeta::hash($object->options, $ctx);
-		}
-
-		if (isset($object->reservedRange)) {
-			hash_update($ctx, 'reservedRange');
-			foreach ($object->reservedRange instanceof \Traversable ? $object->reservedRange : (array)$object->reservedRange as $v0) {
-				ReservedRangeMeta::hash($v0, $ctx);
-			}
-		}
-
-		if (isset($object->reservedName)) {
-			hash_update($ctx, 'reservedName');
-			foreach ($object->reservedName instanceof \Traversable ? $object->reservedName : (array)$object->reservedName as $v0) {
-				hash_update($ctx, (string)$v0);
-			}
-		}
-
-		if (is_string($algoOrCtx)) {
-			return hash_final($ctx, $raw);
-		} else {
-			return null;
-		}
+		return (self::$hash)($object, $algoOrCtx, $raw);
 	}
 
 
@@ -223,208 +249,214 @@ class DescriptorProtoMeta extends DescriptorProto implements MetaInterface, Prot
 	 *
 	 * @return DescriptorProto
 	 */
-	public static function fromProtobuf($input, $object = NULL, &$start = 0, $end = NULL)
+	public static function fromProtobuf($input, $object = null, &$start = 0, $end = null)
 	{
-		if ($object === null) {
-			$object = new DescriptorProto();
-		}
+		if (self::$fromProtobuf === null) {
+			self::$fromProtobuf = Closure::bind(static function ($input, $object, &$start, $end) {
+				if ($object === null) {
+					$object = new DescriptorProto();
+				}
 
-		if ($end === null) {
-			$end = strlen($input);
-		}
+				if ($end === null) {
+					$end = strlen($input);
+				}
 
-		while ($start < $end) {
-			$tag = Binary::decodeVarint($input, $start);
-			$wireType = $tag & 0x7;
-			$number = $tag >> 3;
-			switch ($number) {
-				case 1:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->name = substr($input, $start, $length);
-					$start += $length;
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 2:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->field) && is_array($object->field))) {
-						$object->field = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->field[] = FieldDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 6:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->extension) && is_array($object->extension))) {
-						$object->extension = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->extension[] = FieldDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 3:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->nestedType) && is_array($object->nestedType))) {
-						$object->nestedType = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->nestedType[] = DescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 4:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->enumType) && is_array($object->enumType))) {
-						$object->enumType = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->enumType[] = EnumDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 5:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->extensionRange) && is_array($object->extensionRange))) {
-						$object->extensionRange = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->extensionRange[] = ExtensionRangeMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 8:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->oneofDecl) && is_array($object->oneofDecl))) {
-						$object->oneofDecl = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->oneofDecl[] = OneofDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 7:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->options = MessageOptionsMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 9:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->reservedRange) && is_array($object->reservedRange))) {
-						$object->reservedRange = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->reservedRange[] = ReservedRangeMeta::fromProtobuf($input, null, $start, $start + $length);
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				case 10:
-					if ($wireType !== 2) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
-					}
-					if (!(isset($object->reservedName) && is_array($object->reservedName))) {
-						$object->reservedName = array();
-					}
-					$length = Binary::decodeVarint($input, $start);
-					$expectedStart = $start + $length;
-					if ($expectedStart > $end) {
-						throw new ProtobufException('Not enough data.');
-					}
-					$object->reservedName[] = substr($input, $start, $length);
-					$start += $length;
-					if ($start !== $expectedStart) {
-						throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
-					}
-					break;
-				default:
-					switch ($wireType) {
-						case 0:
-							Binary::decodeVarint($input, $start);
-							break;
+				while ($start < $end) {
+					$tag = Binary::decodeVarint($input, $start);
+					$wireType = $tag & 0x7;
+					$number = $tag >> 3;
+					switch ($number) {
 						case 1:
-							$start += 8;
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->name = substr($input, $start, $length);
+							$start += $length;
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
 						case 2:
-							$start += Binary::decodeVarint($input, $start);
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->field) && is_array($object->field))) {
+								$object->field = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->field[] = FieldDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
+							break;
+						case 6:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->extension) && is_array($object->extension))) {
+								$object->extension = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->extension[] = FieldDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
+							break;
+						case 3:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->nestedType) && is_array($object->nestedType))) {
+								$object->nestedType = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->nestedType[] = DescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
+							break;
+						case 4:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->enumType) && is_array($object->enumType))) {
+								$object->enumType = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->enumType[] = EnumDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
 						case 5:
-							$start += 4;
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->extensionRange) && is_array($object->extensionRange))) {
+								$object->extensionRange = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->extensionRange[] = ExtensionRangeMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
+							break;
+						case 8:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->oneofDecl) && is_array($object->oneofDecl))) {
+								$object->oneofDecl = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->oneofDecl[] = OneofDescriptorProtoMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
+							break;
+						case 7:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->options = MessageOptionsMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
+							break;
+						case 9:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->reservedRange) && is_array($object->reservedRange))) {
+								$object->reservedRange = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->reservedRange[] = ReservedRangeMeta::fromProtobuf($input, null, $start, $start + $length);
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
+							break;
+						case 10:
+							if ($wireType !== 2) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 2.', $number);
+							}
+							if (!(isset($object->reservedName) && is_array($object->reservedName))) {
+								$object->reservedName = array();
+							}
+							$length = Binary::decodeVarint($input, $start);
+							$expectedStart = $start + $length;
+							if ($expectedStart > $end) {
+								throw new ProtobufException('Not enough data.');
+							}
+							$object->reservedName[] = substr($input, $start, $length);
+							$start += $length;
+							if ($start !== $expectedStart) {
+								throw new ProtobufException('Unexpected start. Expected ' . $expectedStart . ', got ' . $start . '.', $number);
+							}
 							break;
 						default:
-							throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							switch ($wireType) {
+								case 0:
+									Binary::decodeVarint($input, $start);
+									break;
+								case 1:
+									$start += 8;
+									break;
+								case 2:
+									$start += Binary::decodeVarint($input, $start);
+									break;
+								case 5:
+									$start += 4;
+									break;
+								default:
+									throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							}
 					}
-			}
+				}
+
+				return $object;
+			}, null, DescriptorProto::class);
 		}
 
-		return $object;
+		return (self::$fromProtobuf)($input, $object, $start, $end);
 	}
 
 
@@ -438,95 +470,100 @@ class DescriptorProtoMeta extends DescriptorProto implements MetaInterface, Prot
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, $filter = NULL)
+	public static function toProtobuf($object, $filter = null)
 	{
-		$output = '';
+		if (self::$toProtobuf === null) {
+			self::$toProtobuf = Closure::bind(static function (DescriptorProto $object, $filter) {
+				$output = '';
 
-		if (isset($object->name) && ($filter === null || isset($filter['name']))) {
-			$output .= "\x0a";
-			$output .= Binary::encodeVarint(strlen($object->name));
-			$output .= $object->name;
+				if (isset($object->name) && ($filter === null || isset($filter['name']))) {
+					$output .= "\x0a";
+					$output .= Binary::encodeVarint(strlen($object->name));
+					$output .= $object->name;
+				}
+
+				if (isset($object->field) && ($filter === null || isset($filter['field']))) {
+					foreach ($object->field instanceof \Traversable ? $object->field : (array)$object->field as $k => $v) {
+						$output .= "\x12";
+						$buffer = FieldDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['field']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				if (isset($object->extension) && ($filter === null || isset($filter['extension']))) {
+					foreach ($object->extension instanceof \Traversable ? $object->extension : (array)$object->extension as $k => $v) {
+						$output .= "\x32";
+						$buffer = FieldDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['extension']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				if (isset($object->nestedType) && ($filter === null || isset($filter['nestedType']))) {
+					foreach ($object->nestedType instanceof \Traversable ? $object->nestedType : (array)$object->nestedType as $k => $v) {
+						$output .= "\x1a";
+						$buffer = DescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['nestedType']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				if (isset($object->enumType) && ($filter === null || isset($filter['enumType']))) {
+					foreach ($object->enumType instanceof \Traversable ? $object->enumType : (array)$object->enumType as $k => $v) {
+						$output .= "\x22";
+						$buffer = EnumDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['enumType']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				if (isset($object->extensionRange) && ($filter === null || isset($filter['extensionRange']))) {
+					foreach ($object->extensionRange instanceof \Traversable ? $object->extensionRange : (array)$object->extensionRange as $k => $v) {
+						$output .= "\x2a";
+						$buffer = ExtensionRangeMeta::toProtobuf($v, $filter === null ? null : $filter['extensionRange']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				if (isset($object->oneofDecl) && ($filter === null || isset($filter['oneofDecl']))) {
+					foreach ($object->oneofDecl instanceof \Traversable ? $object->oneofDecl : (array)$object->oneofDecl as $k => $v) {
+						$output .= "\x42";
+						$buffer = OneofDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['oneofDecl']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				if (isset($object->options) && ($filter === null || isset($filter['options']))) {
+					$output .= "\x3a";
+					$buffer = MessageOptionsMeta::toProtobuf($object->options, $filter === null ? null : $filter['options']);
+					$output .= Binary::encodeVarint(strlen($buffer));
+					$output .= $buffer;
+				}
+
+				if (isset($object->reservedRange) && ($filter === null || isset($filter['reservedRange']))) {
+					foreach ($object->reservedRange instanceof \Traversable ? $object->reservedRange : (array)$object->reservedRange as $k => $v) {
+						$output .= "\x4a";
+						$buffer = ReservedRangeMeta::toProtobuf($v, $filter === null ? null : $filter['reservedRange']);
+						$output .= Binary::encodeVarint(strlen($buffer));
+						$output .= $buffer;
+					}
+				}
+
+				if (isset($object->reservedName) && ($filter === null || isset($filter['reservedName']))) {
+					foreach ($object->reservedName instanceof \Traversable ? $object->reservedName : (array)$object->reservedName as $k => $v) {
+						$output .= "\x52";
+						$output .= Binary::encodeVarint(strlen($v));
+						$output .= $v;
+					}
+				}
+
+				return $output;
+			}, null, DescriptorProto::class);
 		}
 
-		if (isset($object->field) && ($filter === null || isset($filter['field']))) {
-			foreach ($object->field instanceof \Traversable ? $object->field : (array)$object->field as $k => $v) {
-				$output .= "\x12";
-				$buffer = FieldDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['field']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
-		}
-
-		if (isset($object->extension) && ($filter === null || isset($filter['extension']))) {
-			foreach ($object->extension instanceof \Traversable ? $object->extension : (array)$object->extension as $k => $v) {
-				$output .= "\x32";
-				$buffer = FieldDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['extension']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
-		}
-
-		if (isset($object->nestedType) && ($filter === null || isset($filter['nestedType']))) {
-			foreach ($object->nestedType instanceof \Traversable ? $object->nestedType : (array)$object->nestedType as $k => $v) {
-				$output .= "\x1a";
-				$buffer = DescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['nestedType']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
-		}
-
-		if (isset($object->enumType) && ($filter === null || isset($filter['enumType']))) {
-			foreach ($object->enumType instanceof \Traversable ? $object->enumType : (array)$object->enumType as $k => $v) {
-				$output .= "\x22";
-				$buffer = EnumDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['enumType']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
-		}
-
-		if (isset($object->extensionRange) && ($filter === null || isset($filter['extensionRange']))) {
-			foreach ($object->extensionRange instanceof \Traversable ? $object->extensionRange : (array)$object->extensionRange as $k => $v) {
-				$output .= "\x2a";
-				$buffer = ExtensionRangeMeta::toProtobuf($v, $filter === null ? null : $filter['extensionRange']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
-		}
-
-		if (isset($object->oneofDecl) && ($filter === null || isset($filter['oneofDecl']))) {
-			foreach ($object->oneofDecl instanceof \Traversable ? $object->oneofDecl : (array)$object->oneofDecl as $k => $v) {
-				$output .= "\x42";
-				$buffer = OneofDescriptorProtoMeta::toProtobuf($v, $filter === null ? null : $filter['oneofDecl']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
-		}
-
-		if (isset($object->options) && ($filter === null || isset($filter['options']))) {
-			$output .= "\x3a";
-			$buffer = MessageOptionsMeta::toProtobuf($object->options, $filter === null ? null : $filter['options']);
-			$output .= Binary::encodeVarint(strlen($buffer));
-			$output .= $buffer;
-		}
-
-		if (isset($object->reservedRange) && ($filter === null || isset($filter['reservedRange']))) {
-			foreach ($object->reservedRange instanceof \Traversable ? $object->reservedRange : (array)$object->reservedRange as $k => $v) {
-				$output .= "\x4a";
-				$buffer = ReservedRangeMeta::toProtobuf($v, $filter === null ? null : $filter['reservedRange']);
-				$output .= Binary::encodeVarint(strlen($buffer));
-				$output .= $buffer;
-			}
-		}
-
-		if (isset($object->reservedName) && ($filter === null || isset($filter['reservedName']))) {
-			foreach ($object->reservedName instanceof \Traversable ? $object->reservedName : (array)$object->reservedName as $k => $v) {
-				$output .= "\x52";
-				$output .= Binary::encodeVarint(strlen($v));
-				$output .= $v;
-			}
-		}
-
-		return $output;
+		return (self::$toProtobuf)($object, $filter);
 	}
-
 }

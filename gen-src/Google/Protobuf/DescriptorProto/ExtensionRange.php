@@ -10,7 +10,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ExtensionRange
+final class ExtensionRange
 {
 	/**
 	 * @var int
@@ -67,5 +67,4 @@ class ExtensionRange
 		$this->end = $end;
 		return $this;
 	}
-
 }

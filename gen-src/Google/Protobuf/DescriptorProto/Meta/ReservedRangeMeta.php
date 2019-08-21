@@ -1,6 +1,7 @@
 <?php
 namespace Google\Protobuf\DescriptorProto\Meta;
 
+use Closure;
 use Google\Protobuf\DescriptorProto\ReservedRange;
 use Skrz\Meta\MetaInterface;
 use Skrz\Meta\Protobuf\Binary;
@@ -16,13 +17,25 @@ use Skrz\Meta\Protobuf\ProtobufMetaInterface;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ReservedRangeMeta extends ReservedRange implements MetaInterface, ProtobufMetaInterface
+final class ReservedRangeMeta implements MetaInterface, ProtobufMetaInterface
 {
 	const START_PROTOBUF_FIELD = 1;
 	const END_PROTOBUF_FIELD = 2;
 
 	/** @var ReservedRangeMeta */
 	private static $instance;
+
+	/** @var callable */
+	private static $reset;
+
+	/** @var callable */
+	private static $hash;
+
+	/** @var callable */
+	private static $fromProtobuf;
+
+	/** @var callable */
+	private static $toProtobuf;
 
 
 	/**
@@ -97,8 +110,15 @@ class ReservedRangeMeta extends ReservedRange implements MetaInterface, Protobuf
 		if (!($object instanceof ReservedRange)) {
 			throw new \InvalidArgumentException('You have to pass object of class Google\Protobuf\DescriptorProto\ReservedRange.');
 		}
-		$object->start = NULL;
-		$object->end = NULL;
+
+		if (self::$reset === null) {
+			self::$reset = Closure::bind(static function ($object) {
+				$object->start = null;
+				$object->end = null;
+			}, null, ReservedRange::class);
+		}
+
+		return (self::$reset)($object);
 	}
 
 
@@ -111,29 +131,35 @@ class ReservedRangeMeta extends ReservedRange implements MetaInterface, Protobuf
 	 *
 	 * @return string|void
 	 */
-	public static function hash($object, $algoOrCtx = 'md5', $raw = FALSE)
+	public static function hash($object, $algoOrCtx = 'md5', $raw = false)
 	{
-		if (is_string($algoOrCtx)) {
-			$ctx = hash_init($algoOrCtx);
-		} else {
-			$ctx = $algoOrCtx;
+		if (self::$hash === null) {
+			self::$hash = Closure::bind(static function ($object, $algoOrCtx, $raw) {
+				if (is_string($algoOrCtx)) {
+					$ctx = hash_init($algoOrCtx);
+				} else {
+					$ctx = $algoOrCtx;
+				}
+
+				if (isset($object->start)) {
+					hash_update($ctx, 'start');
+					hash_update($ctx, (string)$object->start);
+				}
+
+				if (isset($object->end)) {
+					hash_update($ctx, 'end');
+					hash_update($ctx, (string)$object->end);
+				}
+
+				if (is_string($algoOrCtx)) {
+					return hash_final($ctx, $raw);
+				} else {
+					return null;
+				}
+			}, null, ReservedRange::class);
 		}
 
-		if (isset($object->start)) {
-			hash_update($ctx, 'start');
-			hash_update($ctx, (string)$object->start);
-		}
-
-		if (isset($object->end)) {
-			hash_update($ctx, 'end');
-			hash_update($ctx, (string)$object->end);
-		}
-
-		if (is_string($algoOrCtx)) {
-			return hash_final($ctx, $raw);
-		} else {
-			return null;
-		}
+		return (self::$hash)($object, $algoOrCtx, $raw);
 	}
 
 
@@ -149,54 +175,60 @@ class ReservedRangeMeta extends ReservedRange implements MetaInterface, Protobuf
 	 *
 	 * @return ReservedRange
 	 */
-	public static function fromProtobuf($input, $object = NULL, &$start = 0, $end = NULL)
+	public static function fromProtobuf($input, $object = null, &$start = 0, $end = null)
 	{
-		if ($object === null) {
-			$object = new ReservedRange();
-		}
+		if (self::$fromProtobuf === null) {
+			self::$fromProtobuf = Closure::bind(static function ($input, $object, &$start, $end) {
+				if ($object === null) {
+					$object = new ReservedRange();
+				}
 
-		if ($end === null) {
-			$end = strlen($input);
-		}
+				if ($end === null) {
+					$end = strlen($input);
+				}
 
-		while ($start < $end) {
-			$tag = Binary::decodeVarint($input, $start);
-			$wireType = $tag & 0x7;
-			$number = $tag >> 3;
-			switch ($number) {
-				case 1:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->start = Binary::decodeVarint($input, $start);
-					break;
-				case 2:
-					if ($wireType !== 0) {
-						throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
-					}
-					$object->end = Binary::decodeVarint($input, $start);
-					break;
-				default:
-					switch ($wireType) {
-						case 0:
-							Binary::decodeVarint($input, $start);
-							break;
+				while ($start < $end) {
+					$tag = Binary::decodeVarint($input, $start);
+					$wireType = $tag & 0x7;
+					$number = $tag >> 3;
+					switch ($number) {
 						case 1:
-							$start += 8;
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->start = Binary::decodeVarint($input, $start);
 							break;
 						case 2:
-							$start += Binary::decodeVarint($input, $start);
-							break;
-						case 5:
-							$start += 4;
+							if ($wireType !== 0) {
+								throw new ProtobufException('Unexpected wire type ' . $wireType . ', expected 0.', $number);
+							}
+							$object->end = Binary::decodeVarint($input, $start);
 							break;
 						default:
-							throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							switch ($wireType) {
+								case 0:
+									Binary::decodeVarint($input, $start);
+									break;
+								case 1:
+									$start += 8;
+									break;
+								case 2:
+									$start += Binary::decodeVarint($input, $start);
+									break;
+								case 5:
+									$start += 4;
+									break;
+								default:
+									throw new ProtobufException('Unexpected wire type ' . $wireType . '.', $number);
+							}
 					}
-			}
+				}
+
+				return $object;
+			}, null, ReservedRange::class);
 		}
 
-		return $object;
+		return (self::$fromProtobuf)($input, $object, $start, $end);
 	}
 
 
@@ -210,21 +242,26 @@ class ReservedRangeMeta extends ReservedRange implements MetaInterface, Protobuf
 	 *
 	 * @return string
 	 */
-	public static function toProtobuf($object, $filter = NULL)
+	public static function toProtobuf($object, $filter = null)
 	{
-		$output = '';
+		if (self::$toProtobuf === null) {
+			self::$toProtobuf = Closure::bind(static function (ReservedRange $object, $filter) {
+				$output = '';
 
-		if (isset($object->start) && ($filter === null || isset($filter['start']))) {
-			$output .= "\x08";
-			$output .= Binary::encodeVarint($object->start);
+				if (isset($object->start) && ($filter === null || isset($filter['start']))) {
+					$output .= "\x08";
+					$output .= Binary::encodeVarint($object->start);
+				}
+
+				if (isset($object->end) && ($filter === null || isset($filter['end']))) {
+					$output .= "\x10";
+					$output .= Binary::encodeVarint($object->end);
+				}
+
+				return $output;
+			}, null, ReservedRange::class);
 		}
 
-		if (isset($object->end) && ($filter === null || isset($filter['end']))) {
-			$output .= "\x10";
-			$output .= Binary::encodeVarint($object->end);
-		}
-
-		return $output;
+		return (self::$toProtobuf)($object, $filter);
 	}
-
 }

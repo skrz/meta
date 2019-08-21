@@ -10,7 +10,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class Embedded
+final class Embedded
 {
 	/**
 	 * @var string
@@ -39,5 +39,4 @@ class Embedded
 		$this->x = $x;
 		return $this;
 	}
-
 }

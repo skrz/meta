@@ -10,7 +10,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithStringProperty
+final class ClassWithStringProperty
 {
 	/**
 	 * @var string
@@ -39,5 +39,4 @@ class ClassWithStringProperty
 		$this->x = $x;
 		return $this;
 	}
-
 }

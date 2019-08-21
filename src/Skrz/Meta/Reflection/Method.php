@@ -101,7 +101,7 @@ class Method
 	private $staticVariables;
 
 	/** @var object[] */
-	private $annotations = array();
+	private $annotations = [];
 
 	/** @var MixedType */
 	public $type;
@@ -113,7 +113,7 @@ class Method
 	}
 
 
-	public static function fromReflection(ReflectionMethod $reflection = NULL)
+	public static function fromReflection(ReflectionMethod $reflection = null)
 	{
 		if (!defined('PHP_VERSION_ID')) {
 			$v = explode('.', PHP_VERSION);
@@ -770,7 +770,7 @@ class Method
 	 * @param string $annotationClassName if supplied, returns only annotations of given class name
 	 * @return object[]
 	 */
-	public function getAnnotations($annotationClassName = NULL)
+	public function getAnnotations($annotationClassName = null)
 	{
 		if ($annotationClassName === null) {
 			return $this->annotations;
@@ -859,5 +859,4 @@ class Method
 		$this->type = $type;
 		return $this;
 	}
-
 }

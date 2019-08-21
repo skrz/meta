@@ -10,7 +10,7 @@ use Skrz\Meta\Protobuf\ProtobufField;
  * !!!                                                     !!!
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-class ClassWithFixed64Property
+final class ClassWithFixed64Property
 {
 	/**
 	 * @var int
@@ -39,5 +39,4 @@ class ClassWithFixed64Property
 		$this->x = $x;
 		return $this;
 	}
-
 }

@@ -56,7 +56,7 @@ class Parameter
 	}
 
 
-	public static function fromReflection(ReflectionParameter $reflection = NULL)
+	public static function fromReflection(ReflectionParameter $reflection = null)
 	{
 		if (!defined('PHP_VERSION_ID')) {
 			$v = explode('.', PHP_VERSION);
@@ -384,5 +384,4 @@ class Parameter
 		$this->type = $type;
 		return $this;
 	}
-
 }
