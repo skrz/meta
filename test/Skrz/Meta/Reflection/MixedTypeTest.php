@@ -1,7 +1,9 @@
 <?php
 namespace Skrz\Meta\Reflection;
 
-class MixedTypeTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class MixedTypeTest extends TestCase
 {
 
 	public function testFromStringWithMixed()

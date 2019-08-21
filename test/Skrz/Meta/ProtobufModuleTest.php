@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta;
 
+use PHPUnit\Framework\TestCase;
 use Skrz\Meta\Fixtures\Protobuf\ClassWithEmbeddedMessageProperty;
 use Skrz\Meta\Fixtures\Protobuf\ClassWithFixed64Property;
 use Skrz\Meta\Fixtures\Protobuf\ClassWithNoProperty;
@@ -14,7 +15,7 @@ use Skrz\Meta\Fixtures\Protobuf\Meta\ClassWithVarintPropertyMeta;
 use Skrz\Meta\Protobuf\Binary;
 use Skrz\Meta\Protobuf\WireTypeEnum;
 
-class ProtobufModuleTest extends \PHPUnit_Framework_TestCase
+class ProtobufModuleTest extends TestCase
 {
 
 	public function testSpecAnnotation()

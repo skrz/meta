@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta;
 
+use PHPUnit\Framework\TestCase;
 use Skrz\Meta\Fixtures\Base\BaseMetaSpec;
 use Skrz\Meta\Fixtures\Base\ClassToBeHashed;
 use Skrz\Meta\Fixtures\Base\Meta\ClassToBeHashedMeta;
@@ -12,7 +13,7 @@ use Skrz\Meta\Fixtures\Base\Meta\ClassWithZeroArgConstructorMeta;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
-class BaseModuleTest extends \PHPUnit_Framework_TestCase
+class BaseModuleTest extends TestCase
 {
 
 	public static function setUpBeforeClass()

@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta;
 
+use PHPUnit\Framework\TestCase;
 use Skrz\Meta\Fixtures\XML\Image;
 use Skrz\Meta\Fixtures\XML\Meta\ImageMeta;
 use Skrz\Meta\Fixtures\XML\Meta\ParamMeta;
@@ -11,7 +12,7 @@ use Skrz\Meta\Fixtures\XML\XmlMetaSpec;
 use Skrz\Meta\XML\XmlMetaInterface;
 use Symfony\Component\Finder\Finder;
 
-class XmlModuleTest extends \PHPUnit_Framework_TestCase
+class XmlModuleTest extends TestCase
 {
 
 	public static function setUpBeforeClass()

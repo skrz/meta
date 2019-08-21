@@ -49,14 +49,6 @@ class PhpModule extends AbstractModule
 				continue;
 			}
 
-			if ($property->isPrivate()) {
-				throw new MetaException(
-					"Private property '{$type->getName()}::\${$property->getName()}'. " .
-					"Either make the property protected/public if you need to process it, " .
-					"or mark it using @Transient annotation."
-				);
-			}
-
 			if (get_class($property->getType()) === "Skrz\\Meta\\Reflection\\MixedType") {
 				throw new MetaException(
 					"Property {$type->getName()}::\${$property->getName()} of type mixed. " .
@@ -193,6 +185,11 @@ class PhpModule extends AbstractModule
 				->addComment("")
 				->addComment("@return {$inputOutputTypeHint}");
 
+			$fromProperty = $class->addProperty($from->getName());
+			$fromProperty->setStatic(true)
+				->setVisibility("private")
+				->addComment("@var callable");
+
 			if ($what === "Object") {
 				$from->addBody("\$input = (array)\$input;\n");
 			}
@@ -239,13 +236,17 @@ class PhpModule extends AbstractModule
 				}
 			}
 
+			$class->getNamespace()->addUse(\Closure::class, null, $closureAlias);
+
 			$from
 				->addBody("if (\$object === null) {")
 				->addBody("\t\$object = new {$typeAlias}();")
 				->addBody("} elseif (!(\$object instanceof {$typeAlias})) {")
 				->addBody("\tthrow new \\InvalidArgumentException('You have to pass object of class {$type->getName()}.');")
 				->addBody("}")
-				->addBody("");
+				->addBody("")
+				->addBody("if (self::\${$fromProperty->getName()} === null) {")
+				->addBody("\tself::\${$fromProperty->getName()} = {$closureAlias}::bind(function (\$input, \$group, \$object, \$id) {");
 
 			foreach ($type->getProperties() as $property) {
 				foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
@@ -254,10 +255,10 @@ class PhpModule extends AbstractModule
 					$arrayKey = var_export($arrayOffset->offset, true);
 					$baseArrayPath = $arrayPath = "\$input[{$arrayKey}]";
 					$baseObjectPath = $objectPath = "\$object->{$property->getName()}";
-					$from->addBody("if ((\$id & {$groupId}) > 0 && isset({$arrayPath})) {"); // FIXME: group group IDs by offset
+					$from->addBody("\t\tif ((\$id & {$groupId}) > 0 && isset({$arrayPath})) {"); // FIXME: group group IDs by offset
 
 					$baseType = $property->getType();
-					$indent = "\t";
+					$indent = "\t\t\t";
 					$before = "";
 					$after = "";
 					for ($i = 0; $baseType instanceof ArrayType; ++$i) {
@@ -311,15 +312,20 @@ class PhpModule extends AbstractModule
 					}
 
 					$from
-						->addBody("} elseif ((\$id & {$groupId}) > 0 && array_key_exists({$arrayKey}, \$input) && {$baseArrayPath} === null) {")
-						->addBody("\t{$baseObjectPath} = null;")
-						->addBody("}");
+						->addBody("\t\t} elseif ((\$id & {$groupId}) > 0 && array_key_exists({$arrayKey}, \$input) && {$baseArrayPath} === null) {")
+						->addBody("\t\t\t{$baseObjectPath} = null;")
+						->addBody("\t\t}");
 				}
 
 				$from->addBody("");
 			}
 
-			$from->addBody("return \$object;");
+			$from
+				->addBody("\t\treturn \$object;")
+				->addBody("\t}, null, {$typeAlias}::class);")
+				->addBody("}")
+				->addBody("")
+				->addBody("return (self::\${$fromProperty->getName()})(\$input, \$group, \$object, \$id);");
 
 			// to*() method
 			$to = $class->addMethod("to{$what}");
@@ -338,6 +344,11 @@ class PhpModule extends AbstractModule
 				->addComment("@throws \\Exception")
 				->addComment("")
 				->addComment("@return " . strtolower($what));
+
+			$toProperty = $class->addProperty($to->getName());
+			$toProperty->setStatic(true)
+				->setVisibility("private")
+				->addComment("@var callable");
 
 			$to
 				->addBody("if (\$object === null) {")
@@ -394,20 +405,19 @@ class PhpModule extends AbstractModule
 				->addBody("");
 
 			$to
-				->addBody("if ({$stackAlias}::\$objects === null) {")
-				->addBody("\t{$stackAlias}::\$objects = new \\SplObjectStorage();")
-				->addBody("}")
+				->addBody("if (self::\${$toProperty->getName()} === null) {")
+				->addBody("\tself::\${$toProperty->getName()} = {$closureAlias}::bind(function (\$object, \$group, \$filter, \$id) {")
+				->addBody("\t\tif ({$stackAlias}::\$objects === null) {")
+				->addBody("\t\t\t{$stackAlias}::\$objects = new \\SplObjectStorage();")
+				->addBody("\t\t}")
 				->addBody("")
-				->addBody("if ({$stackAlias}::\$objects->contains(\$object)) {")
-				->addBody("\treturn null;")
-				->addBody("}")
+				->addBody("\t\tif ({$stackAlias}::\$objects->contains(\$object)) {")
+				->addBody("\t\t\treturn null;")
+				->addBody("\t\t}")
 				->addBody("")
-				->addBody("{$stackAlias}::\$objects->attach(\$object);")
-				->addBody("");
-
-			$to
-				->addBody("try {")
-				->addBody("\t\$output = array();")
+				->addBody("\t\t{$stackAlias}::\$objects->attach(\$object);")
+				->addBody("\t\ttry {")
+				->addBody("\t\t\t\$output = array();")
 				->addBody("");
 
 			foreach ($type->getProperties() as $property) {
@@ -422,7 +432,7 @@ class PhpModule extends AbstractModule
 
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
-					$if = "\tif ((\$id & {$groupId}) > 0";
+					$if = "\t\t\tif ((\$id & {$groupId}) > 0";
 					if ($arrayOffset->ignoreNull) {
 						$if .= " && ((isset(\$object->{$property->getName()}) && \$filter === null)";
 					} else {
@@ -434,7 +444,7 @@ class PhpModule extends AbstractModule
 					$objectPath = "\$object->{$property->getName()}";
 					$arrayPath = "\$output[" . var_export($arrayOffset->offset, true) . "]";
 					$baseType = $property->getType();
-					$indent = "\t\t";
+					$indent = "\t\t\t\t";
 					$before = "";
 					$after = "";
 					for ($i = 0; $baseType instanceof ArrayType; ++$i) {
@@ -486,22 +496,22 @@ class PhpModule extends AbstractModule
 						$to->addBody(rtrim($after));
 					}
 
-					$to->addBody("\t}");
+					$to->addBody("\t\t\t}");
 				}
 
 				$to->addBody("");
 			}
 
 			$to
-				->addBody("} catch (\\Exception \$e) {")
-				->addBody("\t{$stackAlias}::\$objects->detach(\$object);")
-				->addBody("\tthrow \$e;")
+				->addBody("\t\t} finally {")
+				->addBody("\t\t\t{$stackAlias}::\$objects->detach(\$object);")
+				->addBody("\t\t}")
+				->addBody("")
+				->addBody("\t\treturn " . ($what === "Object" ? "(object)" : "") . "\$output;")
+				->addBody("\t}, null, {$typeAlias}::class);")
 				->addBody("}")
-				->addBody("");
-
-			$to
-				->addBody("{$stackAlias}::\$objects->detach(\$object);")
-				->addBody("return " . ($what === "Object" ? "(object)" : "") . "\$output;");
+				->addBody("")
+				->addBody("return (self::\${$toProperty->getName()})(\$object, \$group, \$filter, \$id);");
 		}
 	}
 

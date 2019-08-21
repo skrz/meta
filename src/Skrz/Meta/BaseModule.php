@@ -136,13 +136,7 @@ class BaseModule extends AbstractModule
 				continue;
 			}
 
-			if ($property->isPrivate()) {
-				throw new MetaException(
-					"Private property '{$type->getName()}::\${$property->getName()}'. " .
-					"Either make the property protected/public if you need to process it, " .
-					"or mark it using @Transient annotation."
-				);
-			}
+			// TODO
 			$reset->addBody("\$object->{$property->getName()} = " . var_export($property->getDefaultValue(), true) . ";");
 		}
 

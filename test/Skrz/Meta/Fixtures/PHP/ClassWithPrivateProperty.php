@@ -1,14 +1,11 @@
 <?php
 namespace Skrz\Meta\Fixtures\PHP;
 
-use Skrz\Meta\Transient;
-
 class ClassWithPrivateProperty
 {
 
 	/**
 	 * @var integer
-	 * @Transient()
 	 */
 	private $property;
 

@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta;
 
+use PHPUnit\Framework\TestCase;
 use Skrz\Meta\Fields\Fields;
 use Skrz\Meta\Fixtures\JSON\ClassWithArrayOfJsonRoot;
 use Skrz\Meta\Fixtures\JSON\ClassWithCustomNameProperty;
@@ -18,7 +19,7 @@ use Skrz\Meta\Fixtures\JSON\Meta\ClassWithNoPropertyMeta;
 use Skrz\Meta\Fixtures\JSON\Meta\ClassWithPublicPropertyMeta;
 use Symfony\Component\Finder\Finder;
 
-class JsonModuleTest extends \PHPUnit_Framework_TestCase
+class JsonModuleTest extends TestCase
 {
 
 	public static function setUpBeforeClass()

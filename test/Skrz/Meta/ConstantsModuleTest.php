@@ -1,11 +1,12 @@
 <?php
 namespace Skrz\Meta;
 
+use PHPUnit\Framework\TestCase;
 use Skrz\Meta\Fixtures\Constants\ConstantsMetaSpec;
 use Skrz\Meta\Fixtures\Constants\Meta\ClassWithPropertiesMeta;
 use Symfony\Component\Finder\Finder;
 
-class ConstantsModuleTest extends \PHPUnit_Framework_TestCase
+class ConstantsModuleTest extends TestCase
 {
 
 	public static function setUpBeforeClass()
