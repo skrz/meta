@@ -1,6 +1,7 @@
 <?php
 namespace Skrz\Meta;
 
+use Nette\PhpGenerator\Helpers;
 use Skrz\Meta\PHP\StatementAndExpressionVO;
 use Skrz\Meta\Reflection\ArrayType;
 use Skrz\Meta\Reflection\Property;
@@ -66,15 +67,15 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 			"if ({$inputExpression} === null) {\n" .
 			"\t\$datetimeStringReturn = null;\n" .
 			"} elseif ({$inputExpression} instanceof \\DateTimeInterface) {\n" .
-			"\t\$datetimeStringReturn = {$inputExpression}->format(" . var_export($this->format, true) . ");\n" .
+			"\t\$datetimeStringReturn = {$inputExpression}->format(" . Helpers::dump($this->format) . ");\n" .
 			"} elseif (is_numeric({$inputExpression})) {\n" .
-			"\t\$datetimeStringReturn = (new " . $this->dateTimeClass . "('@' . intval({$inputExpression})))->format(" . var_export($this->format, true) . ");\n" .
+			"\t\$datetimeStringReturn = (new " . $this->dateTimeClass . "('@' . intval({$inputExpression})))->format(" . Helpers::dump($this->format) . ");\n" .
 			"} elseif (is_string({$inputExpression})) {\n" .
-			"\t\$datetimeStringReturn = (new " . $this->dateTimeClass . "({$inputExpression}))->format(" . var_export($this->format, true) . ");\n" .
+			"\t\$datetimeStringReturn = (new " . $this->dateTimeClass . "({$inputExpression}))->format(" . Helpers::dump($this->format) . ");\n" .
 			"} elseif (is_array({$inputExpression}) && isset({$inputExpression}['date'])) {\n" .
-			"\t\$datetimeStringReturn = (new " . $this->dateTimeClass . "({$inputExpression}['date']))->format(" . var_export($this->format, true) . ");\n" .
+			"\t\$datetimeStringReturn = (new " . $this->dateTimeClass . "({$inputExpression}['date']))->format(" . Helpers::dump($this->format) . ");\n" .
 			"} else {\n" .
-			"\tthrow new \\InvalidArgumentException('Could not serialize date of format ' . " . var_export($this->format, true) . " . '.');\n" .
+			"\tthrow new \\InvalidArgumentException('Could not serialize date of format ' . " . Helpers::dump($this->format) . " . '.');\n" .
 			"}",
 			"\$datetimeStringReturn"
 		);
@@ -88,17 +89,17 @@ class DateTimeFormattingSerializer implements PropertySerializerInterface
 			"} elseif (is_numeric({$inputExpression})) {\n" .
 			"\t\$datetimeInstanceReturn = new " . $this->dateTimeClass . "('@' . intval({$inputExpression}));\n" .
 			"} elseif (is_string({$inputExpression})) {\n" .
-			"\tif ({$inputExpression} === " . var_export($this->emptyValue, true) . ") {\n" .
+			"\tif ({$inputExpression} === " . Helpers::dump($this->emptyValue) . ") {\n" .
 			"\t\t\$datetimeInstanceReturn = null;\n" .
 			"\t} else {\n" .
-			"\t\t\$datetimeInstanceReturn = " . $this->dateTimeClass . "::createFromFormat(" . var_export($this->format, true) . ", {$inputExpression});\n" .
+			"\t\t\$datetimeInstanceReturn = " . $this->dateTimeClass . "::createFromFormat(" . Helpers::dump($this->format) . ", {$inputExpression});\n" .
 			"\t}\n" .
 			"} elseif (is_array({$inputExpression}) && isset({$inputExpression}['date'])) {\n" .
 			"\t\$datetimeInstanceReturn = new " . $this->dateTimeClass . "({$inputExpression}['date']);\n" .
 			"} elseif ({$inputExpression} === null) {\n" .
 			"\t\$datetimeInstanceReturn = null;\n" .
 			"} else {\n" .
-			"\tthrow new \\InvalidArgumentException('Could not deserialize date of format ' . " . var_export($this->format, true) . " . '.');\n" .
+			"\tthrow new \\InvalidArgumentException('Could not deserialize date of format ' . " . Helpers::dump($this->format) . " . '.');\n" .
 			"}",
 			"\$datetimeInstanceReturn"
 		);

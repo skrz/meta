@@ -2,6 +2,7 @@
 namespace Skrz\Meta;
 
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Helpers;
 use Skrz\Meta\Reflection\ArrayType;
 use Skrz\Meta\Reflection\ScalarType;
 use Skrz\Meta\Reflection\Type;
@@ -142,7 +143,7 @@ class BaseModule extends AbstractModule
 			->addBody("\tself::\${$resetProperty->getName()} = {$closureAlias}::bind(static function (\$object) {");
 
 		foreach ($type->getProperties() as $property) {
-			$reset->addBody("\t\t\$object->{$property->getName()} = " . var_export($property->getDefaultValue(), true) . ";");
+			$reset->addBody("\t\t\$object->{$property->getName()} = " . Helpers::dump($property->getDefaultValue()) . ";");
 		}
 
 		$reset
@@ -193,7 +194,7 @@ class BaseModule extends AbstractModule
 			$objectPath = "\$object->{$property->getName()}";
 
 			$hash->addBody("\t\tif (isset({$objectPath})) {");
-			$hash->addBody("\t\t\thash_update(\$ctx, " . var_export($property->getName(), true) .");");
+			$hash->addBody("\t\t\thash_update(\$ctx, " . Helpers::dump($property->getName()) .");");
 
 			$baseType = $property->getType();
 			$indent = "\t\t\t";

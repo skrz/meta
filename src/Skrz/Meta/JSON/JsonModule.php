@@ -2,6 +2,7 @@
 namespace Skrz\Meta\JSON;
 
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Helpers;
 use Skrz\Meta\AbstractMetaSpec;
 use Skrz\Meta\AbstractModule;
 use Skrz\Meta\MetaException;
@@ -243,7 +244,7 @@ class JsonModule extends AbstractModule
 		$fromArrayOfJson
 			->addBody("\$group = 'json:' . \$group;")
 			->addBody("if (!isset(self::\$groups[\$group])) {")
-			->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
+			->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . Helpers::dump($type->getName()) . " . '.');")
 			->addBody("} else {")
 			->addBody("\t\$id = self::\$groups[\$group];")
 			->addBody("}")
@@ -278,7 +279,7 @@ class JsonModule extends AbstractModule
 			->addBody("")
 			->addBody("\$group = 'json:' . \$group;")
 			->addBody("if (!isset(self::\$groups[\$group])) {")
-			->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
+			->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . Helpers::dump($type->getName()) . " . '.');")
 			->addBody("} else {")
 			->addBody("\t\$id = self::\$groups[\$group];")
 			->addBody("}")
@@ -305,7 +306,7 @@ class JsonModule extends AbstractModule
 
 				$groupId = $groups[$arrayOffset->group];
 
-				$inputPath = var_export($arrayOffset->offset, true);
+				$inputPath = Helpers::dump($arrayOffset->offset);
 
 				$fromArrayOfJson
 					->addBody("if ((\$id & {$groupId}) > 0 && isset(\$input[{$inputPath}]) && is_string(\$input[{$inputPath}])) {")

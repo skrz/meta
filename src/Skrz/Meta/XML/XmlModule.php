@@ -2,6 +2,7 @@
 namespace Skrz\Meta\XML;
 
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Helpers;
 use Nette\Utils\Strings;
 use Skrz\Meta\AbstractMetaSpec;
 use Skrz\Meta\AbstractModule;
@@ -154,7 +155,7 @@ class XmlModule extends AbstractModule
 
 		$fromXml
 			->addBody("if (!isset(self::\$xmlGroups[\$group])) {")
-			->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
+			->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . Helpers::dump($type->getName()) . " . '.');")
 			->addBody("} else {")
 			->addBody("\t\$id = self::\$xmlGroups[\$group];")
 			->addBody("}")
@@ -208,7 +209,7 @@ class XmlModule extends AbstractModule
 					$attributesByName[$name] = "";
 				}
 
-				$attributesByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . var_export($xmlAttribute->namespace, true) . ") {\n";
+				$attributesByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . Helpers::dump($xmlAttribute->namespace) . ") {\n";
 				$attributesByName[$name] .= Strings::indent($this->assignObjectProperty($xmlAttribute, $property, "\$xml->value"), 1, "\t") . "\n";
 				$attributesByName[$name] .= "}\n";
 
@@ -224,7 +225,7 @@ class XmlModule extends AbstractModule
 			$i = 0;
 			foreach ($attributesByName as $name => $code) {
 				$fromXmlReader
-					->addBody("\t\t\t\t\tcase " . var_export($name, true) . ":")
+					->addBody("\t\t\t\t\tcase " . Helpers::dump($name) . ":")
 					->addBody(Strings::indent($code, 6, "\t"))
 					->addBody("\t\t\t\t\t\tbreak;");
 
@@ -289,7 +290,7 @@ class XmlModule extends AbstractModule
 					$elementsByName[$name] = "";
 				}
 
-				$elementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . var_export($xmlElementWrapper->namespace, true) . " && \$depth === 2) {\n";
+				$elementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . Helpers::dump($xmlElementWrapper->namespace) . " && \$depth === 2) {\n";
 				$elementsByName[$name] .= "\t\$wrapped |= {$wrappers[$wrapperId]};\n";
 				$elementsByName[$name] .= "}\n";
 
@@ -297,7 +298,7 @@ class XmlModule extends AbstractModule
 					$endElementsByName[$name] = "";
 				}
 
-				$endElementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . var_export($xmlElementWrapper->namespace, true) . " && \$depth === 2) {\n";
+				$endElementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . Helpers::dump($xmlElementWrapper->namespace) . " && \$depth === 2) {\n";
 				$endElementsByName[$name] .= "\t\$wrapped &= ~{$wrappers[$wrapperId]};\n";
 				$endElementsByName[$name] .= "}\n";
 			}
@@ -325,7 +326,7 @@ class XmlModule extends AbstractModule
 					throw new MetaException("fromXml() cannot process multi-dimensional arrays ({$type->getName()}::\${$property->getName()}).");
 				}
 
-				$elementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . var_export($xmlElement->namespace, true) . " && ";
+				$elementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . Helpers::dump($xmlElement->namespace) . " && ";
 				if (isset($wrappers[$wrapperId])) {
 					$elementsByName[$name] .= "(\$depth === 2 || (\$depth === 3 && (\$wrapped & {$wrappers[$wrapperId]}) > 0))";
 				} else {
@@ -366,7 +367,7 @@ class XmlModule extends AbstractModule
 			$i = 0;
 			foreach ($elementsByName as $name => $code) {
 				$fromXmlReader
-					->addBody("\t\t\t\t\t\tcase " . var_export($name, true) . ":")
+					->addBody("\t\t\t\t\t\tcase " . Helpers::dump($name) . ":")
 					->addBody(Strings::indent($code, 7, "\t"))
 					->addBody("\t\t\t\t\t\t\tbreak;");
 
@@ -389,7 +390,7 @@ class XmlModule extends AbstractModule
 				$i = 0;
 				foreach ($endElementsByName as $name => $code) {
 					$fromXmlReader
-						->addBody("\t\t\t\t\t\tcase " . var_export($name, true) . ":")
+						->addBody("\t\t\t\t\t\tcase " . Helpers::dump($name) . ":")
 						->addBody(Strings::indent($code, 7, "\t"))
 						->addBody("\t\t\t\t\t\t\tbreak;");
 
@@ -461,16 +462,16 @@ class XmlModule extends AbstractModule
 				if ($xmlAttribute->namespace) {
 					$fromXmlElement->addBody(
 						"\t\tif ((\$id & {$groupId}) > 0 && " .
-						"\$xml->hasAttributeNS(" . var_export($xmlAttribute->namespace, true) . ", " .
-						var_export($xmlAttribute->name, true) . ")) {"
+						"\$xml->hasAttributeNS(" . Helpers::dump($xmlAttribute->namespace) . ", " .
+						Helpers::dump($xmlAttribute->name) . ")) {"
 					);
-					$expr = "\$xml->getAttributeNS(" . var_export($xmlAttribute->namespace, true) . ", " . var_export($xmlAttribute->name, true) . ")";
+					$expr = "\$xml->getAttributeNS(" . Helpers::dump($xmlAttribute->namespace) . ", " . Helpers::dump($xmlAttribute->name) . ")";
 				} else {
 					$fromXmlElement->addBody(
 						"\t\tif ((\$id & {$groupId}) > 0 && " .
-						"\$xml->hasAttribute(" . var_export($xmlAttribute->name, true) . ")) {"
+						"\$xml->hasAttribute(" . Helpers::dump($xmlAttribute->name) . ")) {"
 					);
-					$expr = "\$xml->getAttribute(" . var_export($xmlAttribute->name, true) . ")";
+					$expr = "\$xml->getAttribute(" . Helpers::dump($xmlAttribute->name) . ")";
 				}
 
 				$fromXmlElement
@@ -523,7 +524,7 @@ class XmlModule extends AbstractModule
 				}
 
 				$elementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " .
-					var_export(empty($xmlElementWrapper->namespace) ? null : $xmlElementWrapper->namespace, true) .
+					Helpers::dump(empty($xmlElementWrapper->namespace) ? null : $xmlElementWrapper->namespace) .
 					" && \$sp === 0 && \$node->childNodes->length > 0) {\n";
 				$elementsByName[$name] .= "\t\$wrapped |= {$wrappers[$wrapperId]};\n";
 				$elementsByName[$name] .= "\t\$push = true;\n";
@@ -553,7 +554,7 @@ class XmlModule extends AbstractModule
 					throw new MetaException("fromXml() cannot process multi-dimensional arrays ({$type->getName()}::\${$property->getName()}).");
 				}
 
-				$elementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . var_export(empty($xmlElement->namespace) ? null : $xmlElement->namespace, true) . " && ";
+				$elementsByName[$name] .= "if ((\$id & {$groupId}) > 0 && \$xml->namespaceURI === " . Helpers::dump(empty($xmlElement->namespace) ? null : $xmlElement->namespace) . " && ";
 				if (isset($wrappers[$wrapperId])) {
 					$elementsByName[$name] .= "(\$sp === 0 || (\$sp === 1 && (\$wrapped & {$wrappers[$wrapperId]}) > 0))";
 				} else {
@@ -598,7 +599,7 @@ class XmlModule extends AbstractModule
 			$i = 0;
 			foreach ($elementsByName as $name => $code) {
 				$fromXmlElement
-					->addBody("\t\t\t\t\tcase " . var_export($name, true) . ":")
+					->addBody("\t\t\t\t\tcase " . Helpers::dump($name) . ":")
 					->addBody(Strings::indent($code, 6, "\t"))
 					->addBody("\t\t\t\t\t\tbreak;");
 
@@ -665,7 +666,7 @@ class XmlModule extends AbstractModule
 			->addBody("}")
 			->addBody("")
 			->addBody("if (!isset(self::\$xmlGroups[\$group])) {")
-			->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
+			->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . Helpers::dump($type->getName()) . " . '.');")
 			->addBody("} else {")
 			->addBody("\t\$id = self::\$xmlGroups[\$group];")
 			->addBody("}")
@@ -734,11 +735,11 @@ class XmlModule extends AbstractModule
 
 			if ($xmlElement->namespace) {
 				$toXmlWriter->addBody(
-					"\t\t\t\t\$xml->startElementNS(null, " . var_export($xmlElement->name, true) . ", " .
-					var_export($xmlElement->namespace, true) . ");"
+					"\t\t\t\t\$xml->startElementNS(null, " . Helpers::dump($xmlElement->name) . ", " .
+					Helpers::dump($xmlElement->namespace) . ");"
 				);
 			} else {
-				$toXmlWriter->addBody("\t\t\t\t\$xml->startElement(" . var_export($xmlElement->name, true) . ");");
+				$toXmlWriter->addBody("\t\t\t\t\$xml->startElement(" . Helpers::dump($xmlElement->name) . ");");
 			}
 
 			$toXmlWriter->addBody("\t\t\t}");
@@ -752,7 +753,7 @@ class XmlModule extends AbstractModule
 
 				$groupId = $groups[$xmlAttribute->group];
 
-				$toXmlWriter->addBody("\t\tif ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[" . var_export("@" . $xmlAttribute->name, true) . "]))) {");
+				$toXmlWriter->addBody("\t\tif ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[" . Helpers::dump("@" . $xmlAttribute->name) . "]))) {");
 
 				$matchingPropertySerializer = null;
 				foreach ($this->propertySerializers as $propertySerializer) {
@@ -777,10 +778,10 @@ class XmlModule extends AbstractModule
 				}
 
 				if ($xmlAttribute->namespace) {
-					$toXmlWriter->addBody("\t\t\t\$xml->writeAttributeNS(null, " . var_export($xmlAttribute->name, true) . ", " . var_export($xmlAttribute->namespace, true) . ", {$sevo->getExpression()});");
+					$toXmlWriter->addBody("\t\t\t\$xml->writeAttributeNS(null, " . Helpers::dump($xmlAttribute->name) . ", " . Helpers::dump($xmlAttribute->namespace) . ", {$sevo->getExpression()});");
 
 				} else {
-					$toXmlWriter->addBody("\t\t\t\$xml->writeAttribute(" . var_export($xmlAttribute->name, true) . ", {$sevo->getExpression()});");
+					$toXmlWriter->addBody("\t\t\t\$xml->writeAttribute(" . Helpers::dump($xmlAttribute->name) . ", {$sevo->getExpression()});");
 				}
 
 				$toXmlWriter
@@ -867,8 +868,8 @@ class XmlModule extends AbstractModule
 				++$elementCount;
 
 				$groupId = $groups[$xmlElement->group];
-				$elementNamespaceStr = var_export($xmlElement->namespace, true);
-				$elementNameStr = var_export($xmlElement->name, true);
+				$elementNamespaceStr = Helpers::dump($xmlElement->namespace);
+				$elementNameStr = Helpers::dump($xmlElement->name);
 
 				$toXmlWriter->addBody("\t\t\tif ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[{$elementNameStr}]))) {");
 
@@ -947,8 +948,8 @@ class XmlModule extends AbstractModule
 				/** @var Property[] $properties */
 
 				$groupId = $groups[$xmlElementWrapper->group];
-				$namespaceStr = var_export($xmlElementWrapper->namespace, true);
-				$nameStr = var_export($xmlElementWrapper->name, true);
+				$namespaceStr = Helpers::dump($xmlElementWrapper->namespace);
+				$nameStr = Helpers::dump($xmlElementWrapper->name);
 
 				$propertiesIssets = [];
 
@@ -970,8 +971,8 @@ class XmlModule extends AbstractModule
 							continue;
 						}
 
-						$elementNamespaceStr = var_export($xmlElement->namespace, true);
-						$elementNameStr = var_export($xmlElement->name, true);
+						$elementNamespaceStr = Helpers::dump($xmlElement->namespace);
+						$elementNameStr = Helpers::dump($xmlElement->name);
 
 						// no need to check group ID, already checked by wrapper
 						$toXmlWriter->addBody("\t\t\t\tif (isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[{$nameStr}][{$elementNameStr}]))) {");
@@ -1093,9 +1094,9 @@ class XmlModule extends AbstractModule
 			$toXmlElement->addBody("\t\tif (!isset(\$el) && (\$id & {$groupId}) > 0) {");
 
 			if ($xmlElement->namespace) {
-				$toXmlElement->addBody("\t\t\t\$el = \$xml->createElementNS(" . var_export($xmlElement->namespace, true) . ", " . var_export($xmlElement->name, true) . ");");
+				$toXmlElement->addBody("\t\t\t\$el = \$xml->createElementNS(" . Helpers::dump($xmlElement->namespace) . ", " . Helpers::dump($xmlElement->name) . ");");
 			} else {
-				$toXmlElement->addBody("\t\t\t\$el = \$xml->createElement(" . var_export($xmlElement->name, true) . ");");
+				$toXmlElement->addBody("\t\t\t\$el = \$xml->createElement(" . Helpers::dump($xmlElement->name) . ");");
 			}
 
 			$toXmlElement->addBody("\t\t}")->addBody("");
@@ -1112,9 +1113,9 @@ class XmlModule extends AbstractModule
 			foreach ($property->getAnnotations(XmlAttribute::class) as $xmlAttribute) {
 				++$attributeCount;
 				$groupId = $groups[$xmlAttribute->group];
-				$attributeNamespaceStr = var_export($xmlAttribute->namespace, true);
-				$attributeNameStr = var_export($xmlAttribute->name, true);
-				$attributeFilterStr = var_export("@" . $xmlAttribute->name, true);
+				$attributeNamespaceStr = Helpers::dump($xmlAttribute->namespace);
+				$attributeNameStr = Helpers::dump($xmlAttribute->name);
+				$attributeFilterStr = Helpers::dump("@" . $xmlAttribute->name);
 
 				$toXmlElement->addBody("\t\tif ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[{$attributeFilterStr}]))) {");
 
@@ -1230,8 +1231,8 @@ class XmlModule extends AbstractModule
 				++$elementCount;
 
 				$groupId = $groups[$xmlElement->group];
-				$elementNamespaceStr = var_export($xmlElement->namespace, true);
-				$elementNameStr = var_export($xmlElement->name, true);
+				$elementNamespaceStr = Helpers::dump($xmlElement->namespace);
+				$elementNameStr = Helpers::dump($xmlElement->name);
 
 				$toXmlElement->addBody("\t\t\tif ((\$id & {$groupId}) > 0 && isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[{$elementNameStr}]))) {");
 
@@ -1311,8 +1312,8 @@ class XmlModule extends AbstractModule
 				/** @var Property[] $properties */
 
 				$groupId = $groups[$xmlElementWrapper->group];
-				$namespaceStr = var_export($xmlElementWrapper->namespace, true);
-				$nameStr = var_export($xmlElementWrapper->name, true);
+				$namespaceStr = Helpers::dump($xmlElementWrapper->namespace);
+				$nameStr = Helpers::dump($xmlElementWrapper->name);
 
 				$propertiesIssets = [];
 
@@ -1334,8 +1335,8 @@ class XmlModule extends AbstractModule
 							continue;
 						}
 
-						$elementNamespaceStr = var_export($xmlElement->namespace, true);
-						$elementNameStr = var_export($xmlElement->name, true);
+						$elementNamespaceStr = Helpers::dump($xmlElement->namespace);
+						$elementNameStr = Helpers::dump($xmlElement->name);
 
 						// no need to check group ID, already checked by wrapper
 						$toXmlElement->addBody("\t\t\t\tif (isset(\$object->{$property->getName()}) && (\$filter === null || isset(\$filter[{$nameStr}][{$elementNameStr}]))) {");

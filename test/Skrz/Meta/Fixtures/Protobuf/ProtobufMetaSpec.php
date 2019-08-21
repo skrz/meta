@@ -12,6 +12,7 @@ class ProtobufMetaSpec extends AbstractMetaSpec
 	{
 		$this
 			->match("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWith**")
+			->match("Skrz\\Meta\\Fixtures\\Protobuf\\ClassWithEmbeddedMessageProperty\\Embedded")
 			->notMatch("**Enum")
 			->addModule(new PhpModule())
 			->addModule(new ProtobufModule());

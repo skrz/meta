@@ -2,6 +2,7 @@
 namespace Skrz\Meta\PHP;
 
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\Helpers;
 use Nette\Utils\Strings;
 use Skrz\Meta\AbstractMetaSpec;
 use Skrz\Meta\AbstractModule;
@@ -199,7 +200,7 @@ class PhpModule extends AbstractModule
 			// TODO: more groups - include/exclude
 			$from
 				->addBody("if (!isset(self::\$groups[\$group])) {")
-				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
+				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . Helpers::dump($type->getName()) . " . '.');")
 				->addBody("} else {")
 				->addBody("\t\$id = self::\$groups[\$group];")
 				->addBody("}")
@@ -215,8 +216,8 @@ class PhpModule extends AbstractModule
 							$from
 								->addBody(
 									"if ((\$id & {$groupId}) > 0 && " .
-									"isset(\$input[" . var_export($groupDiscriminatorOffset, true) . "]) && " .
-									"\$input[" . var_export($groupDiscriminatorOffset, true) . "] === " . var_export($value, true) . ") {"
+									"isset(\$input[" . Helpers::dump($groupDiscriminatorOffset) . "]) && " .
+									"\$input[" . Helpers::dump($groupDiscriminatorOffset) . "] === " . var_export($value, true) . ") {"
 								)
 								->addBody("\treturn {$alias}::from{$what}(\$input, \$group, \$object);")
 								->addBody("}")
@@ -228,9 +229,9 @@ class PhpModule extends AbstractModule
 							$from
 								->addBody(
 									"if ((\$id & {$groupId}) > 0 && " .
-									"isset(\$input[" . var_export($value, true) . "])) {"
+									"isset(\$input[" . Helpers::dump($value) . "])) {"
 								)
-								->addBody("\treturn {$alias}::from{$what}(\$input[" . var_export($value, true) . "], \$group, \$object);")
+								->addBody("\treturn {$alias}::from{$what}(\$input[" . Helpers::dump($value) . "], \$group, \$object);")
 								->addBody("}")
 								->addBody("");
 						}
@@ -254,7 +255,7 @@ class PhpModule extends AbstractModule
 				foreach ($property->getAnnotations(PhpArrayOffset::class) as $arrayOffset) {
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
-					$arrayKey = var_export($arrayOffset->offset, true);
+					$arrayKey = Helpers::dump($arrayOffset->offset);
 					$baseArrayPath = $arrayPath = "\$input[{$arrayKey}]";
 					$baseObjectPath = $objectPath = "\$object->{$property->getName()}";
 					$from->addBody("\t\tif ((\$id & {$groupId}) > 0 && isset({$arrayPath})) {"); // FIXME: group group IDs by offset
@@ -360,7 +361,7 @@ class PhpModule extends AbstractModule
 			// TODO: more groups - include/exclude
 			$to
 				->addBody("if (!isset(self::\$groups[\$group])) {")
-				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . var_export($type->getName(), true) . " . '.');")
+				->addBody("\tthrow new \\InvalidArgumentException('Group \\'' . \$group . '\\' not supported for ' . " . Helpers::dump($type->getName()) . " . '.');")
 				->addBody("} else {")
 				->addBody("\t\$id = self::\$groups[\$group];")
 				->addBody("}")
@@ -383,12 +384,12 @@ class PhpModule extends AbstractModule
 							->addBody("\t\$output = {$metaAlias}::to{$what}(\$object, \$group);");
 
 						if ($groupDiscriminatorOffset === null) {
-							$to->addBody("\t\$output = " . ($what === "Object" ? "(object)" : "") . "array(" . var_export($value, true) . " => " . ($what === "Object" ? "(object)" : "") . "\$output);");
+							$to->addBody("\t\$output = " . ($what === "Object" ? "(object)" : "") . "array(" . Helpers::dump($value) . " => " . ($what === "Object" ? "(object)" : "") . "\$output);");
 						} else {
 							if ($what === "Object") {
-								$to->addBody("\t\$output->{$groupDiscriminatorOffset} = " . var_export($value, true) . ";"); // FIXME: might compile to incorrect PHP code
+								$to->addBody("\t\$output->{$groupDiscriminatorOffset} = " . Helpers::dump($value) . ";"); // FIXME: might compile to incorrect PHP code
 							} else {
-								$to->addBody("\t\$output[" . var_export($groupDiscriminatorOffset, true) . "] = " . var_export($value, true) . ";");
+								$to->addBody("\t\$output[" . Helpers::dump($groupDiscriminatorOffset) . "] = " . Helpers::dump($value) . ";");
 							}
 						}
 
@@ -440,11 +441,11 @@ class PhpModule extends AbstractModule
 					} else {
 						$if .= " && (\$filter === null";
 					}
-					$if .= " || isset(\$filter[" . var_export($arrayOffset->offset, true) . "]))) {"; // FIXME: group group IDs by offset
+					$if .= " || isset(\$filter[" . Helpers::dump($arrayOffset->offset) . "]))) {"; // FIXME: group group IDs by offset
 					$to->addBody($if);
 
 					$objectPath = "\$object->{$property->getName()}";
-					$arrayPath = "\$output[" . var_export($arrayOffset->offset, true) . "]";
+					$arrayPath = "\$output[" . Helpers::dump($arrayOffset->offset) . "]";
 					$baseType = $property->getType();
 					$indent = "\t\t\t\t";
 					$before = "";
@@ -486,7 +487,7 @@ class PhpModule extends AbstractModule
 							"{$indent}{$arrayPath} = {$propertyTypeMetaClassNameAlias}::to{$what}(" .
 							"{$objectPath}, " .
 							"\$group, " .
-							"\$filter === null ? null : \$filter[" . var_export($arrayOffset->offset, true) . "]" .
+							"\$filter === null ? null : \$filter[" . Helpers::dump($arrayOffset->offset) . "]" .
 							");"
 						);
 
