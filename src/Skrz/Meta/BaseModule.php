@@ -57,8 +57,8 @@ class BaseModule extends AbstractModule
 		}
 
 		// implement base interface
-		$namespace->addUse("Skrz\\Meta\\MetaInterface", null, $metaInterfaceAlias);
-		$class->addImplement("Skrz\\Meta\\MetaInterface");
+		$namespace->addUse(MetaInterface::class, null, $metaInterfaceAlias);
+		$class->addImplement(MetaInterface::class);
 
 		// getInstance() method
 		$instance = $class->addProperty("instance");
@@ -112,6 +112,8 @@ class BaseModule extends AbstractModule
 		$create->addBody("\t\tthrow new \\InvalidArgumentException('More than {$maxArguments} arguments supplied, please be reasonable.');");
 		$create->addBody("}");
 
+		$class->getNamespace()->addUse(\Closure::class, null, $closureAlias);
+
 		// reset() method
 		$reset = $class->addMethod("reset");
 		$reset->setStatic(true);
@@ -126,19 +128,28 @@ class BaseModule extends AbstractModule
 
 		$reset->addParameter("object");
 
+		$resetProperty = $class->addProperty($reset->getName());
+		$resetProperty->setStatic(true)
+			->setVisibility("private")
+			->addComment("@var callable");
+
 		$reset
 			->addBody("if (!(\$object instanceof {$typeAlias})) {")
 			->addBody("\tthrow new \\InvalidArgumentException('You have to pass object of class {$type->getName()}.');")
-			->addBody("}");
+			->addBody("}")
+			->addBody("")
+			->addBody("if (self::\${$resetProperty->getName()} === null) {")
+			->addBody("\tself::\${$resetProperty->getName()} = {$closureAlias}::bind(static function (\$object) {");
 
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
-				continue;
-			}
-
-			// TODO
-			$reset->addBody("\$object->{$property->getName()} = " . var_export($property->getDefaultValue(), true) . ";");
+			$reset->addBody("\t\t\$object->{$property->getName()} = " . var_export($property->getDefaultValue(), true) . ";");
 		}
+
+		$reset
+			->addBody("\t}, null, {$typeAlias}::class);")
+			->addBody("}")
+			->addBody("")
+			->addBody("return (self::\${$resetProperty->getName()})(\$object);");
 
 		// hash() method
 		$hash = $class->addMethod("hash");
@@ -155,30 +166,37 @@ class BaseModule extends AbstractModule
 		$hash->addParameter("algoOrCtx")->setDefaultValue("md5")->setOptional(true);
 		$hash->addParameter("raw")->setDefaultValue(false)->setOptional(true);
 
+		$hashProperty = $class->addProperty($hash->getName());
+		$hashProperty->setStatic(true)
+			->setVisibility("private")
+			->addComment("@var callable");
+
 		$hash
-			->addBody("if (is_string(\$algoOrCtx)) {")
-			->addBody("\t\$ctx = hash_init(\$algoOrCtx);")
-			->addBody("} else {")
-			->addBody("\t\$ctx = \$algoOrCtx;")
-			->addBody("}")
+			->addBody("if (self::\${$hashProperty->getName()} === null) {")
+			->addBody("\tself::\${$hashProperty->getName()} = {$closureAlias}::bind(static function (\$object, \$algoOrCtx, \$raw) {")
+			->addBody("\t\tif (is_string(\$algoOrCtx)) {")
+			->addBody("\t\t\t\$ctx = hash_init(\$algoOrCtx);")
+			->addBody("\t\t} else {")
+			->addBody("\t\t\t\$ctx = \$algoOrCtx;")
+			->addBody("\t\t}")
 			->addBody("");
 
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
+			if ($property->hasAnnotation(Transient::class)) {
 				continue;
 			}
 
-			if ($property->hasAnnotation("Skrz\\Meta\\Hash")) {
+			if ($property->hasAnnotation(Hash::class)) {
 				continue;
 			}
 
 			$objectPath = "\$object->{$property->getName()}";
 
-			$hash->addBody("if (isset({$objectPath})) {");
-			$hash->addBody("\thash_update(\$ctx, " . var_export($property->getName(), true) .");");
+			$hash->addBody("\t\tif (isset({$objectPath})) {");
+			$hash->addBody("\t\t\thash_update(\$ctx, " . var_export($property->getName(), true) .");");
 
 			$baseType = $property->getType();
-			$indent = "\t";
+			$indent = "\t\t\t";
 			$before = "";
 			$after = "";
 			for ($i = 0; $baseType instanceof ArrayType; ++$i) {
@@ -215,15 +233,19 @@ class BaseModule extends AbstractModule
 				$hash->addBody(rtrim($after));
 			}
 
-			$hash->addBody("}")->addBody("");
+			$hash->addBody("\t\t}")->addBody("");
 		}
 
 		$hash
-			->addBody("if (is_string(\$algoOrCtx)) {")
-			->addBody("\treturn hash_final(\$ctx, \$raw);")
-			->addBody("} else {")
-			->addBody("\treturn null;")
-			->addBody("}");
+			->addBody("\t\tif (is_string(\$algoOrCtx)) {")
+			->addBody("\t\t\treturn hash_final(\$ctx, \$raw);")
+			->addBody("\t\t} else {")
+			->addBody("\t\t\treturn null;")
+			->addBody("\t\t}")
+			->addBody("\t}, null, {$typeAlias}::class);")
+			->addBody("}")
+			->addBody("")
+			->addBody("return (self::\${$hashProperty->getName()})(\$object, \$algoOrCtx, \$raw);");
 	}
 
 }

@@ -12,6 +12,7 @@ use Skrz\Meta\PHP\PhpDiscriminatorOffset;
 use Skrz\Meta\PHP\PhpModule;
 use Skrz\Meta\Reflection\ScalarType;
 use Skrz\Meta\Reflection\Type;
+use Skrz\Meta\Transient;
 
 class JsonModule extends AbstractModule
 {
@@ -43,7 +44,7 @@ class JsonModule extends AbstractModule
 	{
 		$annotations = $type->getAnnotations();
 
-		foreach ($type->getAnnotations("Skrz\\Meta\\JSON\\JsonDiscriminatorMap") as $jsonDiscriminatorMap) {
+		foreach ($type->getAnnotations(JsonDiscriminatorMap::class) as $jsonDiscriminatorMap) {
 			/** @var JsonDiscriminatorMap $jsonDiscriminatorMap */
 
 			$annotations[] = $phpDiscriminatorMap = new PhpDiscriminatorMap();
@@ -51,7 +52,7 @@ class JsonModule extends AbstractModule
 			$phpDiscriminatorMap->group = "json:" . $jsonDiscriminatorMap->group;
 		}
 
-		foreach ($type->getAnnotations("Skrz\\Meta\\JSON\\JsonDiscriminatorProperty") as $jsonDiscriminatorProperty) {
+		foreach ($type->getAnnotations(JsonDiscriminatorProperty::class) as $jsonDiscriminatorProperty) {
 			/** @var JsonDiscriminatorProperty $jsonDiscriminatorProperty */
 
 			$annotations[] = $phpDiscriminatorOffset = new PhpDiscriminatorOffset();
@@ -62,12 +63,12 @@ class JsonModule extends AbstractModule
 		$type->setAnnotations($annotations);
 
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
+			if ($property->hasAnnotation(Transient::class)) {
 				continue;
 			}
 
 			$hasDefaultGroup = false;
-			foreach ($property->getAnnotations("Skrz\\Meta\\JSON\\JsonProperty") as $annotation) {
+			foreach ($property->getAnnotations(JsonProperty::class) as $annotation) {
 				/** @var JsonProperty $annotation */
 
 				if ($annotation->group === JsonProperty::DEFAULT_GROUP) {
@@ -88,7 +89,7 @@ class JsonModule extends AbstractModule
 
 			$property->setAnnotations($annotations);
 
-			foreach ($property->getAnnotations("Skrz\\Meta\\JSON\\JsonProperty") as $jsonProperty) {
+			foreach ($property->getAnnotations(JsonProperty::class) as $jsonProperty) {
 				/** @var JsonProperty $jsonProperty */
 				$annotations[] = $arrayOffset = new PhpArrayOffset();
 				$arrayOffset->offset = $jsonProperty->name;
@@ -105,7 +106,7 @@ class JsonModule extends AbstractModule
 		$ns = $class->getNamespace();
 
 		$inputOutputClasses = array($type->getName() => true);
-		foreach ($type->getAnnotations("Skrz\\Meta\\JSON\\JsonDiscriminatorMap") as $discriminatorMap) {
+		foreach ($type->getAnnotations(JsonDiscriminatorMap::class) as $discriminatorMap) {
 			/** @var JsonDiscriminatorMap $discriminatorMap */
 			foreach ($discriminatorMap->map as $value => $className) {
 				$inputOutputClasses[$className] = true;
@@ -120,9 +121,9 @@ class JsonModule extends AbstractModule
 		}
 		$inputOutputTypeHint = implode("|", $inputOutputTypeHint);
 
-		$ns->addUse("Skrz\\Meta\\JSON\\JsonMetaInterface");
+		$ns->addUse(JsonMetaInterface::class);
 		$ns->addUse($type->getName(), null, $typeAlias);
-		$class->addImplement("Skrz\\Meta\\JSON\\JsonMetaInterface");
+		$class->addImplement(JsonMetaInterface::class);
 
 		// fromJson()
 		$fromJson = $class->addMethod("fromJson");
@@ -292,7 +293,7 @@ class JsonModule extends AbstractModule
 				continue; // skip scalar fields
 			}
 
-			foreach ($property->getAnnotations("Skrz\\Meta\\JSON\\JsonProperty") as $jsonProperty) {
+			foreach ($property->getAnnotations(JsonProperty::class) as $jsonProperty) {
 				/** @var JsonProperty $jsonProperty */
 				$arrayOffset = new PhpArrayOffset();
 				$arrayOffset->offset = $jsonProperty->name;

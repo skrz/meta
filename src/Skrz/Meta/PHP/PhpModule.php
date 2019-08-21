@@ -9,9 +9,12 @@ use Skrz\Meta\MetaException;
 use Skrz\Meta\MetaSpecMatcher;
 use Skrz\Meta\PropertySerializerInterface;
 use Skrz\Meta\Reflection\ArrayType;
+use Skrz\Meta\Reflection\MixedType;
 use Skrz\Meta\Reflection\Property;
 use Skrz\Meta\Reflection\ScalarType;
 use Skrz\Meta\Reflection\Type;
+use Skrz\Meta\Stack;
+use Skrz\Meta\Transient;
 
 class PhpModule extends AbstractModule
 {
@@ -45,11 +48,11 @@ class PhpModule extends AbstractModule
 	public function onBeforeGenerate(AbstractMetaSpec $spec, MetaSpecMatcher $matcher, Type $type)
 	{
 		foreach ($type->getProperties() as $property) {
-			if ($property->hasAnnotation("Skrz\\Meta\\Transient")) {
+			if ($property->hasAnnotation(Transient::class)) {
 				continue;
 			}
 
-			if (get_class($property->getType()) === "Skrz\\Meta\\Reflection\\MixedType") {
+			if (get_class($property->getType()) === MixedType::class) {
 				throw new MetaException(
 					"Property {$type->getName()}::\${$property->getName()} of type mixed. " .
 					"Either add @var annotation with non-mixed type, " .
@@ -58,7 +61,7 @@ class PhpModule extends AbstractModule
 			}
 
 			$hasDefaultGroup = false;
-			foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $annotation) {
+			foreach ($property->getAnnotations(PhpArrayOffset::class) as $annotation) {
 				/** @var PhpArrayOffset $annotation */
 				if ($annotation->group === PhpArrayOffset::DEFAULT_GROUP) {
 					$hasDefaultGroup = true;
@@ -93,14 +96,14 @@ class PhpModule extends AbstractModule
 
 		$ns = $class->getNamespace();
 
-		$ns->addUse("Skrz\\Meta\\PHP\\PhpMetaInterface");
+		$ns->addUse(PhpMetaInterface::class);
 		$ns->addUse($type->getName(), null, $typeAlias);
-		$ns->addUse("Skrz\\Meta\\Stack", null, $stackAlias);
-		$class->addImplement("Skrz\\Meta\\PHP\\PhpMetaInterface");
+		$ns->addUse(Stack::class, null, $stackAlias);
+		$class->addImplement(PhpMetaInterface::class);
 
 		// get groups
 		foreach ($type->getProperties() as $property) {
-			foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
+			foreach ($property->getAnnotations(PhpArrayOffset::class) as $arrayOffset) {
 				/** @var PhpArrayOffset $arrayOffset */
 				if (!isset($groups[$arrayOffset->group])) {
 					$groups[$arrayOffset->group] = 1 << $i++;
@@ -113,7 +116,7 @@ class PhpModule extends AbstractModule
 		$discriminatorClassMap = array();
 		$discriminatorMetaMap = array();
 
-		foreach ($type->getAnnotations("Skrz\\Meta\\PHP\\PhpDiscriminatorOffset") as $discriminatorOffset) {
+		foreach ($type->getAnnotations(PhpDiscriminatorOffset::class) as $discriminatorOffset) {
 			/** @var PhpDiscriminatorOffset $discriminatorOffset */
 
 			if (!isset($groups[$discriminatorOffset->group])) {
@@ -123,7 +126,7 @@ class PhpModule extends AbstractModule
 			$discriminatorOffsetMap[$groups[$discriminatorOffset->group]] = $discriminatorOffset->offset;
 		}
 
-		foreach ($type->getAnnotations("Skrz\\Meta\\PHP\\PhpDiscriminatorMap") as $discriminatorMap) {
+		foreach ($type->getAnnotations(PhpDiscriminatorMap::class) as $discriminatorMap) {
 			/** @var PhpDiscriminatorMap $discriminatorMap */
 
 			if (!isset($groups[$discriminatorMap->group])) {
@@ -150,10 +153,9 @@ class PhpModule extends AbstractModule
 
 		// add groups property
 		$groupsProperty = $class->addProperty("groups");
-		$groupsProperty->setStatic(true)->setValue($groups)->setVisibility("private");
-		$groupsProperty
-			->addComment("Mapping from group name to group ID for fromArray() and toArray()")
-			->addComment("")
+		$groupsProperty->setStatic(true)
+			->setValue($groups)
+			->setVisibility("private")
 			->addComment("@var string[]");
 
 		// create input/output type hint
@@ -246,10 +248,10 @@ class PhpModule extends AbstractModule
 				->addBody("}")
 				->addBody("")
 				->addBody("if (self::\${$fromProperty->getName()} === null) {")
-				->addBody("\tself::\${$fromProperty->getName()} = {$closureAlias}::bind(function (\$input, \$group, \$object, \$id) {");
+				->addBody("\tself::\${$fromProperty->getName()} = {$closureAlias}::bind(static function (\$input, \$group, \$object, \$id) {");
 
 			foreach ($type->getProperties() as $property) {
-				foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
+				foreach ($property->getAnnotations(PhpArrayOffset::class) as $arrayOffset) {
 					/** @var PhpArrayOffset $arrayOffset */
 					$groupId = $groups[$arrayOffset->group];
 					$arrayKey = var_export($arrayOffset->offset, true);
@@ -406,7 +408,7 @@ class PhpModule extends AbstractModule
 
 			$to
 				->addBody("if (self::\${$toProperty->getName()} === null) {")
-				->addBody("\tself::\${$toProperty->getName()} = {$closureAlias}::bind(function (\$object, \$group, \$filter, \$id) {")
+				->addBody("\tself::\${$toProperty->getName()} = {$closureAlias}::bind(static function (\$object, \$group, \$filter, \$id) {")
 				->addBody("\t\tif ({$stackAlias}::\$objects === null) {")
 				->addBody("\t\t\t{$stackAlias}::\$objects = new \\SplObjectStorage();")
 				->addBody("\t\t}")
@@ -423,7 +425,7 @@ class PhpModule extends AbstractModule
 			foreach ($type->getProperties() as $property) {
 				$propertyGroups = [];
 
-				foreach ($property->getAnnotations("Skrz\\Meta\\PHP\\PhpArrayOffset") as $arrayOffset) {
+				foreach ($property->getAnnotations(PhpArrayOffset::class) as $arrayOffset) {
 					if (isset($propertyGroups[$arrayOffset->group])) {
 						continue;
 					}
