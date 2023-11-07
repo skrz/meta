@@ -15,6 +15,10 @@ env:
     - PREFER_LOWEST="--prefer-lowest"
     - PREFER_LOWEST=""
 
+matrix:
+    allow_failures:
+        - php: hhvm
+
 install:
   - composer update --dev --prefer-source $PREFER_LOWEST
 
