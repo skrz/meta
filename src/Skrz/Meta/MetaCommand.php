@@ -35,7 +35,7 @@ class MetaCommand extends Command
 			);
 	}
 
-	protected function execute(InputInterface $input, OutputInterface $output)
+	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
 		if (($specClassName = $input->getOption("spec")) === null) {
 			throw new \InvalidArgumentException("You have to specify --spec option.");
@@ -69,6 +69,8 @@ class MetaCommand extends Command
 		} else {
 			throw new \InvalidArgumentException("You have to specify either --file, or --directory option.");
 		}
+
+		return 0;
 	}
 
 }
